@@ -1,0 +1,1 @@
+(2) : error 437: functions in global scope must use braces

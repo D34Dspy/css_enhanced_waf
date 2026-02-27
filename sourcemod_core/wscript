@@ -1,0 +1,82 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+from waflib import Utils
+import os
+
+top = '.'
+PROJECT_NAME = 'sourcemodcore'
+
+import sys
+sys.path.append("..")
+from sourcemod_config import build_vars, configure_vars
+sys.path.append(f"./{PROJECT_NAME.replace('sourcemod', 'sourcemod_')}")
+
+def options(opt):
+	# stub
+	pass
+
+def configure(conf):
+	configure_vars(conf, PROJECT_NAME) # Todo specify Windows
+
+def build(bld):
+	source = [
+		'MenuStyle_Valve.cpp',
+		'logic_bridge.cpp',
+		'smn_entities.cpp',
+		'sm_stringutil.cpp',
+		'MenuVoting.cpp',
+		'smn_events.cpp',
+		'frame_hooks.cpp',
+		'smn_nextmap.cpp',
+		'sourcemm_api.cpp',
+		'ChatTriggers.cpp',
+		'smn_player.cpp',
+		'sourcemod.cpp',
+		'concmd_cleaner.cpp',
+		'HalfLife2.cpp',
+		'NextMap.cpp',
+		'ConCmdManager.cpp',
+		'ConVarManager.cpp',
+		'PlayerManager.cpp',
+		'TimerSys.cpp',
+		'CoreConfig.cpp',
+		'Logger.cpp',
+		'smn_halflife.cpp',
+		'smn_console.cpp',
+		'UserMessages.cpp',
+		'MenuManager.cpp',
+		'smn_hudtext.cpp',
+		'smn_usermsgs.cpp',
+		'MenuStyle_Base.cpp',
+		'smn_keyvalues.cpp',
+		'smn_vector.cpp',
+		'EventManager.cpp',
+		'MenuStyle_Radio.cpp',
+		'sm_autonatives.cpp',
+		'ConsoleDetours.cpp',
+		'smn_commandline.cpp',
+		'GameHooks.cpp',
+		'smn_bitbuffer.cpp',
+		# 'vprof_tool.cpp',
+		# '../sourcemod_base/smsdk_ext.cpp',
+	]
+
+	includes, defines, libs = [], [], []
+	build_vars(bld, includes, defines, libs, PROJECT_NAME) # Todo specify Windows
+
+	install_path = bld.env.LIBDIR
+
+	bld.shlib(
+		source   = source,
+		target   = PROJECT_NAME,
+		name     = PROJECT_NAME,
+		features = 'c cxx',
+		includes = includes,
+		defines  = defines,
+		use      = libs,
+		install_path = install_path,
+		subsystem = bld.env.MSVC_SUBSYSTEM,
+		idx      = bld.get_taskgen_count()
+	)
+

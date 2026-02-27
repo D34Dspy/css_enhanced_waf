@@ -1,0 +1,59 @@
+/**
+ * vim: set ts=4 :
+ * =============================================================================
+ * SourceMod Dynamic Hooks Extension
+ * Copyright (C) 2012-2021 AlliedModders LLC.  All rights reserved.
+ * =============================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, version 3.0, as published by the
+ * Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * As a special exception, AlliedModders LLC gives you permission to link the
+ * code of this program (as well as its derivative works) to "Half-Life 2," the
+ * "Source Engine," the "SourcePawn JIT," and any Game MODs that run on software
+ * by the Valve Corporation.  You must obey the GNU General Public License in
+ * all respects for all other code used.  Additionally, AlliedModders LLC grants
+ * this exception to all derivative works.  AlliedModders LLC defines further
+ * exceptions, found in LICENSE.txt (as of this writing, version JULY-31-2007),
+ * or <http://www.sourcemod.net/license.php>.
+ *
+ * Version: $Id$
+ */
+
+#ifndef _INCLUDE_SDK_HACKS_H_
+#define _INCLUDE_SDK_HACKS_H_
+
+class SDKVector
+{
+public:
+	SDKVector(float x1, float y1, float z1)
+	{
+		this->x = x1;
+		this->y = y1;
+		this->z = z1;
+	}
+	SDKVector(void)
+	{
+		this->x = 0.0;
+		this->y = 0.0;
+		this->z = 0.0;
+	}
+	float x;
+	float y;
+	float z;
+};
+#define NULL_STRING			castable_string_t()
+#define STRING( string_t_obj )	(string_t_obj).ToCStr()
+#define MAKE_STRING( c_str )	castable_string_t( c_str )
+
+
+#endif
