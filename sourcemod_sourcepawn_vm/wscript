@@ -1,0 +1,83 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+from waflib import Utils
+import os
+
+top = '.'
+PROJECT_NAME = 'sourcemodsourcepawnvm'
+
+import sys
+sys.path.append("..")
+from sourcemod_config import build_vars, configure_vars
+sys.path.append(f"./{PROJECT_NAME.replace('sourcemod', 'sourcemod_')}")
+
+
+def options(opt):
+	# stub
+	pass
+
+def configure(conf):
+	configure_vars(conf, PROJECT_NAME) # Todo specify Windows
+
+def build(bld):
+	source = [
+		'api.cpp',
+		'base-context.cpp',
+		'builtins.cpp',
+		'code-allocator.cpp',
+		'code-stubs.cpp',
+		'control-flow.cpp',
+		'compiled-function.cpp',
+		'debugging.cpp',
+		'debug-metadata.cpp',
+		'environment.cpp',
+		'file-utils.cpp',
+		'graph-builder.cpp',
+		'interpreter.cpp',
+		'md5/md5.cpp',
+		'method-info.cpp',
+		'method-verifier.cpp',
+		'opcodes.cpp',
+		'plugin-context.cpp',
+		'plugin-runtime.cpp',
+		'pool-allocator.cpp',
+		'rtti.cpp',
+		'runtime-helpers.cpp',
+		'scripted-invoker.cpp',
+		'smx-v1-image.cpp',
+		'stack-frames.cpp',
+		'watchdog_timer.cpp',
+		'dll_exports.cpp'
+	]
+
+	if bld.env.DEST_CPU in ['x86']:
+		source += 'x86/assembler-x86.cpp',
+		source += 'x86/code-stubs-x86.cpp',
+		source += 'x86/jit_x86.cpp',
+	elif bld.env.DEST_CPU in ['x86_64']:
+		source += 'x64/assembler-x64.cpp',
+		source += 'x64/code-stubs-x64.cpp',
+		source += 'x64/macro-assembler-x64.cpp',
+	else:
+		raise Exception('no assembler for sourcepawn vm')
+
+	includes, defines, libs = [], [], []
+	build_vars(bld, includes, defines, libs, PROJECT_NAME) # Todo specify Windows
+
+	install_path = None if bld.env.BUILD_SDK else bld.env.LIBDIR
+
+	bld.shlib(
+		source   = source,
+		target   = PROJECT_NAME,
+		name     = PROJECT_NAME,
+		features = 'c cxx',
+		includes = includes,
+		defines  = defines,
+		use      = libs,
+		install_path = install_path,
+		cflags       = ['-fvisibility=default'], 
+		subsystem = bld.env.MSVC_SUBSYSTEM,
+		idx      = bld.get_taskgen_count()
+	)
+

@@ -1,0 +1,42 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+from waflib import Utils
+import os
+
+PROJECT_NAME = 'sourcemodcstrike'
+
+import sys
+sys.path.append("..")
+from sourcemod_config import build_vars, configure_vars
+sys.path.append(f"./{PROJECT_NAME.replace('sourcemod', 'sourcemod_')}")
+
+top = '.'
+
+def options(opt):
+	pass
+
+def configure(conf):
+	configure_vars(conf, PROJECT_NAME) # Todo specify Windows
+
+def build(bld):
+	source = ['timeleft.cpp', 'extension.cpp', 'RegNatives.cpp', 'natives.cpp', 'util_cstrike.cpp', 'forwards.cpp', 'rulesfix.cpp', '../sourcemod_CDetour/detours.cpp', '../public/sourcemod/smsdk_ext.cpp', '../sourcemod_base/source_engine_wrapper.cpp']
+
+	includes, defines, libs = [], [], []
+	build_vars(bld, includes, defines, libs, PROJECT_NAME) # Todo specify Windows
+
+	install_path = bld.env.LIBDIR
+
+	bld.shlib(
+		source   = source,
+		target   = PROJECT_NAME,
+		name     = PROJECT_NAME,
+		features = 'c cxx',
+		includes = includes,
+		defines  = defines,
+		use      = libs,
+		install_path = install_path,
+		subsystem = bld.env.MSVC_SUBSYSTEM,
+		idx      = bld.get_taskgen_count()
+	)
+

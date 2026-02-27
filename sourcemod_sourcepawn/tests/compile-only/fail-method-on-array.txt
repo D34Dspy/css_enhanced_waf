@@ -1,0 +1,1 @@
+(11) : error 096: could not find member "Close" in type "array"

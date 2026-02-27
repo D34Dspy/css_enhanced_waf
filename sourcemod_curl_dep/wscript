@@ -1,0 +1,180 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+from waflib import Utils
+import os
+
+top = '.'
+PROJECT_NAME = 'sourcemod_curl_dep'
+
+
+def options(opt):
+	# stub
+	pass
+
+def configure(conf):
+	conf.env.append_unique('DEFINES',[
+		'CURL_EXTERN=export'
+		'SE_BLOODYGOODTIME=4',
+		'SE_EYE=5',
+		'SE_EPISODEONE=1',
+		'SE_DEADLOCK=27',
+		'SE_DARKMESSIAH=2',
+		'SE_NUCLEARDAWN=14',
+		'SE_CONTAGION=15',
+		'SE_CS2=25',
+		'SE_DOTA=24',
+		'SE_PORTAL2=18',
+		'SE_DOI=21',
+		'SE_PVKII=10',
+		'SE_DODS=8',
+		'SE_BMS=11',
+		'SE_ALIENSWARM=17',
+		'SE_BLADE=19',
+		'SE_ORANGEBOX=3',
+		'SE_TF2=12',
+		'SE_SDK2013=9',
+		'SE_INSURGENCY=20',
+		'SE_CSGO=23',
+		'SE_MCV=22',
+		'SE_HL2DM=7',
+		'SE_LEFT4DEAD=13',
+		'SE_LEFT4DEAD2=16',
+		'SE_MOCK=26',
+		'SE_CSS=6',
+		'SOURCE_ENGINE_PVKII=27',
+		'SOURCE_ENGINE=6',
+
+		'V_snprintf=_snprintf',
+		'HOOKING_ENABLED',
+
+		'HAVE_STRING_H',
+		'HAVE_STDINT_H',
+
+		'SM_LOGIC',
+		'SMEXT_ENABLE_ADMINSYS',
+		'SMEXT_ENABLE_ADTFACTORY',
+		'SMEXT_ENABLE_DBMANAGER',
+		'SMEXT_ENABLE_FORWARDSYS',
+		'SMEXT_ENABLE_GAMECONF',
+		'SMEXT_ENABLE_GAMEHELPERS',
+		'SMEXT_ENABLE_HANDLESYS',
+		'SMEXT_ENABLE_LIBSYS',
+		'SMEXT_ENABLE_MEMUTILS',
+		'SMEXT_ENABLE_MENUS',
+		'SMEXT_ENABLE_PLAYERHELPERS',
+		'SMEXT_ENABLE_PLUGINSYS',
+		'SMEXT_ENABLE_ROOTCONSOLEMENU',
+		'SMEXT_ENABLE_TEXTPARSERS',
+		'SMEXT_ENABLE_THREADER',
+		'SMEXT_ENABLE_TIMERSYS',
+		'SMEXT_ENABLE_TRANSLATOR',
+		'SMEXT_ENABLE_USERMSGS',
+
+		# Windows only
+		# 'BUILDING_LIBCURL',
+		# 'CURL_STATICLIB',
+		# 'CURL_DISABLE_LDAP',
+		'CURL_EXTERN',
+		'BUILDING_LIBCURL',
+		'_GNU_SOURCE',
+	])
+	pass
+
+def build(bld):
+	source = [
+		# actual curl
+		'lib/base64.c',
+		'lib/connect.c',
+		'lib/content_encoding.c',
+		'lib/cookie.c',
+		'lib/curl_addrinfo.c',
+		'lib/dict.c',
+		'lib/easy.c',
+		'lib/escape.c',
+		'lib/file.c',
+		'lib/formdata.c',
+		'lib/ftp.c',
+		'lib/getenv.c',
+		'lib/getinfo.c',
+		'lib/gtls.c',
+		'lib/hash.c',
+		'lib/hostares.c',
+		'lib/hostasyn.c',
+		'lib/hostip.c',
+		'lib/hostip4.c',
+		'lib/hostip6.c',
+		'lib/hostsyn.c',
+		'lib/hostthre.c',
+		'lib/http.c',
+		'lib/http_chunks.c',
+		'lib/http_digest.c',
+		'lib/http_negotiate.c',
+		'lib/http_ntlm.c',
+		'lib/if2ip.c',
+		'lib/inet_ntop.c',
+		'lib/inet_pton.c',
+		'lib/krb4.c',
+		'lib/krb5.c',
+		'lib/ldap.c',
+		'lib/llist.c',
+		'lib/md5.c',
+		'lib/memdebug.c',
+		'lib/mprintf.c',
+		'lib/multi.c',
+		'lib/netrc.c',
+		'lib/nss.c',
+		'lib/parsedate.c',
+		'lib/progress.c',
+		'lib/qssl.c',
+		'lib/rawstr.c',
+		'lib/security.c',
+		'lib/select.c',
+		'lib/sendf.c',
+		'lib/share.c',
+		'lib/socks.c',
+		'lib/speedcheck.c',
+		'lib/splay.c',
+		'lib/ssh.c',
+		'lib/sslgen.c',
+		'lib/ssluse.c',
+		'lib/strdup.c',
+		'lib/strequal.c',
+		'lib/strerror.c',
+		'lib/strtok.c',
+		'lib/strtoofft.c',
+		'lib/telnet.c',
+		'lib/tftp.c',
+		'lib/timeval.c',
+		'lib/transfer.c',
+		'lib/url.c',
+		'lib/version.c',
+	]
+
+	includes = [
+		'.',
+		'./lib',
+		'./include',
+	]
+
+	defines = []
+
+	libs = []
+
+	install_path = bld.env.LIBDIR
+
+	bld.shlib(
+		source   = source,
+		target   = PROJECT_NAME,
+		name     = PROJECT_NAME,
+		features = 'c cxx',
+		includes = includes,
+		export_includes = 'include',
+		defines  = defines,
+		use      = libs,
+		install_path = install_path,
+        cflags       = ['-fvisibility=default'], 
+		subsystem = bld.env.MSVC_SUBSYSTEM,
+		idx      = bld.get_taskgen_count()
+	)
+
