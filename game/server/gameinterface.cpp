@@ -9,6 +9,7 @@
 #include "cbase.h"
 #include "gamestringpool.h"
 #include "ilagcompensationmanager.h"
+#include "interface.h"
 #include "mapentities_shared.h"
 #include "game.h"
 #include "entityapi.h"

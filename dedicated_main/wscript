@@ -17,7 +17,7 @@ def configure(conf):
 def build(bld):
 
 	source = ['main.cpp']
-	includes = ['../public', '../public/tier0']
+	includes = ['../public', '../public/sourcemod', '../public/tier0']
 	defines = []
 	libs = []
 

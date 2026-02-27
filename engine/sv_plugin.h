@@ -26,7 +26,7 @@ public:
 	~CPlugin();
 
 	const char *GetName();
-	bool Load( const char *fileName );
+	bool Load( const char *fileName, const char* pPathId = "GAME" );
 	void Unload();
 	void Disable( bool state );
 	bool IsDisabled() { return m_bDisable; }
@@ -58,7 +58,7 @@ public:
 	void LoadPlugins();
 	void UnloadPlugins();
 	bool UnloadPlugin( int index );
-	bool LoadPlugin( const char *fileName );
+	bool LoadPlugin( const char *fileName, const char* pPathId = "GAME" );
 
 	void DisablePlugins();
 	void DisablePlugin( int index );

@@ -687,6 +687,11 @@ public:
 abstract_class IServerGameClients
 {
 public:
+	inline int GetMaxHumanPlayers() { // SOURCE MOD COMPAT
+		int minplayers, maxplayers, defaultMaxPlayers;
+		GetPlayerLimits(minplayers,maxplayers,defaultMaxPlayers);
+		return maxplayers;
+	}
 	// Get server maxplayers and lower bound for same
 	virtual void			GetPlayerLimits( int& minplayers, int& maxplayers, int &defaultMaxPlayers ) const = 0;
 

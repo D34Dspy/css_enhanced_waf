@@ -8,7 +8,9 @@
 #ifndef BASETYPES_H
 #define BASETYPES_H
 
+#ifndef COMMONMACROS_H
 #include "commonmacros.h"
+#endif
 #include "wchartypes.h"
 
 #include "tier0/valve_off.h"

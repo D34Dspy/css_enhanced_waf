@@ -196,6 +196,9 @@ public:
 	// Used by CSteamApplication to set up necessary pointers if we can't do it in the constructor
 	void Setup( IFileSystem *pFileSystem, CAppSystemGroup *pParentAppSystem );
 
+	// Let's just make it public
+	virtual CSysModule *LoadModuleDLL( const char *pDLLName );
+
 protected:
 	// Sets up the search paths
 	bool SetupSearchPaths( const char *pStartingDir, bool bOnlyUseStartingDir, bool bIsTool );
@@ -204,8 +207,6 @@ protected:
 	const char *GetGameInfoPath() const;
 
 private:
-	virtual CSysModule *LoadModuleDLL( const char *pDLLName );
-
 	IFileSystem *m_pFileSystem;
 	char m_pGameInfoPath[ MAX_PATH ];
 };

@@ -201,6 +201,7 @@ bool Sys_LoadInterface(
 	void **pOutInterface );
 
 bool Sys_IsDebuggerPresent();
+HMODULE Sys_LoadLibrary(const char* fname);
 
 //-----------------------------------------------------------------------------
 // Purpose: Place this as a singleton at module scope (e.g.) and use it to get the factory from the specified module name.  
