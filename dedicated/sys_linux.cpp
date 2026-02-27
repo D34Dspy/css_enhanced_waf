@@ -256,6 +256,7 @@ void CSys::DestroyConsoleWindow( void )
 GameInit
 ================
 */
+#include "sys_sourcemod.h"
 bool CSys::LoadModules( CDedicatedAppSystemGroup *pAppSystemGroup )
 {
 	AppSystemInfo_t appSystems[] = 
@@ -281,7 +282,7 @@ bool CSys::LoadModules( CDedicatedAppSystemGroup *pAppSystemGroup )
 
 	IMaterialSystem* pMaterialSystem = (IMaterialSystem*)pAppSystemGroup->FindSystem( MATERIAL_SYSTEM_INTERFACE_VERSION );
 	pMaterialSystem->SetShaderAPI( "shaderapiempty" DLL_EXT_STRING );	
-	return true;
+	return SM_OnLoad(pAppSystemGroup);
 }
 
 bool NET_Init()

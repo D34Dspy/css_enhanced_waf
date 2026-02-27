@@ -76,7 +76,7 @@ CPlugin::~CPlugin()
 //---------------------------------------------------------------------------------
 // Purpose: loads and initializes a plugin
 //---------------------------------------------------------------------------------
-bool CPlugin::Load( const char *fileName )
+bool CPlugin::Load( const char *fileName, const char* pPathId )
 {
 	if ( IsX360() )
 	{
@@ -93,10 +93,10 @@ bool CPlugin::Load( const char *fileName )
 		return false;
 #endif
 	// Only allow unsigned plugins in -insecure mode
-	if ( !Host_AllowLoadModule( fixedFileName, "GAME", false ) )
+	if ( !Host_AllowLoadModule( fixedFileName, pPathId, false ) )
 		return false;
 
-	m_pPluginModule = g_pFileSystem->LoadModule( fixedFileName, "GAME", false );
+	m_pPluginModule = g_pFileSystem->LoadModule( fixedFileName, pPathId, false );
 	if ( m_pPluginModule )
 	{
 		CreateInterfaceFn pluginFactory = Sys_GetFactory( m_pPluginModule );
@@ -261,6 +261,10 @@ void CServerPlugin::LoadPlugins()
 
 	CreateInterfaceFn gameServerFactory = Sys_GetFactory( g_GameDLL );
 	m_PluginHelperCheck = (IPluginHelpersCheck *)gameServerFactory( INTERFACEVERSION_PLUGINHELPERSCHECK, NULL );
+
+	// automagically load metamod.
+	if(!LoadPlugin("sourcemodmetamodloader" DLL_EXT_STRING, "EXECUTABLE_PATH"))
+		*(int*)0 = 0;
 }
 
 //---------------------------------------------------------------------------------
@@ -292,10 +296,10 @@ bool CServerPlugin::UnloadPlugin( int index )
 //---------------------------------------------------------------------------------
 // Purpose: loads a particular dll
 //---------------------------------------------------------------------------------
-bool CServerPlugin::LoadPlugin( const char *fileName )
+bool CServerPlugin::LoadPlugin( const char *fileName, const char* pPathId )
 {
 	CPlugin *plugin = new CPlugin();
-	if ( plugin->Load( fileName ) )
+	if ( plugin->Load( fileName, pPathId ) )
 	{
 		m_Plugins.AddToTail( plugin );
 		return true;

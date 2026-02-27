@@ -260,6 +260,7 @@ void CSys::DestroyConsoleWindow( void )
 //-----------------------------------------------------------------------------
 // Loading modules used by the dedicated server.
 //-----------------------------------------------------------------------------
+#include "sys_sourcemod.h"
 bool CSys::LoadModules( CDedicatedAppSystemGroup *pAppSystemGroup )
 {
 	AppSystemInfo_t appSystems[] = 
@@ -285,7 +286,7 @@ bool CSys::LoadModules( CDedicatedAppSystemGroup *pAppSystemGroup )
 
 	IMaterialSystem* pMaterialSystem = (IMaterialSystem*)pAppSystemGroup->FindSystem( MATERIAL_SYSTEM_INTERFACE_VERSION );
 	pMaterialSystem->SetShaderAPI( "shaderapiempty.dll" );
-	return true;
+	return SM_OnLoad(pAppSystemGroup);
 }
 
 

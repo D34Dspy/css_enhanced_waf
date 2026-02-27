@@ -19,6 +19,7 @@ def configure(conf):
 def build(bld):
 	source = [
 		'filesystem.cpp',
+		'sys_sourcemod.cpp',
 		'../public/filesystem_init.cpp',
 		'../common/netapi.cpp',
 		'../common/SteamAppStartup.cpp',
@@ -54,7 +55,14 @@ def build(bld):
 
 	includes = [
 		'.',
+		'../sourcemod_metamod_core',
+		'../sourcemod_logic',
 		'../public',
+		'../public/sourcemod',
+		'../public/sourcemod/amtl',
+		'../public/sourcemod/amtl/amtl',
+		'../sourcemod_sourcepawn/include',
+		'../sourcemod_bridge',
 		'../public/tier0',
 		'../public/tier1',
 		'../common'
