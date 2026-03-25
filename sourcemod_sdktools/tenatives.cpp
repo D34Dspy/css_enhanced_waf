@@ -33,6 +33,8 @@
 #include "CellRecipientFilter.h"
 #include <IForwardSys.h>
 
+#include "glue.hpp"
+
 SH_DECL_HOOK5_void(IVEngineServer, PlaybackTempEntity, SH_NOATTRIB, 0, IRecipientFilter &, float, const void *, const SendTable *, int);
 
 CellRecipientFilter g_TERecFilter;

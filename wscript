@@ -145,7 +145,28 @@ projects={
 		'vpklib',
 		'vstdlib',
 		'vtf',
-		'stub_steam'
+		'stub_steam',
+
+		'sourcemod_glue',
+		'sourcemod_curl_dep',
+		'sourcemod_core',
+		'sourcemod_logic',
+		'sourcemod_cstrike',
+		'sourcemod_sqlite',
+		'sourcemod_curl',
+		'sourcemod_sdktools',
+		'sourcemod_bintools',
+		'sourcemod_clientprefs',
+		'sourcemod_regex',
+		'sourcemod_topmenus',
+		'sourcemod_structs',
+		'sourcemod_geoip',
+		'sourcemod_sdkhooks',
+		'sourcemod_metamod_core',
+		'sourcemod_metamod_loader',
+		'sourcemod_metamod_versionlib',
+		'sourcemod_dhooks',
+		'sourcemod_sourcepawn_vm',
 	]
 }
 
@@ -293,6 +314,9 @@ def options(opt):
 
 	grp.add_option('-d', '--dedicated', action = 'store_true', dest = 'DEDICATED', default = False,
 		help = 'build dedicated server [default: %(default)r]')
+
+	grp.add_option('-sm', '--sourcemod', action = 'store_true', dest = 'SOURCEMOD', default = False,
+		help = 'build sourcemod [default: %(default)r]')
 
 	grp.add_option('--tests', action = 'store_true', dest = 'TESTS', default = False,
 		help = 'build unit tests [default: %(default)r]')
@@ -631,6 +655,27 @@ def configure(conf):
 		conf.env.CC.insert(0, 'ccache')
 		conf.env.CXX.insert(0, 'ccache')
 
+	if conf.options.SOURCEMOD and conf.options.DEDICATED:
+		conf.add_subproject('sourcemod_glue')
+		conf.add_subproject('sourcemod_core')
+		conf.add_subproject('sourcemod_logic')
+		conf.add_subproject('sourcemod_cstrike')
+		conf.add_subproject('sourcemod_curl_dep')
+		conf.add_subproject('sourcemod_curl')
+		conf.add_subproject('sourcemod_sdktools')
+		conf.add_subproject('sourcemod_bintools')
+		conf.add_subproject('sourcemod_clientprefs')
+		conf.add_subproject('sourcemod_regex')
+		conf.add_subproject('sourcemod_topmenus')
+		conf.add_subproject('sourcemod_structs')
+		conf.add_subproject('sourcemod_geoip')
+		conf.add_subproject('sourcemod_sdkhooks')
+		conf.add_subproject('sourcemod_metamod_core')
+		conf.add_subproject('sourcemod_metamod_loader')
+		conf.add_subproject('sourcemod_metamod_versionlib')
+		conf.add_subproject('sourcemod_dhooks')
+		conf.add_subproject('sourcemod_sqlite')
+
 	if conf.options.TESTS:
 		conf.add_subproject(projects['tests'])
 	elif conf.options.DEDICATED:
@@ -640,6 +685,27 @@ def configure(conf):
 
 def build(bld):
 	os.environ["CCACHE_DIR"] = os.path.abspath('.ccache/'+bld.env.COMPILER_CC+'/'+bld.env.DEST_OS+'/'+bld.env.DEST_CPU)
+
+	if bld.options.SOURCEMOD and bld.env.DEDICATED:
+		bld.add_subproject('sourcemod_glue')
+		bld.add_subproject('sourcemod_core')
+		bld.add_subproject('sourcemod_logic')
+		bld.add_subproject('sourcemod_cstrike')
+		bld.add_subproject('sourcemod_curl_dep')
+		bld.add_subproject('sourcemod_curl')
+		bld.add_subproject('sourcemod_sdktools')
+		bld.add_subproject('sourcemod_clientprefs')
+		bld.add_subproject('sourcemod_regex')
+		bld.add_subproject('sourcemod_topmenus')
+		bld.add_subproject('sourcemod_structs')
+		bld.add_subproject('sourcemod_geoip')
+		bld.add_subproject('sourcemod_sdkhooks')
+		bld.add_subproject('sourcemod_metamod_core')
+		bld.add_subproject('sourcemod_metamod_loader')
+		bld.add_subproject('sourcemod_metamod_versionlib')
+		bld.add_subproject('sourcemod_dhooks')
+		bld.add_subproject('sourcemod_sourcepawn_vm')
+		bld.add_subproject('sourcemod_sqlite')
 
 	if bld.env.DEST_OS in ['win32', 'android']:
 		sdl_name = 'SDL2.dll' if bld.env.DEST_OS == 'win32' else 'libSDL2.so'

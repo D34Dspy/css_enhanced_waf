@@ -31,6 +31,13 @@
  */
 
 #include <sourcemod_version.h>
+#include "eiface.h"
+#include "cbase.h"
+#include "player.h"
+#include "gamerules.h"
+#include "entitylist.h"
+#include "basemultiplayerplayer.h"
+#include "engine/server.h"
 #include "extension.h"
 #include "compat_wrappers.h"
 #include "macros.h"
@@ -38,6 +45,11 @@
 #include <sm_platform.h>
 #include <const.h>
 #include <IBinTools.h>
+
+#include "glue.hpp"
+#include "smsdk_ext.h"
+#include "takedamageinfo.h"
+#include "takedamageinfohack.h"
 
 //#define SDKHOOKSDEBUG
 
@@ -354,7 +366,9 @@ void SDKHooks::SDK_OnUnload()
 	// Remove left over hooks
 	Unhook(reinterpret_cast<SourcePawn::IPluginContext *>(NULL));
 
-	KILL_HOOK_IF_ACTIVE(g_hookOnLevelInit);
+	// KILL_HOOK_IF_ACTIVE(g_hookOnLevelInit);
+	SMGlue_RmHook4_IServerGameDLL__LevelInit(g_hookOnLevelInit, gamedll);
+	// SH_REMOVE_HOOK_ID_ALT(IServerGameDLL, LevelInit, g_hookOnLevelInit, false);
 
 #ifdef GAMEDESC_CAN_CHANGE
 	KILL_HOOK_IF_ACTIVE(g_hookOnGetGameDescription);
@@ -427,7 +441,10 @@ void SDKHooks::OnPluginUnloaded(IPlugin *plugin)
 
 	if (g_pOnLevelInit->GetFunctionCount() == 0)
 	{
-		KILL_HOOK_IF_ACTIVE(g_hookOnLevelInit);
+		// KILL_HOOK_IF_ACTIVE(g_hookOnLevelInit);
+		// SH_REMOVE_HOOK_ID_ALT(g_hookOnLevelInit);
+		// SH_REMOVE_HOOK_ID_ALT(IServerGameDLL, LevelInit, g_hookOnLevelInit, false);
+		SMGlue_RmHook4_IServerGameDLL__LevelInit(g_hookOnLevelInit, gamedll);
 	}
 
 #ifdef GAMEDESC_CAN_CHANGE
@@ -562,42 +579,42 @@ void SDKHooks::SetupHooks()
 	//			gamedata          pre    post
 	// (pre is not necessarily a prehook, just named without "Post" appeneded)
 
-	CHECKOFFSET(EndTouch,         true,  true);
-	CHECKOFFSET(FireBullets,      false, true);
-	CHECKOFFSET(GroundEntChanged, false, true);
-	CHECKOFFSET(OnTakeDamage,     true,  true);
-	CHECKOFFSET(OnTakeDamage_Alive,true, true);
-	CHECKOFFSET(PreThink,         true,  true);
-	CHECKOFFSET(PostThink,        true,  true);
-	CHECKOFFSET(Reload,           true,  true);
-	CHECKOFFSET(SetTransmit,      true,  false);
-	CHECKOFFSET(ShouldCollide,    true,  false);
-	CHECKOFFSET(Spawn,            true,  true);
-	CHECKOFFSET(StartTouch,       true,  true);
-	CHECKOFFSET(Think,            true,  true);
-	CHECKOFFSET(Touch,            true,  true);
-	CHECKOFFSET(TraceAttack,      true,  true);
-	CHECKOFFSET(Use,              true,  true);
-	CHECKOFFSET_W(CanSwitchTo,    true,  true);
-	CHECKOFFSET_W(CanUse,         true,  true);
-	CHECKOFFSET_W(Drop,           true,  true);
-	CHECKOFFSET_W(Equip,          true,  true);
-	CHECKOFFSET_W(Switch,         true,  true);
-	CHECKOFFSET(VPhysicsUpdate,   true,  true);
-	CHECKOFFSET(Blocked,          true,  true);
-	CHECKOFFSET(CanBeAutobalanced, true, false);
+	// CHECKOFFSET(EndTouch,         true,  true);
+	// CHECKOFFSET(FireBullets,      false, true);
+	// CHECKOFFSET(GroundEntChanged, false, true);
+	// CHECKOFFSET(OnTakeDamage,     true,  true);
+	// CHECKOFFSET(OnTakeDamage_Alive,true, true);
+	// CHECKOFFSET(PreThink,         true,  true);
+	// CHECKOFFSET(PostThink,        true,  true);
+	// // CHECKOFFSET(Reload,           true,  true);
+	// CHECKOFFSET(SetTransmit,      true,  false);
+	// CHECKOFFSET(ShouldCollide,    true,  false);
+	// CHECKOFFSET(Spawn,            true,  true);
+	// // CHECKOFFSET(StartTouch,       true,  true);
+	// CHECKOFFSET(Think,            true,  true);
+	// CHECKOFFSET(Touch,            true,  true);
+	// CHECKOFFSET(TraceAttack,      true,  true);
+	// CHECKOFFSET(Use,              true,  true);
+	// CHECKOFFSET_W(CanSwitchTo,    true,  true);
+	// // CHECKOFFSET_W(CanUse,         true,  true);
+	// CHECKOFFSET_W(Drop,           true,  true);
+	// CHECKOFFSET_W(Equip,          true,  true);
+	// CHECKOFFSET_W(Switch,         true,  true);
+	// CHECKOFFSET(VPhysicsUpdate,   true,  true);
+	// CHECKOFFSET(Blocked,          true,  true);
+	// CHECKOFFSET(CanBeAutobalanced, true, false);
 
 	// this one is in a class all its own -_-
-	offset = 0;
-	g_pGameConf->GetOffset("GroundEntChanged", &offset);
-	if (offset > 0)
-	{
-		SH_MANUALHOOK_RECONFIGURE(GroundEntChanged, offset, 0, 0);
-		g_HookTypes[SDKHook_GroundEntChangedPost].supported = true;
-	}
+	// offset = 0;
+	// g_pGameConf->GetOffset("GroundEntChanged", &offset);
+	// if (offset > 0)
+	// {
+		// SH_MANUALHOOK_RECONFIGURE(GroundEntChanged, offset, 0, 0);
+		// g_HookTypes[SDKHook_GroundEntChangedPost].supported = true;
+	// }
 
 #ifdef GETMAXHEALTH_IS_VIRTUAL
-	CHECKOFFSET(GetMaxHealth,	true,	false);
+	// CHECKOFFSET(GetMaxHealth,	true,	false);
 #endif
 }
 
@@ -643,138 +660,138 @@ HookReturn SDKHooks::Hook(int entity, SDKHookType type, IPluginFunction *callbac
 		switch(type)
 		{
 			case SDKHook_EndTouch:
-				hookid = SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_EndTouch), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(EndTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_EndTouch), false, 1);
 				break;
 			case SDKHook_EndTouchPost:
-				hookid = SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_EndTouchPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(EndTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_EndTouchPost), true, 1);
 				break;
 			case SDKHook_FireBulletsPost:
-				hookid = SH_ADD_MANUALVPHOOK(FireBullets, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_FireBulletsPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(FireBullets, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_FireBulletsPost), true, 1);
 				break;
 #ifdef GETMAXHEALTH_IS_VIRTUAL
 			case SDKHook_GetMaxHealth:
-				hookid = SH_ADD_MANUALVPHOOK(GetMaxHealth, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_GetMaxHealth), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(GetMaxHealth, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_GetMaxHealth), false, 0);
 				break;
 #endif
 			case SDKHook_GroundEntChangedPost:
-				hookid = SH_ADD_MANUALVPHOOK(GroundEntChanged, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_GroundEntChangedPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(GroundEntChanged, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_GroundEntChangedPost), true, 1);
 				break;
 			case SDKHook_OnTakeDamage:
-				hookid = SH_ADD_MANUALVPHOOK(OnTakeDamage, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamage), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(OnTakeDamage, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamage), false, 1);
 				break;
 			case SDKHook_OnTakeDamagePost:
-				hookid = SH_ADD_MANUALVPHOOK(OnTakeDamage, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamagePost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(OnTakeDamage, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamagePost), true, 1);
 				break;
 			case SDKHook_OnTakeDamage_Alive:
-				hookid = SH_ADD_MANUALVPHOOK(OnTakeDamage_Alive, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamage_Alive), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(OnTakeDamage_Alive, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamage_Alive), false, 1);
 				break;
 			case SDKHook_OnTakeDamage_AlivePost:
-				hookid = SH_ADD_MANUALVPHOOK(OnTakeDamage_Alive, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamage_AlivePost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(OnTakeDamage_Alive, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamage_AlivePost), true, 1);
 				break;
 			case SDKHook_PreThink:
-				hookid = SH_ADD_MANUALVPHOOK(PreThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PreThink), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(PreThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PreThink), false, 0);
 				break;
 			case SDKHook_PreThinkPost:
-				hookid = SH_ADD_MANUALVPHOOK(PreThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PreThinkPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(PreThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PreThinkPost), true, 0);
 				break;
 			case SDKHook_PostThink:
-				hookid = SH_ADD_MANUALVPHOOK(PostThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PostThink), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(PostThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PostThink), false, 0);
 				break;
 			case SDKHook_PostThinkPost:
-				hookid = SH_ADD_MANUALVPHOOK(PostThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PostThinkPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(PostThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PostThinkPost), true, 0);
 				break;
 			case SDKHook_Reload:
-				hookid = SH_ADD_MANUALVPHOOK(Reload, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Reload), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Reload, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Reload), false, 0);
 				break;
 			case SDKHook_ReloadPost:
-				hookid = SH_ADD_MANUALVPHOOK(Reload, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_ReloadPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Reload, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_ReloadPost), true, 0);
 				break;
 			case SDKHook_SetTransmit:
-				hookid = SH_ADD_MANUALVPHOOK(SetTransmit, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_SetTransmit), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(SetTransmit, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_SetTransmit), false, 2);
 				break;
 			case SDKHook_Spawn:
-				hookid = SH_ADD_MANUALVPHOOK(Spawn, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Spawn), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Spawn, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Spawn), false, 0);
 				break;
 			case SDKHook_SpawnPost:
-				hookid = SH_ADD_MANUALVPHOOK(Spawn, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_SpawnPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Spawn, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_SpawnPost), true, 0);
 				break;
 			case SDKHook_StartTouch:
-				hookid = SH_ADD_MANUALVPHOOK(StartTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_StartTouch), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(StartTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_StartTouch), false, 1);
 				break;
 			case SDKHook_StartTouchPost:
-				hookid = SH_ADD_MANUALVPHOOK(StartTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_StartTouchPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(StartTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_StartTouchPost), true, 1);
 				break;
 			case SDKHook_Think:
-				hookid = SH_ADD_MANUALVPHOOK(Think, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Think), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Think, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Think), false, 0);
 				break;
 			case SDKHook_ThinkPost:
-				hookid = SH_ADD_MANUALVPHOOK(Think, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_ThinkPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Think, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_ThinkPost), true, 0);
 				break;
 			case SDKHook_Touch:
-				hookid = SH_ADD_MANUALVPHOOK(Touch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Touch), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Touch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Touch), false, 1);
 				break;
 			case SDKHook_TouchPost:
-				hookid = SH_ADD_MANUALVPHOOK(Touch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_TouchPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Touch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_TouchPost), true, 1);
 				break;
 			case SDKHook_TraceAttack:
-				hookid = SH_ADD_MANUALVPHOOK(TraceAttack, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_TraceAttack), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(TraceAttack, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_TraceAttack), false, 4);
 				break;
 			case SDKHook_TraceAttackPost:
-				hookid = SH_ADD_MANUALVPHOOK(TraceAttack, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_TraceAttackPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(TraceAttack, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_TraceAttackPost), true, 4);
 				break;
 			case SDKHook_Use:
-				hookid = SH_ADD_MANUALVPHOOK(Use, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Use), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Use, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Use), false, 4);
 				break;
 			case SDKHook_UsePost:
-				hookid = SH_ADD_MANUALVPHOOK(Use, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_UsePost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Use, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_UsePost), true, 4);
 				break;
 			case SDKHook_VPhysicsUpdate:
-				hookid = SH_ADD_MANUALVPHOOK(VPhysicsUpdate, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_VPhysicsUpdate), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(VPhysicsUpdate, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_VPhysicsUpdate), false, 1);
 				break;
 			case SDKHook_VPhysicsUpdatePost:
-				hookid = SH_ADD_MANUALVPHOOK(VPhysicsUpdate, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_VPhysicsUpdatePost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(VPhysicsUpdate, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_VPhysicsUpdatePost), true, 1);
 				break;
 			case SDKHook_WeaponCanSwitchTo:
-				hookid = SH_ADD_MANUALVPHOOK(Weapon_CanSwitchTo, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanSwitchTo), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_CanSwitchTo, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanSwitchTo), false, 1);
 				break;
 			case SDKHook_WeaponCanSwitchToPost:
-				hookid = SH_ADD_MANUALVPHOOK(Weapon_CanSwitchTo, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanSwitchToPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_CanSwitchTo, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanSwitchToPost), true, 1);
 				break;
 			case SDKHook_WeaponCanUse:
-				hookid = SH_ADD_MANUALVPHOOK(Weapon_CanUse, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanUse), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_CanUse, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanUse), false, 1);
 				break;
 			case SDKHook_WeaponCanUsePost:
-				hookid = SH_ADD_MANUALVPHOOK(Weapon_CanUse, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanUsePost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_CanUse, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanUsePost), true, 1);
 				break;
 			case SDKHook_WeaponDrop:
-				hookid = SH_ADD_MANUALVPHOOK(Weapon_Drop, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponDrop), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Drop, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponDrop), false, 3);
 				break;
 			case SDKHook_WeaponDropPost:
-				hookid = SH_ADD_MANUALVPHOOK(Weapon_Drop, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponDropPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Drop, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponDropPost), true, 3);
 				break;
 			case SDKHook_WeaponEquip:
-				hookid = SH_ADD_MANUALVPHOOK(Weapon_Equip, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponEquip), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Equip, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponEquip), false, 1);
 				break;
 			case SDKHook_WeaponEquipPost:
-				hookid = SH_ADD_MANUALVPHOOK(Weapon_Equip, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponEquipPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Equip, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponEquipPost), true, 1);
 				break;
 			case SDKHook_WeaponSwitch:
-				hookid = SH_ADD_MANUALVPHOOK(Weapon_Switch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponSwitch), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Switch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponSwitch), false, 2);
 				break;
 			case SDKHook_WeaponSwitchPost:
-				hookid = SH_ADD_MANUALVPHOOK(Weapon_Switch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponSwitchPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Switch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponSwitchPost), true, 2);
 				break;
 			case SDKHook_ShouldCollide:
-				hookid = SH_ADD_MANUALVPHOOK(ShouldCollide, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_ShouldCollide), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(ShouldCollide, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_ShouldCollide), true, 2);
 				break;
 			case SDKHook_Blocked:
-				hookid = SH_ADD_MANUALVPHOOK(Blocked, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Blocked), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(Blocked, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Blocked), false, 1);
 				break;
 			case SDKHook_BlockedPost:
-				hookid = SH_ADD_MANUALVPHOOK(Blocked, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_BlockedPost), true);
+				hookid = SH_ADD_MANUALVPHOOK_N(Blocked, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_BlockedPost), true, 1);
 				break;
 			case SDKHook_CanBeAutobalanced:
-				hookid = SH_ADD_MANUALVPHOOK(CanBeAutobalanced, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_CanBeAutobalanced), false);
+				hookid = SH_ADD_MANUALVPHOOK_N(CanBeAutobalanced, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_CanBeAutobalanced), false, 0);
 				break;
 		}
 
@@ -972,6 +989,9 @@ bool SDKHooks::Hook_LevelInit(char const *pMapName, char const *pMapEntities, ch
 bool SDKHooks::Hook_CanBeAutobalanced()
 {
 	CBaseEntity *pPlayer = META_IFACEPTR(CBaseEntity);
+	CBaseMultiplayerPlayer* pPlayer2 = pPlayer;
+	pPlayer2->CanBeAutobalanced();
+	
 
 	CVTableHook vhook(pPlayer);
 	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_CanBeAutobalanced];
@@ -984,7 +1004,9 @@ bool SDKHooks::Hook_CanBeAutobalanced()
 
 		int entity = gamehelpers->EntityToBCompatRef(pPlayer);
 
-		bool origRet = SH_MCALL(pPlayer, CanBeAutobalanced)();
+		
+		// bool origRet = SH_MCALL(pPlayer, CanBeAutobalanced)();
+		bool origRet = pPlayer2->CanBeAutobalancedOrig();
 		bool newRet = origRet;
 
 		std::vector<IPluginFunction *> callbackList;
@@ -1073,7 +1095,7 @@ void SDKHooks::Hook_FireBulletsPost(const FireBulletsInfo_t &info)
 int SDKHooks::Hook_GetMaxHealth()
 {
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
-	int original_max = SH_MCALL(pEntity, GetMaxHealth)();
+	int original_max = pEntity->GetMaxHealthOrig();
 
 	CVTableHook vhook(pEntity);
 	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_GetMaxHealth];
@@ -1125,9 +1147,13 @@ void SDKHooks::Hook_GroundEntChangedPost(void *pVar)
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_GroundEntChangedPost);
 }
 
-int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfoHack &info, SDKHookType hookType)
+CTakeDamageInfoHack& getcast(CTakeDamageInfo& info) {
+	return *(reinterpret_cast<CTakeDamageInfoHack*>(&info));
+}
+int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo &info2, SDKHookType hookType)
 {
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
+	CTakeDamageInfoHack& info = getcast(info2);
 
 	CVTableHook vhook(pEntity);
 	std::vector<CVTableList *> &vtablehooklist = g_HookList[hookType];
@@ -1216,8 +1242,9 @@ int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfoHack &info, SDKHookType hook
 	RETURN_META_VALUE(MRES_IGNORED, 0);
 }
 
-int SDKHooks::HandleOnTakeDamageHookPost(CTakeDamageInfoHack &info, SDKHookType hookType)
+int SDKHooks::HandleOnTakeDamageHookPost(CTakeDamageInfo &info2, SDKHookType hookType)
 {
+	CTakeDamageInfoHack& info = getcast(info2);
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
 
 	CVTableHook vhook(pEntity);
@@ -1262,22 +1289,23 @@ int SDKHooks::HandleOnTakeDamageHookPost(CTakeDamageInfoHack &info, SDKHookType 
 	RETURN_META_VALUE(MRES_IGNORED, 0);
 }
 
-int SDKHooks::Hook_OnTakeDamage(CTakeDamageInfoHack &info)
+
+int SDKHooks::Hook_OnTakeDamage(CTakeDamageInfo &info)
 {
-	return HandleOnTakeDamageHook(info, SDKHook_OnTakeDamage);
+	return HandleOnTakeDamageHook(getcast(info), SDKHook_OnTakeDamage);
 }
 
-int SDKHooks::Hook_OnTakeDamagePost(CTakeDamageInfoHack &info)
+int SDKHooks::Hook_OnTakeDamagePost(CTakeDamageInfo &info)
 {
-	return HandleOnTakeDamageHookPost(info, SDKHook_OnTakeDamagePost);
+	return HandleOnTakeDamageHookPost(getcast(info), SDKHook_OnTakeDamagePost);
 }
 
-int SDKHooks::Hook_OnTakeDamage_Alive(CTakeDamageInfoHack &info)
+int SDKHooks::Hook_OnTakeDamage_Alive(CTakeDamageInfo&info)
 {
-	return HandleOnTakeDamageHook(info, SDKHook_OnTakeDamage_Alive);
+	return HandleOnTakeDamageHook(getcast(info), SDKHook_OnTakeDamage_Alive);
 }
 
-int SDKHooks::Hook_OnTakeDamage_AlivePost(CTakeDamageInfoHack &info)
+int SDKHooks::Hook_OnTakeDamage_AlivePost(CTakeDamageInfo &info)
 {
 	return HandleOnTakeDamageHookPost(info, SDKHook_OnTakeDamage_AlivePost);
 }
@@ -1515,11 +1543,12 @@ void SDKHooks::Hook_TouchPost(CBaseEntity *pOther)
 
 #if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_PVKII
-void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator)
+void SDKHooks::Hook_TraceAttack(CTakeDamageInfo&info2,const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator)
 #else
 void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr)
 #endif
 {
+	auto& info = getcast(info2);
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
 
 	CVTableHook vhook(pEntity);
@@ -1596,11 +1625,12 @@ void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir,
 
 #if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_PVKII
-void SDKHooks::Hook_TraceAttackPost(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator)
+void SDKHooks::Hook_TraceAttackPost(CTakeDamageInfo&info2, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator)
 #else
 void SDKHooks::Hook_TraceAttackPost(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr)
 #endif
 {
+	auto& info = getcast(info2);
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
 
 	CVTableHook vhook(pEntity);

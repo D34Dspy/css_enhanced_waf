@@ -17,6 +17,9 @@
 #include "ihandleentity.h"
 
 
+#ifndef SM_CENTINFO_DEFINED
+// flag for source mod
+#define CENTINFO_DEFINED 
 class CEntInfo
 {
 public:
@@ -27,7 +30,7 @@ public:
 
 	void			ClearLinks();
 };
-
+#endif
 
 class CBaseEntityList
 {

@@ -88,6 +88,8 @@ IServerGameClients *gameclients = NULL;
 IMetamodSourceProvider *provider = &g_Ep1Provider;
 ConCommand meta_local_cmd("meta", LocalCommand_Meta, "Metamod:Source control options");
 
+#include "glue.hpp"
+
 #if SOURCE_ENGINE == SE_DOTA
 SH_DECL_HOOK2_void(IServerGameClients, ClientCommand, SH_NOATTRIB, 0, CEntityIndex, const CCommand &);
 #elif SOURCE_ENGINE >= SE_ORANGEBOX

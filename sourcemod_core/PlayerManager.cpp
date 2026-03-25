@@ -68,6 +68,8 @@ List<ICommandTargetProcessor *> target_processors;
 
 ConVar sm_debug_connect("sm_debug_connect", "1", 0, "Log Debug information about potential connection issues.");
 
+#include "glue.hpp"
+
 SH_DECL_HOOK5(IServerGameClients, ClientConnect, SH_NOATTRIB, 0, bool, edict_t *, const char *, const char *, char *, int);
 SH_DECL_HOOK2_void(IServerGameClients, ClientPutInServer, SH_NOATTRIB, 0, edict_t *, const char *);
 SH_DECL_HOOK1_void(IServerGameClients, ClientDisconnect, SH_NOATTRIB, 0, edict_t *);
@@ -91,7 +93,7 @@ SH_DECL_HOOK1_void(IServerGameDLL, SetServerHibernation, SH_NOATTRIB, 0, bool);
 #endif
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-SH_DECL_EXTERN1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
+SH_DECL_HOOK1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
 #else
 SH_DECL_EXTERN0_void(ConCommand, Dispatch, SH_NOATTRIB, false);
 #endif

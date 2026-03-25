@@ -7445,7 +7445,11 @@ bool CBasePlayer::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 //-----------------------------------------------------------------------------
 // Purpose: Override to clear dropped weapon from the hud
 //-----------------------------------------------------------------------------
-void CBasePlayer::Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget /* = NULL */, const Vector *pVelocity /* = NULL */ )
+void CBasePlayer::Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget /* = NULL */, const Vector *pVelocity /* = NULL */ ) {
+	return Weapon_DropOrig(pWeapon, pvecTarget, pVelocity);
+}
+
+void CBasePlayer::Weapon_DropOrig( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget /* = NULL */, const Vector *pVelocity /* = NULL */ )
 {
 	bool bWasActiveWeapon = false;
 	if ( pWeapon == GetActiveWeapon() )

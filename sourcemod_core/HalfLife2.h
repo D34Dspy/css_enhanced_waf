@@ -75,7 +75,7 @@ static const int ENTREF_MASK = (1 << 31);
 	|| SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_LEFT4DEAD2 || SOURCE_ENGINE == SE_NUCLEARDAWN \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_INSURGENCY || SOURCE_ENGINE == SE_DOI
 #define SOURCE_BIN_PREFIX "lib"
-#define SOURCE_BIN_SUFFIX "_srv"
+#define SOURCE_BIN_SUFFIX ""
 #elif SOURCE_ENGINE >= SE_LEFT4DEAD || SOURCE_ENGINE == SE_PVKII
 #define SOURCE_BIN_PREFIX "lib"
 #define SOURCE_BIN_SUFFIX ""
@@ -174,6 +174,8 @@ struct DelayedKickInfo
 };
 
 // copy from game/shared/entitylist_base.h
+#ifndef CENTINFO_DEFINED
+#define SM_CENTINFO_DEFINED
 class CEntInfo
 {
 public:
@@ -186,6 +188,7 @@ public:
 	string_t		m_iClassName;
 #endif
 };
+#endif
 
 // Corresponds to TF2's eFindMapResult in eiface.h
 // Not yet in other games, but eventually in others on same branch.

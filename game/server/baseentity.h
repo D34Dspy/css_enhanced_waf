@@ -916,6 +916,7 @@ public:
 
 	// returns the amount of damage inflicted
 	virtual int		OnTakeDamage( const CTakeDamageInfo &info );
+	virtual int		OnTakeDamageOrig( const CTakeDamageInfo &info );
 
 	// This is what you should call to apply damage to an entity.
 	void TakeDamage( const CTakeDamageInfo &info );
@@ -1096,6 +1097,7 @@ public:
 
 	// Health accessors.
 	virtual int		GetMaxHealth()  const	{ return m_iMaxHealth; }
+	virtual int		GetMaxHealthOrig()  const	{ return m_iMaxHealth; }
 	void	SetMaxHealth( int amt )	{ m_iMaxHealth = amt; }
 
 	int		GetHealth() const		{ return m_iHealth; }

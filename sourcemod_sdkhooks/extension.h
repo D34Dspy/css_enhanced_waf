@@ -1,6 +1,10 @@
 #ifndef _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_
 #define _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_
 
+#include "cbase.h"
+#include "player.h"
+#include "gamerules.h"
+#include "entitylist.h"
 #include "smsdk_ext.h"
 #include <ISDKHooks.h>
 #include <convar.h>
@@ -131,7 +135,9 @@ typedef void *(*ReticulateSplines)();
 
 class IPhysicsObject;
 class CDmgAccumulator;
+#ifndef COMBATWEAPON_SHARED_H
 typedef CBaseEntity CBaseCombatWeapon;
+#endif
 
 namespace SourceMod {
 	class IBinTools;
@@ -160,7 +166,7 @@ public:
 	std::vector<HookList> hooks;
 };
 
-class IEntityListener
+class IEntityListener2
 {
 public:
 #if SOURCE_ENGINE == SE_BMS
@@ -180,6 +186,7 @@ class SDKHooks :
 	public IConCommandBaseAccessor,
 	public IPluginsListener,
 	public IFeatureProvider,
+	public IEntityListener2,
 	public IEntityListener,
 	public IClientListener,
 	public ISDKHooks
@@ -320,10 +327,10 @@ public:
 	int Hook_GetMaxHealth();
 #endif
 	void Hook_GroundEntChangedPost(void *pVar);
-	int Hook_OnTakeDamage(CTakeDamageInfoHack &info);
-	int Hook_OnTakeDamagePost(CTakeDamageInfoHack &info);
-	int Hook_OnTakeDamage_Alive(CTakeDamageInfoHack &info);
-	int Hook_OnTakeDamage_AlivePost(CTakeDamageInfoHack &info);
+	int Hook_OnTakeDamage(CTakeDamageInfo &info);
+	int Hook_OnTakeDamagePost(CTakeDamageInfo &info);
+	int Hook_OnTakeDamage_Alive(CTakeDamageInfo &info);
+	int Hook_OnTakeDamage_AlivePost(CTakeDamageInfo &info);
 	void Hook_PreThink();
 	void Hook_PreThinkPost();
 	void Hook_PostThink();
@@ -342,11 +349,11 @@ public:
 	void Hook_TouchPost(CBaseEntity *pOther);
 #if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_PVKII
-	void Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
-	void Hook_TraceAttackPost(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
+	void Hook_TraceAttack(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
+	void Hook_TraceAttackPost(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
 #else
-	void Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr);
-	void Hook_TraceAttackPost(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr);
+	void Hook_TraceAttack(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr);
+	void Hook_TraceAttackPost(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr);
 #endif
 	void Hook_Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	void Hook_UsePost(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
@@ -372,8 +379,8 @@ private:
 	void Unhook(IPluginContext *pContext);
 
 private:
-	int HandleOnTakeDamageHook(CTakeDamageInfoHack &info, SDKHookType hookType);
-	int HandleOnTakeDamageHookPost(CTakeDamageInfoHack &info, SDKHookType hookType);
+	int HandleOnTakeDamageHook(CTakeDamageInfo &info, SDKHookType hookType);
+	int HandleOnTakeDamageHookPost(CTakeDamageInfo &info, SDKHookType hookType);
 
 private:
 	inline bool IsEntityIndexInRange(int i) { return i >= 0 && i < NUM_ENT_ENTRIES; }

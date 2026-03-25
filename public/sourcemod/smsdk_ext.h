@@ -285,7 +285,7 @@ extern IDBManager *dbi;
 extern IGameConfigManager *gameconfs;
 #endif //SMEXT_ENABLE_DBMANAGER
 #if defined SMEXT_ENABLE_MEMUTILS
-extern IMemoryUtils *memutils;
+extern IMemoryUtils *smmemutils;
 #endif
 #if defined SMEXT_ENABLE_GAMEHELPERS
 extern IGameHelpers *gamehelpers;

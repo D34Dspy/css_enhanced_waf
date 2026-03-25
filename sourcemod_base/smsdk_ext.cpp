@@ -63,7 +63,7 @@ IDBManager *dbi = NULL;					/**< DB Manager */
 IGameConfigManager *gameconfs = NULL;	/**< Game config manager */
 #endif //SMEXT_ENABLE_DBMANAGER
 #if defined SMEXT_ENABLE_MEMUTILS
-IMemoryUtils *memutils = NULL;
+IMemoryUtils *smmemutils = NULL;
 #endif //SMEXT_ENABLE_DBMANAGER
 #if defined SMEXT_ENABLE_GAMEHELPERS
 IGameHelpers *gamehelpers = NULL;

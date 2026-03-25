@@ -1349,8 +1349,11 @@ int CBaseEntity::TakeHealth( float flHealth, int bitsDamageType )
 }
 
 // inflict damage on this entity.  bitsDamageType indicates type of damage inflicted, ie: DMG_CRUSH
+int CBaseEntity::OnTakeDamage( const CTakeDamageInfo &info ) {
+	return OnTakeDamageOrig(info);
+}
 
-int CBaseEntity::OnTakeDamage( const CTakeDamageInfo &info )
+int CBaseEntity::OnTakeDamageOrig( const CTakeDamageInfo &info )
 {
 	Vector			vecTemp;
 

@@ -76,6 +76,8 @@ static bool FILE_used = false;
 static bool PVD_used = false;
 #endif
 
+#include "glue.hpp"
+
 SH_DECL_MANUALHOOK2_void(PlayerRunCmdHook, 0, 0, 0, CUserCmd *, IMoveHelper *);
 SH_DECL_HOOK2(IBaseFileSystem, FileExists, SH_NOATTRIB, 0, bool, const char*, const char *);
 #if (SOURCE_ENGINE >= SE_ALIENSWARM || SOURCE_ENGINE == SE_LEFT4DEAD || SOURCE_ENGINE == SE_LEFT4DEAD2)
@@ -105,7 +107,7 @@ void CHookManager::Initialize()
 	int offset;
 	if (g_pGameConf->GetOffset("PlayerRunCmd", &offset))
 	{
-		SH_MANUALHOOK_RECONFIGURE(PlayerRunCmdHook, offset, 0, 0);
+		// SH_MANUALHOOK_RECONFIGURE(PlayerRunCmdHook, offset, 0, 0);
 		PRCH_enabled = true;
 	}
 	else
@@ -260,7 +262,8 @@ void CHookManager::OnClientConnected(int client)
 		}
 	}
 	
-	int hookid = SH_ADD_VPHOOK(IClientMessageHandler, ProcessVoiceData, (IClientMessageHandler *)((intptr_t)(pClient) + sizeof(void *)), SH_MEMBER(this, &CHookManager::ProcessVoiceData), true);
+	auto msghandler = (IClientMessageHandler *)((intptr_t)(pClient) + sizeof(void *));
+	int hookid = SH_ADD_VPHOOK(IClientMessageHandler, ProcessVoiceData, msghandler, SH_MEMBER(this, &CHookManager::ProcessVoiceData), true);
 	hook.SetHookID(hookid);
 	netProcessVoiceData.push_back(new CVTableHook(hook));
 }
@@ -306,9 +309,11 @@ void CHookManager::PlayerRunCmdHook(int client, bool post)
 
 	int hookid;
 	if (post)
-		hookid = SH_ADD_MANUALVPHOOK(PlayerRunCmdHook, pEntity, SH_MEMBER(this, &CHookManager::PlayerRunCmdPost), true);
+		// hookid = SH_ADD_MANUALVPHOOK(PlayerRunCmdHook, pEntity, SH_MEMBER(this, &CHookManager::PlayerRunCmdPost), true);
+		hookid = SMGlue_MkHook4_P2__PlayerRunCmdHook(SH_MEMBER(this, &CHookManager::PlayerRunCmdPost), pEntity, true);
 	else
-		hookid = SH_ADD_MANUALVPHOOK(PlayerRunCmdHook, pEntity, SH_MEMBER(this, &CHookManager::PlayerRunCmd), false);
+		// hookid = SH_ADD_MANUALVPHOOK(PlayerRunCmdHook, pEntity, SH_MEMBER(this, &CHookManager::PlayerRunCmd), false);
+		hookid = SMGlue_MkHook4_P2__PlayerRunCmdHook(SH_MEMBER(this, &CHookManager::PlayerRunCmd), pEntity, false);
 
 	hook.SetHookID(hookid);
 	runUserCmdHookVec.push_back(new CVTableHook(hook));

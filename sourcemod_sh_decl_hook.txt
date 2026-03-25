@@ -1,0 +1,111 @@
+/home/god/projects/css_enhanced_clean/sourcemod_core/concmd_cleaner.cpp
+  42,4: // SH_DECL_HOOK1_void(ICvar, UnregisterConCommand, SH_NOATTRIB, 0, ConCommandBase *);
+  44,1: SH_DECL_HOOK2_void(ICvar, RegisterConCommand, SH_NOATTRIB, 0, ConCommandBase *, bool);
+  47,4: // SH_DECL_HOOK1_void(ICvar, RegisterConCommand, SH_NOATTRIB, 0, ConCommandBase *);
+  50,1: SH_DECL_HOOK1_void(ICvar, RegisterConCommandBase, SH_NOATTRIB, 0, ConCommandBase *);
+
+/home/god/projects/css_enhanced_clean/sourcemod_core/EventManager.cpp
+  41,1: SH_DECL_HOOK2(IGameEventManager2, FireEvent, SH_NOATTRIB, 0, bool, IGameEvent *, bool);
+
+/home/god/projects/css_enhanced_clean/sourcemod_core/GameHooks.cpp
+  34,1: SH_DECL_HOOK3_void(ICvar, CallGlobalChangeCallbacks, SH_NOATTRIB, false, ConVar *, const char *, float);
+  36,1: SH_DECL_HOOK2_void(ICvar, CallGlobalChangeCallback, SH_NOATTRIB, false, ConVar *, const char *);
+  40,1: SH_DECL_HOOK5_void(IServerGameDLL, OnQueryCvarValueFinished, SH_NOATTRIB, 0, QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *);
+  41,1: SH_DECL_HOOK5_void(IServerPluginCallbacks, OnQueryCvarValueFinished, SH_NOATTRIB, 0, QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *);
+  45,1: SH_DECL_HOOK1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
+  47,1: SH_DECL_HOOK0_void(ConCommand, Dispatch, SH_NOATTRIB, false);
+  50,1: SH_DECL_HOOK1_void(IServerGameClients, SetCommandClient, SH_NOATTRIB, false, int);
+
+/home/god/projects/css_enhanced_clean/sourcemod_core/Logger.cpp
+  46,1: SH_DECL_HOOK1_void(IVEngineServer, LogPrint, SH_NOATTRIB, false, const char *);
+
+/home/god/projects/css_enhanced_clean/sourcemod_core/MenuStyle_Valve.cpp
+  38,1: SH_DECL_HOOK4_void(IServerPluginHelpers, CreateMessage, SH_NOATTRIB, false, edict_t *, DIALOG_TYPE, KeyValues *, IServerPluginCallbacks *);
+
+/home/god/projects/css_enhanced_clean/sourcemod_core/NextMap.cpp
+  46,1: SH_DECL_HOOK2_void(IVEngineServer, ChangeLevel, SH_NOATTRIB, 0, const char *, const char *);
+  48,1: SH_DECL_HOOK4_void(IVEngineServer, ChangeLevel, SH_NOATTRIB, 0, const char *, const char *, const char *, bool);
+
+/home/god/projects/css_enhanced_clean/sourcemod_core/PlayerManager.cpp
+  71,1: SH_DECL_HOOK5(IServerGameClients, ClientConnect, SH_NOATTRIB, 0, bool, edict_t *, const char *, const char *, char *, int);
+  72,1: SH_DECL_HOOK2_void(IServerGameClients, ClientPutInServer, SH_NOATTRIB, 0, edict_t *, const char *);
+  73,1: SH_DECL_HOOK1_void(IServerGameClients, ClientDisconnect, SH_NOATTRIB, 0, edict_t *);
+  75,1: SH_DECL_HOOK2_void(IServerGameClients, ClientCommand, SH_NOATTRIB, 0, edict_t *, const CCommand &);
+  77,1: SH_DECL_HOOK1_void(IServerGameClients, ClientCommand, SH_NOATTRIB, 0, edict_t *);
+  79,1: SH_DECL_HOOK1_void(IServerGameClients, ClientSettingsChanged, SH_NOATTRIB, 0, edict_t *);
+  82,1: SH_DECL_HOOK2_void(IServerGameClients, ClientCommandKeyValues, SH_NOATTRIB, 0, edict_t *, KeyValues *);
+  85,1: SH_DECL_HOOK3_void(IServerGameDLL, ServerActivate, SH_NOATTRIB, 0, edict_t *, int, int);
+  88,1: SH_DECL_HOOK1_void(IServerGameDLL, ServerHibernationUpdate, SH_NOATTRIB, 0, bool);
+  90,1: SH_DECL_HOOK1_void(IServerGameDLL, SetServerHibernation, SH_NOATTRIB, 0, bool);
+  98,1: SH_DECL_HOOK2_void(IVEngineServer, ClientPrintf, SH_NOATTRIB, 0, edict_t *, const char *);
+
+/home/god/projects/css_enhanced_clean/sourcemod_core/sourcemod.cpp
+  54,1: SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, false, bool, const char *, const char *, const char *, const char *, bool, bool);
+  55,1: SH_DECL_HOOK0_void(IServerGameDLL, LevelShutdown, SH_NOATTRIB, false);
+  56,1: SH_DECL_HOOK2_void(IServerGameDLL, GameFrame, SH_NOATTRIB, false, bool, bool);
+  57,1: SH_DECL_HOOK1_void(IServerGameDLL, Think, SH_NOATTRIB, false, bool);
+  58,1: SH_DECL_HOOK1_void(IVEngineServer, ServerCommand, SH_NOATTRIB, false, const char *);
+  59,1: SH_DECL_HOOK0(IVEngineServer, GetMapEntitiesString, SH_NOATTRIB, 0, const char *);
+
+/home/god/projects/css_enhanced_clean/sourcemod_core/UserMessages.cpp
+  48,1: SH_DECL_HOOK3_void(IVEngineServer, SendUserMessage, SH_NOATTRIB, 0, IRecipientFilter &, int, const protobuf::Message &);
+  51,1: SH_DECL_HOOK3(IVEngineServer, UserMessageBegin, SH_NOATTRIB, 0, bf_write *, IRecipientFilter *, int, const char *);
+  53,1: SH_DECL_HOOK2(IVEngineServer, UserMessageBegin, SH_NOATTRIB, 0, bf_write *, IRecipientFilter *, int);
+  55,1: SH_DECL_HOOK0_void(IVEngineServer, MessageEnd, SH_NOATTRIB, 0);
+
+/home/god/projects/css_enhanced_clean/sourcemod_cstrike/extension.cpp
+  49,4: // SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, false, bool, const char *, const char *, const char *, const char *, bool, bool);
+
+/home/god/projects/css_enhanced_clean/sourcemod_cstrike/rulesfix.cpp
+  43,1: SH_DECL_HOOK0_void(IServerGameDLL, GameServerSteamAPIActivated, SH_NOATTRIB, 0);
+
+/home/god/projects/css_enhanced_clean/sourcemod_metamod_core/vsp_bridge.cpp
+  38,1: SH_DECL_HOOK2_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommandContext &, const CCommand &);
+  40,1: SH_DECL_HOOK1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
+  42,1: SH_DECL_HOOK0_void(ConCommand, Dispatch, SH_NOATTRIB, false);
+
+/home/god/projects/css_enhanced_clean/sourcemod_metamod_corelegacy/sourcemm.cpp
+  34,1: SH_DECL_HOOK0_void(IServerGameDLL, LevelShutdown, SH_NOATTRIB, false);
+  35,1: SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, false, bool, const char *, const char *, const char *, const char *, bool, bool);
+  36,1: SH_DECL_HOOK1_void(IServerGameClients, ClientCommand, SH_NOATTRIB, 0, edict_t *);
+  37,1: SH_DECL_HOOK0(IServerGameDLL, GameInit, SH_NOATTRIB, false, bool);
+
+/home/god/projects/css_enhanced_clean/sourcemod_metamod_corelegacy/vsp_bridge.cpp
+  34,1: SH_DECL_HOOK0_void(ConCommand, Dispatch, SH_NOATTRIB, false);
+
+/home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
+  154,1: SH_DECL_HOOK0_void(IServerGameDLL, LevelShutdown, SH_NOATTRIB, false);
+  155,1: SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, 0, bool, const char *, const char *, const char *, const char *, bool, bool);
+  157,1: SH_DECL_HOOK0(IServerGameDLL, GetGameDescription, SH_NOATTRIB, 0, const char *);
+
+/home/god/projects/css_enhanced_clean/sourcemod_sdktools/extension.cpp
+  56,4: // SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, false, bool, const char *, const char *, const char *, const char *, bool, bool);
+  57,4: // SH_DECL_HOOK0_void(IServerGameDLL, LevelShutdown, SH_NOATTRIB, false);
+  59,1: SH_DECL_HOOK1_void_vafmt(IVEngineServer, ClientCommand, SH_NOATTRIB, 0, edict_t *);
+  62,1: SH_DECL_HOOK1_void(IServerGameClients, ClientVoice, SH_NOATTRIB, 0, edict_t *);
+
+/home/god/projects/css_enhanced_clean/sourcemod_sdktools/hooks.cpp
+  80,1: SH_DECL_HOOK2(IBaseFileSystem, FileExists, SH_NOATTRIB, 0, bool, const char*, const char *);
+  82,1: SH_DECL_HOOK3(INetChannel, SendFile, SH_NOATTRIB, 0, bool, const char *, unsigned int, bool);
+  84,1: SH_DECL_HOOK2(INetChannel, SendFile, SH_NOATTRIB, 0, bool, const char *, unsigned int);
+  87,1: SH_DECL_HOOK1(IClientMessageHandler, ProcessVoiceData, SH_NOATTRIB, 0, bool, CLC_VoiceData *);
+  89,1: SH_DECL_HOOK2_void(INetChannel, ProcessPacket, SH_NOATTRIB, 0, struct netpacket_s *, bool);
+
+/home/god/projects/css_enhanced_clean/sourcemod_sdktools/tenatives.cpp
+  36,1: SH_DECL_HOOK5_void(IVEngineServer, PlaybackTempEntity, SH_NOATTRIB, 0, IRecipientFilter &, float, const void *, const SendTable *, int);
+
+/home/god/projects/css_enhanced_clean/sourcemod_sdktools/voice.cpp
+  59,1: SH_DECL_HOOK3(IVoiceServer, SetClientListening, SH_NOATTRIB, 0, bool, int, int, bool);
+  62,4: // SH_DECL_HOOK2_void(IServerGameClients, ClientCommand, SH_NOATTRIB, 0, edict_t *, const CCommand &);
+  64,1: SH_DECL_HOOK1_void(IServerGameClients, ClientCommand, SH_NOATTRIB, 0, edict_t *);
+
+/home/god/projects/css_enhanced_clean/sourcemod_sdktools/vsound.cpp
+  35,1: SH_DECL_HOOK8_void(IVEngineServer, EmitAmbientSound, SH_NOATTRIB, 0, int, const Vector &, const char *, float, soundlevel_t, int, int, float);
+  38,1: SH_DECL_HOOK18(IEngineSound, EmitSound, SH_NOATTRIB, 0, int, IRecipientFilter &, int, int, const char *, unsigned int, const char *, float, float, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int, void *);
+  39,1: SH_DECL_HOOK18(IEngineSound, EmitSound, SH_NOATTRIB, 1, int, IRecipientFilter &, int, int, const char *, unsigned int, const char *, float, soundlevel_t, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int, void *);
+  41,1: SH_DECL_HOOK17(IEngineSound, EmitSound, SH_NOATTRIB, 0, int, IRecipientFilter &, int, int, const char *, unsigned int, const char *, float, float, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);
+  42,1: SH_DECL_HOOK17(IEngineSound, EmitSound, SH_NOATTRIB, 1, int, IRecipientFilter &, int, int, const char *, unsigned int, const char *, float, soundlevel_t, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);
+  45,1: SH_DECL_HOOK15_void(IEngineSound, EmitSound, SH_NOATTRIB, 0, IRecipientFilter &, int, int, const char *, float, float, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);
+  46,1: SH_DECL_HOOK15_void(IEngineSound, EmitSound, SH_NOATTRIB, 1, IRecipientFilter &, int, int, const char *, float, soundlevel_t, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);
+  48,1: SH_DECL_HOOK14_void(IEngineSound, EmitSound, SH_NOATTRIB, 0, IRecipientFilter &, int, int, const char *, float, float, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);
+  49,1: SH_DECL_HOOK14_void(IEngineSound, EmitSound, SH_NOATTRIB, 1, IRecipientFilter &, int, int, const char *, float, soundlevel_t, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);

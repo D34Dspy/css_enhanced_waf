@@ -32,6 +32,8 @@
 #include "vsound.h"
 #include <IForwardSys.h>
 
+#include "glue.hpp"
+
 SH_DECL_HOOK8_void(IVEngineServer, EmitAmbientSound, SH_NOATTRIB, 0, int, const Vector &, const char *, float, soundlevel_t, int, int, float);
 
 #if SOURCE_ENGINE == SE_CSGO || SOURCE_ENGINE == SE_BLADE || SOURCE_ENGINE == SE_MCV
@@ -42,8 +44,8 @@ SH_DECL_HOOK17(IEngineSound, EmitSound, SH_NOATTRIB, 0, int, IRecipientFilter &,
 SH_DECL_HOOK17(IEngineSound, EmitSound, SH_NOATTRIB, 1, int, IRecipientFilter &, int, int, const char *, unsigned int, const char *, float, soundlevel_t, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);
 #elif SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_SDK2013 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_PVKII
-SH_DECL_HOOK15_void(IEngineSound, EmitSound, SH_NOATTRIB, 0, IRecipientFilter &, int, int, const char *, float, float, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);
-SH_DECL_HOOK15_void(IEngineSound, EmitSound, SH_NOATTRIB, 1, IRecipientFilter &, int, int, const char *, float, soundlevel_t, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);
+SH_DECL_HOOK15_void_s(IEngineSound, EmitSound, SH_NOATTRIB, 0, IRecipientFilter &, int, int, const char *, float, float, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int, FirstOverload);
+SH_DECL_HOOK15_void_s(IEngineSound, EmitSound, SH_NOATTRIB, 1, IRecipientFilter &, int, int, const char *, float, soundlevel_t, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int, SecondOverload);
 #else
 SH_DECL_HOOK14_void(IEngineSound, EmitSound, SH_NOATTRIB, 0, IRecipientFilter &, int, int, const char *, float, float, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);
 SH_DECL_HOOK14_void(IEngineSound, EmitSound, SH_NOATTRIB, 1, IRecipientFilter &, int, int, const char *, float, soundlevel_t, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int);
@@ -85,8 +87,10 @@ void SoundHooks::_IncRefCounter(int type)
 {
 	if (m_NormalCount++ == 0)
 	{
-		SH_ADD_HOOK(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound), false);
-		SH_ADD_HOOK(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound2), false);
+		HkPre_IEngineSound__EmitSoundFirstOverload = SMGlue_MkHook4_IEngineSound__EmitSound(SH_MEMBER(this, &SoundHooks::OnEmitSound), engsound);
+		// SH_ADD_HOOK_s(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound), false, FirstOverload);
+		HkPre_IEngineSound__EmitSoundSecondOverload = SMGlue_MkHook4_IEngineSound__EmitSound2(SH_MEMBER(this, &SoundHooks::OnEmitSound2), engsound);
+		// SH_ADD_HOOK_s(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound2), false, SecondOverload);
 	}
 }
 	else if (type == AMBIENT_SOUND_HOOK)
@@ -104,8 +108,8 @@ void SoundHooks::_DecRefCounter(int type)
 {
 	if (--m_NormalCount == 0)
 	{
-		SH_REMOVE_HOOK(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound), false);
-		SH_REMOVE_HOOK(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound2), false);
+		SH_REMOVE_HOOK_s(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound), false, FirstOverload);
+		SH_REMOVE_HOOK_s(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound2), false, SecondOverload);
 	}
 }
 	else if (type == AMBIENT_SOUND_HOOK)
@@ -127,8 +131,8 @@ void SoundHooks::Shutdown()
 	plsys->RemovePluginsListener(this);
 	if (m_NormalCount)
 	{
-		SH_REMOVE_HOOK(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound), false);
-		SH_REMOVE_HOOK(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound2), false);
+		SH_REMOVE_HOOK_s(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound), false, FirstOverload);
+		SH_REMOVE_HOOK_s(IEngineSound, EmitSound, engsound, SH_MEMBER(this, &SoundHooks::OnEmitSound2), false, SecondOverload);
 	}
 	if (m_AmbientCount)
 	{

@@ -413,6 +413,7 @@ public:
 	virtual bool			Weapon_CanUse( CBaseCombatWeapon *pWeapon );
 	virtual void			Weapon_Equip( CBaseCombatWeapon *pWeapon );
 	virtual	void			Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget /* = NULL */, const Vector *pVelocity /* = NULL */ );
+	virtual	void			Weapon_DropOrig( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget /* = NULL */, const Vector *pVelocity /* = NULL */ );
 	virtual	bool			Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex = 0 );		// Switch to given weapon if has ammo (false if failed)
 	virtual void			Weapon_SetLast( CBaseCombatWeapon *pWeapon );
 	virtual bool			Weapon_ShouldSetLast( CBaseCombatWeapon *pOldWeapon, CBaseCombatWeapon *pNewWeapon ) { return true; }
@@ -1248,6 +1249,7 @@ typedef CHandle<CBasePlayer> CBasePlayerHandle;
 
 EXTERN_SEND_TABLE(DT_BasePlayer)
 
+#ifndef CBASEPLAYER_HIDE_INLINE
 
 
 //-----------------------------------------------------------------------------
@@ -1571,5 +1573,7 @@ enum
 	VEHICLE_ANALOG_BIAS_FORWARD,
 	VEHICLE_ANALOG_BIAS_REVERSE,
 };
+
+#endif // !CBASEPLAYER_HIDE_INLINE
 
 #endif // PLAYER_H

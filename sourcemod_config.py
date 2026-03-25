@@ -9,6 +9,7 @@ BASIC = {
 
 DEFAULT = {
     "defines": [
+        'GAME_DLL',
         'SMEXT_CONF_METAMOD',
         'SMEXT_ENABLE_ADMINSYS',
 		'SMEXT_ENABLE_ADTFACTORY',
@@ -84,7 +85,8 @@ DEFAULT = {
 		'../sourcemod_bridge',
 		'../sourcemod_metamod_core',
 		'../sourcemod_metamod_core/sourcehook',
-		'../sourcemod_sourcepawn/include'
+		'../sourcemod_sourcepawn/include',
+        '../sourcemodglue'
     ],
     "libraries": ['tier0','tier1','tier2','tier3','vstdlib', 'mathlib'],
 }
@@ -94,17 +96,17 @@ CONFIG = {
     "perProject": {
         'sourcemodcore': {
             **BASIC,
-            'libraries': ['sourcemod_logic']
+            'libraries': ['sourcemod_logic', 'sourcemodglue']
         },
         'sourcemodcstrike': {
             **BASIC,
-            'libraries': ['sourcemod_core']
+            'libraries': ['sourcemod_core', 'sourcemodglue']
         },
         'sourcemodlogic': {
             **BASIC,
             'defines': ['SM_LOGIC'],
             'includes': ['../sourcemod_core'],
-            'libraries': ['sourcemod_core']
+            'libraries': ['sourcemod_core', 'sourcemodglue']
         },
         'sourcemodcurl': {
             **BASIC,
@@ -115,47 +117,51 @@ CONFIG = {
             **BASIC,
             'defines': [],
             'includes': ['DynamicHooks', 'DynamicHooks/conventions'],
-            'libraries': ['sourcemod_core']
+            'libraries': ['sourcemod_core', 'sourcemodglue']
             # not used
         },
         'sourcemodsdktools': {
             **BASIC,
 			'includes': ['../game/server'],
             'defines': ['HOOKING_ENABLED', 'HAVE_STRING_H', 'HAVE_STDINT_H'],
-            'libraries': ['sourcemod_core']
+            'libraries': ['sourcemod_core', 'sourcemodglue']
         },
         'sourcemodsdkhooks': {
             **BASIC,
-            'includes': ['../game/server'],
+            'includes': ['../game/server', '../game/shared/cstrike'],
             'defines': [],
-            'libraries': ['sourcemod_core']
+            'libraries': ['sourcemod_core', 'sourcemodglue']
         },
         'sourcemodclientprefs': {
             **BASIC,
             'defines': [],
-            'libraries': ['sourcemod_core']
+            'libraries': ['sourcemod_core', 'sourcemodglue']
         },
         'sourcemodregex': {
             **BASIC,
             'defines': [],
-            'libraries': ['sourcemod_core']
+            'libraries': ['sourcemod_core', 'sourcemodglue']
         },
         'sourcemodtopmenus': {
             **BASIC,
+            'libraries': ['sourcemodglue']
         },
         'sourcemodsqlite': {
             **BASIC,
+            'libraries': ['sourcemodglue']
         },
         'sourcemodstructs': {
             **BASIC,
+            'libraries': ['sourcemodglue']
         },
         'sourcemodgeoip': {
             **BASIC,
+            'libraries': ['sourcemodglue']
         },
         'sourcemodmetamodcore': {
             **BASIC,
             'includes': ['../sourcemod_metamod_versionlib', '../sourcemod_metamod_loader'],
-            'libraries': ['sourcemod_metamod_versionlib']
+            'libraries': ['sourcemod_metamod_versionlib', 'sourcemodglue']
         },
         'sourcemodmetamodloader': {
             **BASIC,
@@ -171,15 +177,20 @@ CONFIG = {
             'includes': ['../public/metamod'],
         },
         'sourcemodsourcepawnvm': {
-             **BASIC,
-             'libraries': ['zlib', 'ZLIB']
+            **BASIC,
+            'libraries': ['zlib', 'ZLIB']
         },
         'sourcemodbintools': {
              **BASIC,
             'includes': ['../public/sourcemod/jit', '../public/sourcemod/jit/x86'],
+            'libraries': ['sourcemodglue']
         },
         'sourcemodsqlite1': {
              **BASIC,
+        },
+        'sourcemodglue': {
+             **BASIC,
+             'defines': ['GLUE_LOCAL']
         },
     },
 }

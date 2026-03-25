@@ -127,7 +127,7 @@ static cell_t PrepSDKCall_SetSignature(IPluginContext *pContext, const cell_t *p
 		MEMORY_BASIC_INFORMATION mem;
 		if (VirtualQuery(addrInBase, &mem, sizeof(mem)))
 		{
-			s_call_addr = smmemutils->ResolveSymbol(mem.AllocationBase, &sig[1]);
+			s_call_addr = smsmmemutils->ResolveSymbol(mem.AllocationBase, &sig[1]);
 		}
 #elif defined PLATFORM_POSIX
 		Dl_info info;
@@ -156,7 +156,7 @@ static cell_t PrepSDKCall_SetSignature(IPluginContext *pContext, const cell_t *p
 	|| SOURCE_ENGINE == SE_CSGO        \
 	|| SOURCE_ENGINE == SE_PVKII       \
 	|| SOURCE_ENGINE == SE_MCV
-		s_call_addr = memutils->ResolveSymbol(handle, &sig[1]);
+		s_call_addr = smmemutils->ResolveSymbol(handle, &sig[1]);
 #else
 		s_call_addr = dlsym(handle, &sig[1]);
 #endif /* SOURCE_ENGINE */
@@ -167,7 +167,7 @@ static cell_t PrepSDKCall_SetSignature(IPluginContext *pContext, const cell_t *p
 		return (s_call_addr != NULL) ? 1 : 0;
 	}
 
-	s_call_addr = memutils->FindPattern(addrInBase, sig, params[3]);
+	s_call_addr = smmemutils->FindPattern(addrInBase, sig, params[3]);
 
 	return (s_call_addr != NULL) ? 1 : 0;
 }

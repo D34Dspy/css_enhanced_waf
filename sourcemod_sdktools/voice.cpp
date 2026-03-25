@@ -56,10 +56,12 @@ size_t g_VoiceHookCount = 0;
 ListenOverride g_VoiceMap[SM_MAXPLAYERS+1][SM_MAXPLAYERS+1];
 bool g_ClientMutes[SM_MAXPLAYERS+1][SM_MAXPLAYERS+1];
 
+#include "glue.hpp"
+
 SH_DECL_HOOK3(IVoiceServer, SetClientListening, SH_NOATTRIB, 0, bool, int, int, bool);
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-// SH_DECL_HOOK2_void(IServerGameClients, ClientCommand, SH_NOATTRIB, 0, edict_t *, const CCommand &);
+SH_DECL_HOOK2_void(IServerGameClients, ClientCommand, SH_NOATTRIB, 0, edict_t *, const CCommand &);
 #else
 SH_DECL_HOOK1_void(IServerGameClients, ClientCommand, SH_NOATTRIB, 0, edict_t *);
 #endif
@@ -79,14 +81,9 @@ void IncHookCount()
 {
 	if (!g_VoiceHookCount++)
 	{
-		SH_ADD_HOOK(IVoiceServer, SetClientListening, voiceserver, SH_MEMBER(&g_SdkTools, &SDKTools::OnSetClientListening), false);
+		auto ref = &g_SdkTools;
+		SH_ADD_HOOK(IVoiceServer, SetClientListening, voiceserver, SH_MEMBER(ref, &SDKTools::OnSetClientListening), false);
 	}
-}
-
-
-void SDKTools_InvokeHk_IServerGameClients_ClientCommand(edict_t * a, const CCommand & b)
-{
-	g_SdkTools.OnClientCommand(a, b);
 }
 
 void SDKTools::VoiceInit()
@@ -94,7 +91,7 @@ void SDKTools::VoiceInit()
 	memset(g_VoiceMap, 0, sizeof(g_VoiceMap));
 	memset(g_ClientMutes, 0, sizeof(g_ClientMutes));
 
-	// SH_ADD_HOOK(IServerGameClients, ClientCommand, serverClients, SH_MEMBER(this, &SDKTools::OnClientCommand), true);
+	SH_ADD_HOOK(IServerGameClients, ClientCommand, serverClients, SH_MEMBER(this, &SDKTools::OnClientCommand), true);
 }
 
 void SDKTools::VoiceShutdown()
@@ -104,7 +101,7 @@ void SDKTools::VoiceShutdown()
 		g_VoiceHookCount = 1;
 		DecHookCount();
 	}
-	// SH_REMOVE_HOOK(IServerGameClients, ClientCommand, serverClients, SH_MEMBER(this, &SDKTools::OnClientCommand), true);
+	SH_REMOVE_HOOK(IServerGameClients, ClientCommand, serverClients, SH_MEMBER(this, &SDKTools::OnClientCommand), true);
 }
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX

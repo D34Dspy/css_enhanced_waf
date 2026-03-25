@@ -41,12 +41,14 @@
 #endif
 #include "util_cstrike.h"
 
+#include "glue.hpp"
+
 /**
  * @file extension.cpp
  * @brief Implement extension code here.
  */
 
-// SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, false, bool, const char *, const char *, const char *, const char *, bool, bool);
+SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, false, bool, const char *, const char *, const char *, const char *, bool, bool);
 
 CStrike g_CStrike;		/**< Global singleton for extension's main interface */
 IGameConfig *g_pGameConf = NULL;
@@ -131,7 +133,7 @@ void CStrike::SDK_OnUnload()
 	if (hooked_everything)
 	{
 		gameevents->RemoveListener(&g_TimeLeftEvents);
-		// SH_REMOVE_HOOK(IServerGameDLL, LevelInit, gamedll, SH_MEMBER(&g_TimeLeftEvents, &TimeLeftEvents::LevelInit), true);
+		SH_REMOVE_HOOK(IServerGameDLL, LevelInit, gamedll, SH_MEMBER(&g_TimeLeftEvents, &TimeLeftEvents::LevelInit), true);
 		hooked_everything = false;
 	}
 
@@ -171,10 +173,6 @@ void CStrike::SDK_OnUnload()
 #endif
 }
 
-bool CStrike_InvokeHk_IServerGameDLL_LevelInit(const char *pMapName, const char *pMapEntities, const char *pOldLevel, const char *pLandmarkName, bool loadGame, bool background) {
-	return g_TimeLeftEvents.LevelInit(pMapName, pMapEntities, pOldLevel, pLandmarkName, loadGame, background);
-}
-
 void CStrike::SDK_OnAllLoaded()
 {
 	SM_GET_LATE_IFACE(SDKTOOLS, g_pSDKTools);
@@ -189,7 +187,7 @@ void CStrike::SDK_OnAllLoaded()
 	}
 	gameevents->AddListener(&g_TimeLeftEvents, "round_start", true);
 	gameevents->AddListener(&g_TimeLeftEvents, "round_end", true);
-	// SH_ADD_HOOK(IServerGameDLL, LevelInit, gamedll, SH_MEMBER(&g_TimeLeftEvents, &TimeLeftEvents::LevelInit), true);
+	SH_ADD_HOOK(IServerGameDLL, LevelInit, gamedll, SH_MEMBER(&g_TimeLeftEvents, &TimeLeftEvents::LevelInit), true);
 	hooked_everything = true;
 
 	SM_GET_LATE_IFACE(BINTOOLS, g_pBinTools);

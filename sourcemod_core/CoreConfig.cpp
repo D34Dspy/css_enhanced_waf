@@ -46,6 +46,8 @@
 #include <bridge/include/IScriptManager.h>
 #include <bridge/include/ILogger.h>
 
+#include "glue.hpp"
+
 using namespace SourceHook;
 
 #ifdef PLATFORM_WINDOWS
@@ -68,7 +70,9 @@ ConVar *g_ServerCfgFile = NULL;
 void CheckAndFinalizeConfigs();
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-SH_DECL_EXTERN1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
+int HkPre_ConCommand__Dispatch;
+int HkPost_ConCommand__Dispatch;
+// SH_DECL_EXTERN1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
 void Hook_ExecDispatchPre(const CCommand &cmd)
 #else
 SH_DECL_EXTERN0_void(ConCommand, Dispatch, SH_NOATTRIB, false)};
@@ -134,8 +138,10 @@ void CoreConfig::OnSourceModShutdown()
 
 	if (g_pExecPtr != NULL)
 	{
-		SH_REMOVE_HOOK(ConCommand, Dispatch, g_pExecPtr, SH_STATIC(Hook_ExecDispatchPre), false);
-		SH_REMOVE_HOOK(ConCommand, Dispatch, g_pExecPtr, SH_STATIC(Hook_ExecDispatchPost), true);
+		SMGlue_RmHook4_ConCommand__Dispatch(HkPre_ConCommand__Dispatch, g_pExecPtr);
+		SMGlue_RmHook4_ConCommand__Dispatch(HkPost_ConCommand__Dispatch, g_pExecPtr);
+		// SH_REMOVE_HOOK(ConCommand, Dispatch, g_pExecPtr, SH_STATIC(Hook_ExecDispatchPre), false);
+		// SH_REMOVE_HOOK(ConCommand, Dispatch, g_pExecPtr, SH_STATIC(Hook_ExecDispatchPost), true);
 		g_pExecPtr = NULL;
 	}
 }
@@ -160,8 +166,10 @@ void CoreConfig::OnSourceModLevelChange(const char *mapName)
 			g_pExecPtr = FindCommand("exec");
 			if (g_pExecPtr != NULL)
 			{
-				SH_ADD_HOOK(ConCommand, Dispatch, g_pExecPtr, SH_STATIC(Hook_ExecDispatchPre), false);
-				SH_ADD_HOOK(ConCommand, Dispatch, g_pExecPtr, SH_STATIC(Hook_ExecDispatchPost), true);
+				HkPre_ConCommand__Dispatch = SMGlue_MkHook4_ConCommand__Dispatch(SH_STATIC(Hook_ExecDispatchPre), g_pExecPtr);
+				HkPost_ConCommand__Dispatch = SMGlue_MkHook4_ConCommand__Dispatch(SH_STATIC(Hook_ExecDispatchPost), g_pExecPtr);
+				// SH_ADD_HOOK(ConCommand, Dispatch, g_pExecPtr, SH_STATIC(Hook_ExecDispatchPre), false);
+				// SH_ADD_HOOK(ConCommand, Dispatch, g_pExecPtr, SH_STATIC(Hook_ExecDispatchPost), true);
 			}
 			else
 			{

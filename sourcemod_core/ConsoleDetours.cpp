@@ -62,11 +62,14 @@
 # include <unistd.h>
 #endif
 
+#include "glue.hpp"
+
 #if SOURCE_ENGINE >= SE_ORANGEBOX
 	SH_DECL_EXTERN1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
 #else
 	SH_DECL_EXTERN0_void(ConCommand, Dispatch, SH_NOATTRIB, false);
 #endif
+
 
 class GenericCommandHooker : public IConCommandLinkListener
 {
@@ -75,6 +78,7 @@ class GenericCommandHooker : public IConCommandLinkListener
 		void **vtable;
 		int hook;
 		unsigned int refcount;
+		ConCommandBase* thisptr;
 	};
 	CVector<HackInfo> vtables;
 	bool enabled;
@@ -115,6 +119,7 @@ class GenericCommandHooker : public IConCommandLinkListener
 			hack.vtable = vtable;
 			hack.hook = SH_ADD_VPHOOK(ConCommand, Dispatch, cmd, SH_MEMBER(this, &GenericCommandHooker::Dispatch), false);
 			hack.refcount = 1;
+			hack.thisptr = cmd;
 			vtables.push_back(hack);
 		}
 		else
@@ -190,7 +195,8 @@ class GenericCommandHooker : public IConCommandLinkListener
 		vtables[index].refcount--;
 		if (vtables[index].refcount == 0)
 		{
-			SH_REMOVE_HOOK_ID(vtables[index].hook);
+			// SH_REMOVE_HOOK_ID(vtables[index].hook);
+			SMGlue_RmHook4_ConCommand__Dispatch(vtables[index].hook, (ConCommand*)vtables[index].thisptr);
 			vtables.erase(vtables.iterAt(index));
 		}
 	}
@@ -227,7 +233,8 @@ public:
 	void Disable()
 	{
 		for (size_t i = 0; i < vtables.size(); i++)
-			SH_REMOVE_HOOK_ID(vtables[i].hook);
+			//SH_REMOVE_HOOK_ID(vtables[i].hook);
+			SMGlue_RmHook4_ConCommand__Dispatch(vtables[i].hook, (ConCommand*)vtables[i].thisptr);
 		vtables.clear();
 	}
 
