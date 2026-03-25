@@ -74,6 +74,7 @@ public:
 private:
 	int hook_id_;
 	Callback callback_;
+	ConCommand* cmd_;
 };
 
 class GameHooks

@@ -33,7 +33,8 @@ public:
 
 	virtual bool		CanHearAndReadChatFrom( CBasePlayer *pPlayer );
 	virtual bool		CanSpeak( void ) { return true; }
-	virtual bool		CanBeAutobalanced() { return true; }
+	virtual bool		CanBeAutobalanced() { return CanBeAutobalancedOrig(); }
+	virtual bool		CanBeAutobalancedOrig() { return true; }
 
 	virtual void		Precache( void )
 	{

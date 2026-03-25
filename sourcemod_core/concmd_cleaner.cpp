@@ -34,12 +34,17 @@
 #include "compat_wrappers.h"
 #include <amtl/am-string.h>
 
+#include "glue.hpp"
+#include "sourcemod_glue/glue.hpp"
+
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-SH_DECL_HOOK1_void(ICvar, UnregisterConCommand, SH_NOATTRIB, 0, ConCommandBase *);
+int Hk_ICvar__UnregisterConCommand;
+// SH_DECL_HOOK1_void(ICvar, UnregisterConCommand, SH_NOATTRIB, 0, ConCommandBase *);
 #if SOURCE_ENGINE == SE_CSGO || SOURCE_ENGINE == SE_BLADE || SOURCE_ENGINE == SE_MCV
 SH_DECL_HOOK2_void(ICvar, RegisterConCommand, SH_NOATTRIB, 0, ConCommandBase *, bool);
 #else
-SH_DECL_HOOK1_void(ICvar, RegisterConCommand, SH_NOATTRIB, 0, ConCommandBase *);
+int Hk_ICvar__RegisterConCommand;
+// SH_DECL_HOOK1_void(ICvar, RegisterConCommand, SH_NOATTRIB, 0, ConCommandBase *);
 #endif
 #else
 SH_DECL_HOOK1_void(ICvar, RegisterConCommandBase, SH_NOATTRIB, 0, ConCommandBase *);
@@ -65,8 +70,10 @@ public:
 	void OnSourceModAllInitialized()
 	{
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-		SH_ADD_HOOK(ICvar, UnregisterConCommand, icvar, SH_MEMBER(this, &ConCommandCleaner::UnlinkConCommandBase), false);
-		SH_ADD_HOOK(ICvar, RegisterConCommand, icvar, SH_MEMBER(this, &ConCommandCleaner::LinkConCommandBase), false);
+		Hk_ICvar__RegisterConCommand = SMGlue_MkHook4_ICvar__UnregisterConCommand(SH_MEMBER(this, &ConCommandCleaner::UnlinkConCommandBase), icvar);
+		Hk_ICvar__UnregisterConCommand = SMGlue_MkHook4_ICvar__RegisterConCommand(SH_MEMBER(this, &ConCommandCleaner::LinkConCommandBase), icvar);
+		// SH_ADD_HOOK(ICvar, UnregisterConCommand, icvar, SH_MEMBER(this, &ConCommandCleaner::UnlinkConCommandBase), false);
+		// SH_ADD_HOOK(ICvar, RegisterConCommand, icvar, SH_MEMBER(this, &ConCommandCleaner::LinkConCommandBase), false);
 #else
 		SH_ADD_HOOK(ICvar, RegisterConCommandBase, icvar, SH_MEMBER(this, &ConCommandCleaner::LinkConCommandBase), false);
 #endif
@@ -75,8 +82,10 @@ public:
 	void OnSourceModShutdown()
 	{
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-		SH_REMOVE_HOOK(ICvar, UnregisterConCommand, icvar, SH_MEMBER(this, &ConCommandCleaner::UnlinkConCommandBase), false);
-		SH_REMOVE_HOOK(ICvar, RegisterConCommand, icvar, SH_MEMBER(this, &ConCommandCleaner::LinkConCommandBase), false);
+		SMGlue_RmHook4_ICvar__RegisterConCommand(Hk_ICvar__RegisterConCommand, icvar);
+		SMGlue_RmHook4_ICvar__UnregisterConCommand(Hk_ICvar__UnregisterConCommand, icvar);
+		// SH_REMOVE_HOOK(ICvar, UnregisterConCommand, icvar, SH_MEMBER(this, &ConCommandCleaner::UnlinkConCommandBase), false);
+		// SH_REMOVE_HOOK(ICvar, RegisterConCommand, icvar, SH_MEMBER(this, &ConCommandCleaner::LinkConCommandBase), false);
 #else
 		SH_REMOVE_HOOK(ICvar, RegisterConCommandBase, icvar, SH_MEMBER(this, &ConCommandCleaner::LinkConCommandBase), false);
 #endif
@@ -85,7 +94,7 @@ public:
 #if SOURCE_ENGINE == SE_CSGO || SOURCE_ENGINE == SE_BLADE || SOURCE_ENGINE == SE_MCV
 	void LinkConCommandBase(ConCommandBase *pBase, bool unknown)
 #else
-	void LinkConCommandBase(ConCommandBase *pBase)
+	void LinkConCommandBase(ConCommandBase *pBase, bool unk)
 #endif
 	{
 		IConCommandLinkListener *listener = IConCommandLinkListener::head;

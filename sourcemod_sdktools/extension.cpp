@@ -48,13 +48,15 @@
 #include "filesystem.h"
 #include "am-string.h"
 
+#include "glue.hpp"
+
 /**
  * @file extension.cpp
  * @brief Implements SDK Tools extension code.
  */
 
-// SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, false, bool, const char *, const char *, const char *, const char *, bool, bool);
-// SH_DECL_HOOK0_void(IServerGameDLL, LevelShutdown, SH_NOATTRIB, false);
+SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, false, bool, const char *, const char *, const char *, const char *, bool, bool);
+SH_DECL_HOOK0_void(IServerGameDLL, LevelShutdown, SH_NOATTRIB, false);
 #if SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_CSGO
 SH_DECL_HOOK1_void_vafmt(IVEngineServer, ClientCommand, SH_NOATTRIB, 0, edict_t *);
 #endif

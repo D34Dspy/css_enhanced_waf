@@ -63,7 +63,7 @@ IDBManager *dbi = NULL;					/**< DB Manager */
 IGameConfigManager *gameconfs = NULL;	/**< Game config manager */
 #endif //SMEXT_ENABLE_DBMANAGER
 #if defined SMEXT_ENABLE_MEMUTILS
-IMemoryUtils *memutils = NULL;
+IMemoryUtils *smmemutils = NULL;
 #endif //SMEXT_ENABLE_DBMANAGER
 #if defined SMEXT_ENABLE_GAMEHELPERS
 IGameHelpers *gamehelpers = NULL;
@@ -154,7 +154,7 @@ bool SDKExtension::OnExtensionLoad(IExtension *me, IShareSys *sys, char *error, 
 	SM_GET_IFACE(GAMECONFIG, gameconfs);
 #endif
 #if defined SMEXT_ENABLE_MEMUTILS
-	SM_GET_IFACE(MEMORYUTILS, memutils);
+	SM_GET_IFACE(MEMORYUTILS, smmemutils);
 #endif
 #if defined SMEXT_ENABLE_GAMEHELPERS
 	SM_GET_IFACE(GAMEHELPERS, gamehelpers);

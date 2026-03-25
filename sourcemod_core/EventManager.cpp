@@ -38,7 +38,10 @@
 
 EventManager g_EventManager;
 
-SH_DECL_HOOK2(IGameEventManager2, FireEvent, SH_NOATTRIB, 0, bool, IGameEvent *, bool);
+#include "glue.hpp"
+// SH_DECL_HOOK2(IGameEventManager2, FireEvent, SH_NOATTRIB, 0, bool, IGameEvent *, bool);
+int HkPre_IGameEventManager2__FireEvent;
+int HkPost_IGameEventManager2__FireEvent;
 
 const ParamType GAMEEVENT_PARAMS[] = {Param_Cell, Param_String, Param_Cell};
 typedef List<EventHook *> EventHookList;
@@ -76,8 +79,10 @@ EventManager::~EventManager()
 void EventManager::OnSourceModAllInitialized()
 {
 	/* Add a hook for IGameEventManager2::FireEvent() */
-	SH_ADD_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(this, &EventManager::OnFireEvent), false);
-	SH_ADD_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(this, &EventManager::OnFireEvent_Post), true);
+	HkPre_IGameEventManager2__FireEvent = SMGlue_MkHook4_IGameEventManager2__FireEvent(SH_MEMBER(this, &EventManager::OnFireEvent), gameevents);
+	HkPost_IGameEventManager2__FireEvent = SMGlue_MkHook4_IGameEventManager2__FireEvent(SH_MEMBER(this, &EventManager::OnFireEvent_Post), gameevents, true);
+	// SH_ADD_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(this, &EventManager::OnFireEvent), false);
+	// SH_ADD_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(this, &EventManager::OnFireEvent_Post), true);
 
 	HandleAccess sec;
 
@@ -93,8 +98,10 @@ void EventManager::OnSourceModAllInitialized()
 void EventManager::OnSourceModShutdown()
 {
 	/* Remove hook for IGameEventManager2::FireEvent() */
-	SH_REMOVE_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(this, &EventManager::OnFireEvent), false);
-	SH_REMOVE_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(this, &EventManager::OnFireEvent_Post), true);
+	SMGlue_RmHook4_IGameEventManager2__FireEvent(HkPre_IGameEventManager2__FireEvent, gameevents);
+	SMGlue_RmHook4_IGameEventManager2__FireEvent(HkPost_IGameEventManager2__FireEvent, gameevents, true);
+	// SH_REMOVE_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(this, &EventManager::OnFireEvent), false);
+	// SH_REMOVE_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(this, &EventManager::OnFireEvent_Post), true);
 
 	/* Remove the 'GameEvent' handle type */
 	handlesys->RemoveType(m_EventType, g_pCoreIdent);

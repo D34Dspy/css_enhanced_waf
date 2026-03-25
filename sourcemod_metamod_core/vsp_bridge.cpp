@@ -34,6 +34,8 @@
 #include <sh_string.h>
 #include "provider/provider_ep2.h"
 
+#include "glue.hpp"
+
 #if SOURCE_ENGINE == SE_DOTA
 SH_DECL_HOOK2_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommandContext &, const CCommand &);
 #elif SOURCE_ENGINE >= SE_ORANGEBOX

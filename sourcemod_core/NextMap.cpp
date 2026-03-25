@@ -32,6 +32,7 @@
 #include "NextMap.h"
 #include "Logger.h"
 #include "HalfLife2.h"
+#include "glue.hpp"
 #include "sourcemm_api.h"
 #include "sm_stringutil.h"
 #include "sourcehook.h"
@@ -43,12 +44,14 @@
 NextMapManager g_NextMap;
 
 #if SOURCE_ENGINE != SE_DARKMESSIAH
+int Hk_IVEngineServer__ChangeLevel;
 SH_DECL_HOOK2_void(IVEngineServer, ChangeLevel, SH_NOATTRIB, 0, const char *, const char *);
 #else
 SH_DECL_HOOK4_void(IVEngineServer, ChangeLevel, SH_NOATTRIB, 0, const char *, const char *, const char *, bool);
 #endif
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
+int Hk_ConCommand__Dispatch;
 SH_DECL_EXTERN1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
 #else
 SH_DECL_EXTERN0_void(ConCommand, Dispatch, SH_NOATTRIB, false);
@@ -63,23 +66,27 @@ bool g_forcedChange = false;
 
 void NextMapManager::OnSourceModAllInitialized_Post()
 {
-	SH_ADD_HOOK(IVEngineServer, ChangeLevel, engine, SH_MEMBER(this, &NextMapManager::HookChangeLevel), false);
+	Hk_IVEngineServer__ChangeLevel = SMGlue_MkHook4_IVEngineServer__ChangeLevel(SH_MEMBER(this, &NextMapManager::HookChangeLevel), engine);
+	// SH_ADD_HOOK(IVEngineServer, ChangeLevel, engine, SH_MEMBER(this, &NextMapManager::HookChangeLevel), false);
 
 	ConCommand *pCmd = FindCommand("changelevel");
 	if (pCmd != NULL)
 	{
-		SH_ADD_HOOK(ConCommand, Dispatch, pCmd, SH_STATIC(CmdChangeLevelCallback), false);
+		Hk_ConCommand__Dispatch = SMGlue_MkHook4_ConCommand__Dispatch(SH_STATIC(CmdChangeLevelCallback), pCmd);
+		// SH_ADD_HOOK(ConCommand, Dispatch, pCmd, SH_STATIC(CmdChangeLevelCallback), false);
 		changeLevelCmd = pCmd;
 	}
 }
 
 void NextMapManager::OnSourceModShutdown()
 {
-	SH_REMOVE_HOOK(IVEngineServer, ChangeLevel, engine, SH_MEMBER(this, &NextMapManager::HookChangeLevel), false);
+	SMGlue_RmHook4_IVEngineServer__ChangeLevel(Hk_IVEngineServer__ChangeLevel, engine);
+	// SH_REMOVE_HOOK(IVEngineServer, ChangeLevel, engine, SH_MEMBER(this, &NextMapManager::HookChangeLevel), false);
 
 	if (changeLevelCmd != NULL)
 	{
-		SH_REMOVE_HOOK(ConCommand, Dispatch, changeLevelCmd, SH_STATIC(CmdChangeLevelCallback), false);
+		SMGlue_RmHook4_ConCommand__Dispatch(Hk_ConCommand__Dispatch, changeLevelCmd);
+		// SH_REMOVE_HOOK(ConCommand, Dispatch, changeLevelCmd, SH_STATIC(CmdChangeLevelCallback), false);
 	}
 
 	SourceHook::List<MapChangeData *>::iterator iter;

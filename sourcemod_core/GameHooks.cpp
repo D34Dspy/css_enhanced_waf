@@ -25,29 +25,36 @@
 // exceptions, found in LICENSE.txt (as of this writing, version JULY-31-2007),
 // or <http://www.sourcemod.net/license.php>.
 #include "GameHooks.h"
+#include "glue.hpp"
+#include "sourcemm_api.h"
 #include "sourcemod.h"
 #include "ConVarManager.h"
 #include "command_args.h"
 #include "provider.h"
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-SH_DECL_HOOK3_void(ICvar, CallGlobalChangeCallbacks, SH_NOATTRIB, false, ConVar *, const char *, float);
+int Hk_ICvar__CallGlobalChangeCallback;
+// SH_DECL_HOOK3_void(ICvar, CallGlobalChangeCallbacks, SH_NOATTRIB, false, ConVar *, const char *, float);
 #else
 SH_DECL_HOOK2_void(ICvar, CallGlobalChangeCallback, SH_NOATTRIB, false, ConVar *, const char *);
 #endif
 
 #if SOURCE_ENGINE != SE_DARKMESSIAH
-SH_DECL_HOOK5_void(IServerGameDLL, OnQueryCvarValueFinished, SH_NOATTRIB, 0, QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *);
-SH_DECL_HOOK5_void(IServerPluginCallbacks, OnQueryCvarValueFinished, SH_NOATTRIB, 0, QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *);
+int Hk_IServerGameDll__OnQueryCvarValueFinished;
+int Hk_IServerPluginCallbacks__OnQueryCvarValueFinished;
+// SH_DECL_HOOK5_void(IServerGameDLL, OnQueryCvarValueFinished, SH_NOATTRIB, 0, QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *);
+// SH_DECL_HOOK5_void(IServerPluginCallbacks, OnQueryCvarValueFinished, SH_NOATTRIB, 0, QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *);
 #endif
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-SH_DECL_HOOK1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
+static int Hk_ConCommand__Dispatch;
+// SH_DECL_HOOK1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
 #else
 SH_DECL_HOOK0_void(ConCommand, Dispatch, SH_NOATTRIB, false);
 #endif
 
-SH_DECL_HOOK1_void(IServerGameClients, SetCommandClient, SH_NOATTRIB, false, int);
+static int Hk_IServerGameClients__SetCommandClient;
+// SH_DECL_HOOK1_void(IServerGameClients, SetCommandClient, SH_NOATTRIB, false, int);
 
 GameHooks::GameHooks()
 	: client_cvar_query_mode_(ClientCvarQueryMode::Unavailable),
@@ -59,7 +66,8 @@ void GameHooks::Start()
 {
 	// Hook ICvar::CallGlobalChangeCallbacks.
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-	hooks_ += SH_ADD_HOOK(ICvar, CallGlobalChangeCallbacks, icvar, SH_STATIC(OnConVarChanged), false);
+	hooks_ += SMGlue_MkHook4_ICvar__CallGlobalChangeCallbacks(SH_STATIC(OnConVarChanged), icvar);
+	// hooks_ += SH_ADD_HOOK(ICvar, CallGlobalChangeCallbacks, icvar, SH_STATIC(OnConVarChanged), false);
 #else
 	hooks_ += SH_ADD_HOOK(ICvar, CallGlobalChangeCallback, icvar, SH_STATIC(OnConVarChanged), false);
 #endif
@@ -72,7 +80,8 @@ void GameHooks::Start()
 	}
 #endif
 
-	hooks_ += SH_ADD_HOOK(IServerGameClients, SetCommandClient, serverClients, SH_MEMBER(this, &GameHooks::SetCommandClient), false);
+	hooks_ += SMGlue_MkHook4_IServerGameClients__SetCommandClient(SH_MEMBER(this, &GameHooks::SetCommandClient), serverClients);
+	// hooks_ += SH_ADD_HOOK(IServerGameClients, SetCommandClient, serverClients, , false);
 }
 
 void GameHooks::OnVSPReceived()
@@ -84,7 +93,8 @@ void GameHooks::OnVSPReceived()
 		return;
 
 #if SOURCE_ENGINE != SE_DARKMESSIAH
-	hooks_ += SH_ADD_HOOK(IServerPluginCallbacks, OnQueryCvarValueFinished, vsp_interface, SH_MEMBER(this, &GameHooks::OnQueryCvarValueFinished), false);
+	hooks_ += SMGlue_MkHook4_IServerPluginCallbacks__OnQueryCvarValueFinished(SH_MEMBER(this, &GameHooks::OnQueryCvarValueFinished), vsp_interface);
+	// hooks_ += SH_ADD_HOOK(IServerPluginCallbacks, OnQueryCvarValueFinished, vsp_interface, SH_MEMBER(this, &GameHooks::OnQueryCvarValueFinished), false);
 	client_cvar_query_mode_ = ClientCvarQueryMode::VSP;
 #endif
 }
@@ -142,15 +152,18 @@ void GameHooks::SetCommandClient(int client)
 
 CommandHook::CommandHook(ConCommand *cmd, const Callback &callback, bool post)
  : hook_id_(0),
-   callback_(callback)
+   callback_(callback),
+   cmd_(cmd)
 {
-	hook_id_ = SH_ADD_HOOK(ConCommand, Dispatch, cmd, SH_MEMBER(this, &CommandHook::Dispatch), post);
+	hook_id_ = SMGlue_MkHook4_ConCommand__Dispatch(SH_MEMBER(this, &CommandHook::Dispatch), cmd, post);
+	// hook_id_ = SH_ADD_HOOK(ConCommand, Dispatch, cmd, SH_MEMBER(this, &CommandHook::Dispatch), post);
 }
 
 CommandHook::~CommandHook()
 {
 	if (hook_id_)
-	  SH_REMOVE_HOOK_ID(hook_id_);
+	  SMGlue_RmHook4_ConCommand__Dispatch(hook_id_, cmd_);
+	  // SH_REMOVE_HOOK_ID(hook_id_);
 }
 
 void CommandHook::Dispatch(DISPATCH_ARGS)

@@ -30,6 +30,12 @@
  * Version: $Id$
  */
 
+
+#include "cbase.h"
+#include "player.h"
+#include "gamerules.h"
+#include "entitylist.h"
+#include "cstrike/cs_player.h"
 #include "extension.h"
 #include "natives.h"
 #include <compat_wrappers.h>
@@ -177,7 +183,9 @@ cell_t Native_TakeDamage(IPluginContext *pContext, const cell_t *params)
 
 	if (params[0] < 9 || params[9] != 0)
 	{
-		SH_MCALL(pVictim, OnTakeDamage)((CTakeDamageInfoHack&)info);
+		// SH_MCALL(pVictim, OnTakeDamage)((CTakeDamageInfoHack&)info);
+		pVictim->OnTakeDamage((CTakeDamageInfoHack&)info);
+		pVictim->OnTakeDamageOrig((CTakeDamageInfoHack&)info);
 	}
 	else
 	{
@@ -286,7 +294,10 @@ cell_t Native_DropWeapon(IPluginContext *pContext, const cell_t *params)
 
 	if (params[0] < 5 || params[5] != 0)
 	{
-		SH_MCALL(pPlayer, Weapon_Drop)((CBaseCombatWeapon*)pWeapon, pVecTarget, pVecVelocity);
+		// SH_MCALL(pPlayer, Weapon_Drop)((CBaseCombatWeapon*)pWeapon, pVecTarget, pVecVelocity);
+		CBasePlayer* pPlayer2 = (CBasePlayer*)pPlayer;
+		pPlayer2->Weapon_DropOrig((CBaseCombatWeapon*)pWeapon, pVecTarget, pVecVelocity);
+		
 	}
 	else
 	{

@@ -22,9 +22,7 @@ def configure(conf):
 
 def build(bld):
 	source = [
-
 		'glue.cpp',
-
 	]
 
 	includes, defines, libs = [], [], []
@@ -40,6 +38,9 @@ def build(bld):
 		includes = includes,
 		defines  = defines,
 		use      = libs,
+		cflags       = ['-fvisibility=default'], 
+		cxxflags       = ['-fvisibility=default'], 
+		export_includes = '.', # Or the path to your headers
 		install_path = install_path,
 		subsystem = bld.env.MSVC_SUBSYSTEM,
 		idx      = bld.get_taskgen_count()

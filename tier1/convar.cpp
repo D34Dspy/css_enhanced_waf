@@ -256,6 +256,10 @@ ConCommandBase *ConCommandBase::GetNext( void )
 	return m_pNext;
 }
 
+void ConCommandBase::SetNext(ConCommandBase* pNext) {
+	m_pNext = pNext;
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Copies string using local new/delete operators

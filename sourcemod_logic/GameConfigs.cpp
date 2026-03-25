@@ -1266,6 +1266,7 @@ void GameConfigManager::CacheGameBinaryInfo(const char* pszName)
 	for (auto it = m_gameBinPathManager.Paths().begin(); it != m_gameBinPathManager.Paths().end(); ++it)
 	{
 		ke::SafeSprintf(binary_path, sizeof(binary_path), "%s%s%s", it->c_str(), it->back() == PLATFORM_SEP_CHAR ? "" : PLATFORM_SEP, name);
+		logger->LogError("path %s", binary_path);
 #if defined PLATFORM_WINDOWS
 		HMODULE hModule = LoadLibraryA(binary_path);
 		if (hModule)
@@ -1275,6 +1276,7 @@ void GameConfigManager::CacheGameBinaryInfo(const char* pszName)
 		}
 #else
 		void *pHandle = dlopen(binary_path, RTLD_NOW);
+		logger->LogError("base %p", pHandle);
 		if (pHandle)
 		{
 			info.m_pAddr = dlsym(pHandle, "CreateInterface");
@@ -1286,6 +1288,7 @@ void GameConfigManager::CacheGameBinaryInfo(const char* pszName)
 			break;
 
 		ke::SafeSprintf(binary_path, sizeof(binary_path), "%s%slib%s", it->c_str(), it->back() == PLATFORM_SEP_CHAR ? "" : PLATFORM_SEP, name);
+		logger->LogError("path %s", binary_path);
 #if defined PLATFORM_WINDOWS
 		HMODULE hModule = LoadLibraryA(binary_path);
 		if (hModule)
@@ -1295,6 +1298,7 @@ void GameConfigManager::CacheGameBinaryInfo(const char* pszName)
 		}
 #else
 		pHandle = dlopen(binary_path, RTLD_NOW);
+		logger->LogError("base %p", pHandle);
 		if (pHandle)
 		{
 			info.m_pAddr = dlsym(pHandle, "CreateInterface");
@@ -1334,12 +1338,18 @@ void GameConfigManager::CacheGameBinaryInfo(const char* pszName)
 	}
 
 	// But insert regardless, to cache the first lookup (even as failed)
-	logger->LogError("adding game bin info for %s - 0x%x", pszName, info.m_pAddr);
+	logger->LogError("adding game bin info for %s - 0x%p", pszName, info.m_pAddr);
 	m_gameBinInfos.insert(pszName, info);
 }
 
 bool GameConfigManager::TryGetGameBinaryInfo(const char* pszName, GameBinaryInfo* pDest)
 {
+
+	if (m_gameBinInfos.retrieve(pszName, pDest))
+	{
+		if(pDest->m_pAddr) {
+			return true;
+		}
 	auto it = m_gameBinInfos.iter();
 	for(size_t i = 0; i < m_gameBinInfos.elements(); i++) {
 		logger->LogError("%s : %p", it->key.c_str(), it->value.m_pAddr);
@@ -1348,9 +1358,18 @@ bool GameConfigManager::TryGetGameBinaryInfo(const char* pszName, GameBinaryInfo
 	for(auto a : m_gameBinPathManager.Paths()) {
 		logger->LogError("@ %s", a.c_str());
 	}
-
-	if (m_gameBinInfos.retrieve(pszName, pDest))
-		return pDest->m_pAddr != nullptr;
+		m_gameBinInfos.remove(pszName);
+	}
+	else {
+	auto it = m_gameBinInfos.iter();
+	for(size_t i = 0; i < m_gameBinInfos.elements(); i++) {
+		logger->LogError("%s : %p", it->key.c_str(), it->value.m_pAddr);
+		it.next();
+	}
+	for(auto a : m_gameBinPathManager.Paths()) {
+		logger->LogError("@ %s", a.c_str());
+	}
+}
 
 	CacheGameBinaryInfo(pszName);
 

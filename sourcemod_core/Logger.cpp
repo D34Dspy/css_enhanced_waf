@@ -43,7 +43,9 @@ bool g_in_game_log_hook = false;
 
 static LoggerCore g_LoggerCore;
 
-SH_DECL_HOOK1_void(IVEngineServer, LogPrint, SH_NOATTRIB, false, const char *);
+#include "glue.hpp"
+// SH_DECL_HOOK1_void(IVEngineServer, LogPrint, SH_NOATTRIB, false, const char *);
+int Hk_IVEngineServer__LogPrint;
 
 static void HookLogPrint(const char *message)
 {
@@ -57,12 +59,14 @@ static void HookLogPrint(const char *message)
 
 void LoggerCore::OnSourceModStartup(bool late)
 {
-	SH_ADD_HOOK(IVEngineServer, LogPrint, engine, SH_STATIC(HookLogPrint), false);
+	Hk_IVEngineServer__LogPrint = SMGlue_MkHook4_IVEngineServer__LogPrint(SH_STATIC(HookLogPrint), engine);
+	// SH_ADD_HOOK(IVEngineServer, LogPrint, engine, SH_STATIC(HookLogPrint), false);
 }
 
 void LoggerCore::OnSourceModAllShutdown()
 {
-	SH_REMOVE_HOOK(IVEngineServer, LogPrint, engine, SH_STATIC(HookLogPrint), false);
+	SMGlue_MkHook4_IVEngineServer__LogPrint(SH_STATIC(HookLogPrint), engine);
+	// SH_REMOVE_HOOK(IVEngineServer, LogPrint, engine, SH_STATIC(HookLogPrint), false);
 }
 
 void Engine_LogPrintWrapper(const char *msg)

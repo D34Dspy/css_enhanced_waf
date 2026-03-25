@@ -36,6 +36,7 @@
 #include "ExtensionSys.h"
 #include <ILibrarySys.h>
 #include <ISourceMod.h>
+#include "IExtensionSys.h"
 #include "common_logic.h"
 #include "PluginSys.h"
 #include "strtools.h"
@@ -615,8 +616,39 @@ IExtension *CExtensionManager::LoadAutoExtension(const char *path, bool bErrorOn
 	return p;
 }
 
+template <typename T>
+T* any(T* a, T* b) {
+	if (a)
+		return a;
+	return b;
+}
+
 IExtension *CExtensionManager::FindExtensionByFile(const char *file)
 {
+	IExtension* alt = nullptr;
+	if (strcmp(file, "clientprefs.ext") == 0 || strcmp(file, "clientprefs.ext.so") == 0)
+	{
+		if(alt = FindExtensionByFile("./bin/sourcemodclientprefs.so"))
+			return alt;
+		else if(alt = FindExtensionByFile("./bin/libsourcemodclientprefs.so"))
+			return alt;
+	}
+
+	if (strcmp(file, "sdktools.ext") == 0 || strcmp(file, "sdktools.ext.so") == 0)
+	{
+		if(alt = FindExtensionByFile("./bin/sourcemodsdktools.so"))
+			return alt;
+		else if(alt = FindExtensionByFile("./bin/libsourcemodsdktools.so"))
+			return alt;
+	}
+
+	if (strcmp(file, "topmenus.ext") == 0 || strcmp(file, "topmenus.ext.so") == 0)
+	{
+		if(alt = FindExtensionByFile("./bin/sourcemodtopmenus.so"))
+			return alt;
+		else if(alt = FindExtensionByFile("./bin/libsourcemodtopmenus.so"))
+			return alt;
+	}
 	List<CExtension *>::iterator iter;
 	CExtension *pExt;
 
@@ -638,6 +670,31 @@ IExtension *CExtensionManager::FindExtensionByFile(const char *file)
 
 IExtension *CExtensionManager::FindExtensionByName(const char *ext)
 {
+	IExtension* alt = nullptr;
+	auto file = ext;
+	if (strcmp(file, "clientprefs.ext") == 0 || strcmp(file, "clientprefs.ext.so") == 0)
+	{
+		if(alt = FindExtensionByFile("./bin/sourcemodclientprefs.so"))
+			return alt;
+		else if(alt = FindExtensionByFile("./bin/libsourcemodclientprefs.so"))
+			return alt;
+	}
+
+	if (strcmp(file, "sdktools.ext") == 0 || strcmp(file, "sdktools.ext.so") == 0)
+	{
+		if(alt = FindExtensionByFile("./bin/sourcemodsdktools.so"))
+			return alt;
+		else if(alt = FindExtensionByFile("./bin/libsourcemodsdktools.so"))
+			return alt;
+	}
+
+	if (strcmp(file, "topmenus.ext") == 0 || strcmp(file, "topmenus.ext.so") == 0)
+	{
+		if(alt = FindExtensionByFile("./bin/sourcemodtopmenus.so"))
+			return alt;
+		else if(alt = FindExtensionByFile("./bin/libsourcemodtopmenus.so"))
+			return alt;
+	}
 	List<CExtension *>::iterator iter;
 	CExtension *pExt;
 	IExtensionInterface *pAPI;
