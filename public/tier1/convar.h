@@ -283,6 +283,7 @@ public:
 
 	// Invoke the function
 	virtual void Dispatch( const CCommand &command );
+	virtual void DispatchOrig( const CCommand &command );
 
 private:
 	// NOTE: To maintain backward compat, we have to be very careful:

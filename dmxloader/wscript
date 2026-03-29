@@ -19,7 +19,7 @@ def build(bld):
 		'dmxattribute.cpp',
 		'dmxelement.cpp',
 		'dmxloader.cpp',
-                'dmxloadertext.cpp',
+		'dmxloadertext.cpp',
 		'dmxserializationdictionary.cpp'
 	]
 
@@ -33,7 +33,7 @@ def build(bld):
 
 	defines = []
 
-	libs = []
+	libs = ['tier1']
 
 	bld.stlib(
 		source   = source,

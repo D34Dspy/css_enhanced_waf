@@ -222,6 +222,12 @@ def define_platform(conf):
 		conf.define('DXVK_ENABLED', 1)
 
 	conf.env.USE_DXVK = conf.options.DXVK
+	if conf.options.DEDICATED:
+		conf.options.SDL = False
+		conf.define('DEDICATED', 1)
+	
+	if conf.options.SOURCEMOD:
+		conf.define('WAF_USE_SOURCEMOD', 1)
 
 	if conf.options.TESTS:
 		conf.define('UNITTESTS', 1)
