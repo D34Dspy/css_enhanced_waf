@@ -32,6 +32,7 @@
 #include <sourcemod_version.h>
 #include "extension.h"
 #include <compat_wrappers.h>
+#include "sourcehook.h"
 #include "vcallbuilder.h"
 #include "vnatives.h"
 #include "vhelpers.h"
@@ -448,7 +449,9 @@ bool SDKTools::LevelInit(char const *pMapName, char const *pMapEntities, char co
 
 	if (!(name=g_pGameConf->GetKeyValue("SlapSoundCount")))
 	{
-		RETURN_META_VALUE(MRES_IGNORED, true);
+		// RETURN_META_VALUE(MRES_IGNORED, true);
+		g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+		return true;
 	}
 
 	count = atoi(name);
@@ -463,7 +466,9 @@ bool SDKTools::LevelInit(char const *pMapName, char const *pMapEntities, char co
 		n++;
 	}
 
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 void SDKTools::LevelShutdown()
@@ -576,10 +581,14 @@ void SDKTools::OnSendClientCommand(edict_t *pPlayer, const char *szFormat)
 	// SetClientName work properly.
 	if (!strncmp(szFormat, "name ", 5))
 	{
-		RETURN_META(MRES_SUPERCEDE);
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_IVEngineServer__ClientCommand.create_return(MRES_SUPERCEDE);
+		return;
 	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_IVEngineServer__ClientCommand.create_return(MRES_IGNORED);
+	return;
 }
 #endif
 

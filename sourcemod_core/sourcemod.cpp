@@ -32,6 +32,8 @@
 #include <stdio.h>
 #include "IShareSys.h"
 #include "am-string.h"
+#include "glue.hpp"
+#include "sourcehook.h"
 #include "sourcemod.h"
 #include "sourcemm_api.h"
 #include <sh_string.h>
@@ -437,10 +439,15 @@ bool SourceModBase::LevelInit(char const *pMapName, char const *pMapEntities, ch
 	if (!success)
 	{
 		logger->LogError("Map entity lump parsing for %s failed with error code %d on position %d", pMapName, parseError, position);
-		RETURN_META_VALUE(MRES_IGNORED, true);
+		// RETURN_META_VALUE(MRES_IGNORED, true);
+		g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+		return true;
 	}
 
-	RETURN_META_VALUE_NEWPARAMS(MRES_HANDLED, true, &IServerGameDLL::LevelInit, (pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background));
+	// RETURN_META_VALUE_NEWPARAMS(MRES_HANDLED, true, &IServerGameDLL::LevelInit, (pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background));
+	g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+	g_SMGlue_IServerGameDLL__LevelInit.invoke(g_SMGlue_IServerGameDLL__LevelInit.candidate(), pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background);
+	return true;
 }
 
 const char *SourceModBase::GetMapEntitiesString()
@@ -448,9 +455,13 @@ const char *SourceModBase::GetMapEntitiesString()
 	const char *pNewMapEntities = logicore.GetEntityLumpString();
 	if (pNewMapEntities != nullptr)
 	{
-		RETURN_META_VALUE(MRES_SUPERCEDE, pNewMapEntities);
+		// RETURN_META_VALUE(MRES_SUPERCEDE, pNewMapEntities);
+		g_SMGlue_IVEngineServer__GetMapEntitiesString.create_return(MRES_SUPERCEDE, {pNewMapEntities});
+		return pNewMapEntities;
 	}
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	// RETURN_META_VALUE(MRES_IGNORED, NULL);
+	g_SMGlue_IVEngineServer__GetMapEntitiesString.create_return(MRES_IGNORED, {nullptr});
+	return nullptr;
 }
 
 void SourceModBase::LevelShutdown()

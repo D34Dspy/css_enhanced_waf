@@ -29,6 +29,7 @@
 * Version: $Id$
 */
 
+#include "sourcehook.h"
 typedef int Activity;
 
 #include "hooks.h"
@@ -323,7 +324,9 @@ void CHookManager::PlayerRunCmd(CUserCmd *ucmd, IMoveHelper *moveHelper)
 {
 	if (!ucmd)
 	{
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
+		return;
 	}
 
 	bool hasUsercmdsPreFwds = (m_usercmdsPreFwd->GetFunctionCount() > 0);
@@ -331,21 +334,27 @@ void CHookManager::PlayerRunCmd(CUserCmd *ucmd, IMoveHelper *moveHelper)
 
 	if (!hasUsercmdsPreFwds && !hasUsercmdsFwds)
 	{
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
+		return;
 	}
 
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
 
 	if (!pEntity)
 	{
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
+		return;
 	}
 
 	edict_t *pEdict = gameents->BaseEntityToEdict(pEntity);
 
 	if (!pEdict)
 	{
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
+		return;
 	}
 
 	int client = IndexOfEdict(pEdict);
@@ -401,37 +410,49 @@ void CHookManager::PlayerRunCmd(CUserCmd *ucmd, IMoveHelper *moveHelper)
 
 		if (result == Pl_Handled)
 		{
-			RETURN_META(MRES_SUPERCEDE);
+			// RETURN_META(MRES_SUPERCEDE);
+			g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_SUPERCEDE);
+			return;
 		}
 	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
+	return;
 }
 
 void CHookManager::PlayerRunCmdPost(CUserCmd *ucmd, IMoveHelper *moveHelper)
 {
 	if (!ucmd)
 	{
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
+		return;
 	}
 
 	if (m_usercmdsPostFwd->GetFunctionCount() == 0)
 	{
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
+		return;
 	}
 
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
 
 	if (!pEntity)
 	{
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
+		return;
 	}
 
 	edict_t *pEdict = gameents->BaseEntityToEdict(pEntity);
 
 	if (!pEdict)
 	{
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
+		return;
 	}
 
 	int client = IndexOfEdict(pEdict);
@@ -450,7 +471,9 @@ void CHookManager::PlayerRunCmdPost(CUserCmd *ucmd, IMoveHelper *moveHelper)
 	m_usercmdsPostFwd->PushArray(mouse, 2);
 	m_usercmdsPostFwd->Execute();
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
+	return;
 }
 
 void CHookManager::NetChannelHook(int client)
@@ -520,24 +543,32 @@ void CHookManager::ProcessPacket(struct netpacket_s *packet, bool bHasHeader)
 {
 	if (m_netFileReceiveFwd->GetFunctionCount() == 0)
 	{
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_INetChannel__ProcessPacket.create_return(MRES_IGNORED);
+		return;
 	}
 
 	m_pActiveNetChannel = META_IFACEPTR(INetChannel);
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_INetChannel__ProcessPacket.create_return(MRES_IGNORED);
+	return;
 }
 
 bool CHookManager::FileExists(const char *filename, const char *pathID)
 {
 	if (m_pActiveNetChannel == NULL || m_netFileReceiveFwd->GetFunctionCount() == 0)
 	{
-		RETURN_META_VALUE(MRES_IGNORED, false);
+		// RETURN_META_VALUE(MRES_IGNORED, false);
+		g_SMGlue_IBaseFileSystem__FileExists.create_return(MRES_IGNORED, {false});
+		return false;
 	}
 
 	bool ret = SH_CALL(basefilesystemPatch, &IBaseFileSystem::FileExists)(filename, pathID);
 	if (ret == true) /* If the File Exists, the engine historically bails out. */
 	{
-		RETURN_META_VALUE(MRES_IGNORED, false);
+		// RETURN_META_VALUE(MRES_IGNORED, false);
+		g_SMGlue_IBaseFileSystem__FileExists.create_return(MRES_IGNORED, {false});
+		return false;
 	}
 
 	int userid = 0;
@@ -554,16 +585,22 @@ bool CHookManager::FileExists(const char *filename, const char *pathID)
 
 	if (res != Pl_Continue)
 	{
-		RETURN_META_VALUE(MRES_SUPERCEDE, true);
+		// RETURN_META_VALUE(MRES_SUPERCEDE, true);
+		g_SMGlue_IBaseFileSystem__FileExists.create_return(MRES_SUPERCEDE, {true});
+		return true;
 	}
 
-	RETURN_META_VALUE(MRES_IGNORED, false);
+	// RETURN_META_VALUE(MRES_IGNORED, false);
+	g_SMGlue_IBaseFileSystem__FileExists.create_return(MRES_IGNORED, {false});
+	return false;
 }
 
 void CHookManager::ProcessPacket_Post(struct netpacket_s* packet, bool bHasHeader)
 {
 	m_pActiveNetChannel = NULL;
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_INetChannel__ProcessPacket.create_return(MRES_IGNORED);
+	return;
 }
 
 #if (SOURCE_ENGINE >= SE_ALIENSWARM || SOURCE_ENGINE == SE_LEFT4DEAD || SOURCE_ENGINE == SE_LEFT4DEAD2)
@@ -574,13 +611,17 @@ bool CHookManager::SendFile(const char *filename, unsigned int transferID)
 {
 	if (m_netFileSendFwd->GetFunctionCount() == 0)
 	{
-		RETURN_META_VALUE(MRES_IGNORED, false);
+		// RETURN_META_VALUE(MRES_IGNORED, false);
+		g_SMGlue_INetChannel__SendFile.create_return(MRES_IGNORED, {false});
+		return false;
 	}
 
 	INetChannel *pNetChannel = META_IFACEPTR(INetChannel);
 	if (pNetChannel == NULL)
 	{
-		RETURN_META_VALUE(MRES_IGNORED, false);
+		// RETURN_META_VALUE(MRES_IGNORED, false);
+		g_SMGlue_INetChannel__SendFile.create_return(MRES_IGNORED, {false});
+		return false;
 	}
 
 	int userid = 0;
@@ -603,10 +644,14 @@ bool CHookManager::SendFile(const char *filename, unsigned int transferID)
 #else
 		pNetChannel->DenyFile(filename, transferID);
 #endif
-		RETURN_META_VALUE(MRES_SUPERCEDE, false);
+		// RETURN_META_VALUE(MRES_SUPERCEDE, false);
+		g_SMGlue_INetChannel__SendFile.create_return(MRES_SUPERCEDE, {false});
+		return false;
 	}
 
-	RETURN_META_VALUE(MRES_IGNORED, false);
+	// RETURN_META_VALUE(MRES_IGNORED, false);
+	g_SMGlue_INetChannel__SendFile.create_return(MRES_IGNORED, {false});
+	return false;
 }
 
 #if !defined CLIENTVOICE_HOOK_SUPPORT

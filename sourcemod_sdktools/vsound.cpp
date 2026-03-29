@@ -33,6 +33,7 @@
 #include <IForwardSys.h>
 
 #include "glue.hpp"
+#include "sourcehook.h"
 
 SH_DECL_HOOK8_void(IVEngineServer, EmitAmbientSound, SH_NOATTRIB, 0, int, const Vector &, const char *, float, soundlevel_t, int, int, float);
 
@@ -254,7 +255,9 @@ void SoundHooks::OnEmitAmbientSound(int entindex, const Vector &pos, const char 
 		case Pl_Handled:
 		case Pl_Stop:
 			{
-				RETURN_META(MRES_SUPERCEDE);
+				// RETURN_META(MRES_SUPERCEDE);
+				g_SMGlue_IVEngineServer__EmitAmbientSound.create_return(MRES_SUPERCEDE);
+				return;
 			}
 		case Pl_Changed:
 			{
@@ -262,8 +265,11 @@ void SoundHooks::OnEmitAmbientSound(int entindex, const Vector &pos, const char 
 				vec2.x = sp_ctof(vec[0]);
 				vec2.y = sp_ctof(vec[1]);
 				vec2.z = sp_ctof(vec[2]);
-				RETURN_META_NEWPARAMS(MRES_IGNORED, &IVEngineServer::EmitAmbientSound,
-										(entindex, vec2, buffer, vol, soundlevel, fFlags, pitch, delay));
+				// RETURN_META_NEWPARAMS(MRES_IGNORED, &IVEngineServer::EmitAmbientSound,
+										// (entindex, vec2, buffer, vol, soundlevel, fFlags, pitch, delay));
+				g_SMGlue_IVEngineServer__EmitAmbientSound.create_return(MRES_SUPERCEDE);
+				g_SMGlue_IVEngineServer__EmitAmbientSound.invoke(g_SMGlue_IVEngineServer__EmitAmbientSound.candidate(), entindex, vec2, (const char*)buffer, vol, soundlevel, fFlags, pitch, delay);
+				return;
 			}
 		}
 	}
@@ -387,7 +393,9 @@ void SoundHooks::OnEmitSound(IRecipientFilter &filter, int iEntIndex, int iChann
 #if SOURCE_ENGINE >= SE_PORTAL2
 				RETURN_META_VALUE(MRES_SUPERCEDE, -1);
 #else
-				RETURN_META(MRES_SUPERCEDE);
+				// RETURN_META(MRES_SUPERCEDE);
+				g_SMGlue_IEngineSound__EmitSound.create_return(MRES_SUPERCEDE);
+				return;
 #endif
 			}
 		case Pl_Changed:
@@ -458,13 +466,18 @@ void SoundHooks::OnEmitSound(IRecipientFilter &filter, int iEntIndex, int iChann
 					);
 #elif SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_SDK2013 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_PVKII
-				RETURN_META_NEWPARAMS(
-					MRES_IGNORED,
-					static_cast<void (IEngineSound::*)(IRecipientFilter &, int, int, const char*, float, soundlevel_t, 
-					int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int)>(&IEngineSound::EmitSound), 
-					(crf, iEntIndex, iChannel, buffer, flVolume, iSoundlevel, iFlags, iPitch, iSpecialDSP, pOrigin, 
-					pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity)
-					);
+				// RETURN_META_NEWPARAMS(
+					// MRES_IGNORED,
+					// static_cast<void (IEngineSound::*)(IRecipientFilter &, int, int, const char*, float, soundlevel_t, 
+					// int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int)>(&IEngineSound::EmitSound), 
+					// (crf, iEntIndex, iChannel, buffer, flVolume, iSoundlevel, iFlags, iPitch, iSpecialDSP, pOrigin, 
+					// pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity)
+					// );
+				g_SMGlue_IEngineSound__EmitSound.create_return(MRES_IGNORED);
+				g_SMGlue_IEngineSound__EmitSound.invoke(g_SMGlue_IEngineSound__EmitSound.candidate(), 
+					crf, iEntIndex, iChannel, (const char*)buffer, flVolume, iSoundlevel, iFlags, iPitch, iSpecialDSP, pOrigin, 
+					pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
+				return;
 #else
 				RETURN_META_NEWPARAMS(
 					MRES_IGNORED,
@@ -551,7 +564,9 @@ void SoundHooks::OnEmitSound2(IRecipientFilter &filter, int iEntIndex, int iChan
 #if SOURCE_ENGINE >= SE_PORTAL2
 				RETURN_META_VALUE(MRES_SUPERCEDE, -1);
 #else
-				RETURN_META(MRES_SUPERCEDE);
+				// RETURN_META(MRES_SUPERCEDE);
+				g_SMGlue_IEngineSound__EmitSound2.create_return(MRES_SUPERCEDE);
+				return;
 #endif
 			}
 		case Pl_Changed:
@@ -622,13 +637,19 @@ void SoundHooks::OnEmitSound2(IRecipientFilter &filter, int iEntIndex, int iChan
 					);
 #elif SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_SDK2013 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_PVKII
-RETURN_META_NEWPARAMS(
-					MRES_IGNORED,
-					static_cast<void (IEngineSound::*)(IRecipientFilter &, int, int, const char *, float, float, 
-					int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int)>(&IEngineSound::EmitSound), 
-					(crf, iEntIndex, iChannel, buffer, flVolume, SNDLVL_TO_ATTN(static_cast<soundlevel_t>(sndlevel)), 
-					iFlags, iPitch, iSpecialDSP, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity)
-					);
+// RETURN_META_NEWPARAMS(
+					// MRES_IGNORED,
+					// static_cast<void (IEngineSound::*)(IRecipientFilter &, int, int, const char *, float, float, 
+					// int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int)>(&IEngineSound::EmitSound), 
+					// (crf, iEntIndex, iChannel, buffer, flVolume, SNDLVL_TO_ATTN(static_cast<soundlevel_t>(sndlevel)), 
+					// iFlags, iPitch, iSpecialDSP, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity)
+					// );
+					g_SMGlue_IEngineSound__EmitSound2.create_return(MRES_SUPERCEDE);
+					float vol = SNDLVL_TO_ATTN(static_cast<soundlevel_t>(sndlevel));
+					g_SMGlue_IEngineSound__EmitSound2.invoke(g_SMGlue_IEngineSound__EmitSound2.candidate(), 
+						crf, iEntIndex, iChannel, (const char*)buffer, flVolume, vol, iFlags, 
+						iPitch, iSpecialDSP, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
+					return;
 #else
 				RETURN_META_NEWPARAMS(
 					MRES_IGNORED,

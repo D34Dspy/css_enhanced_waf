@@ -127,7 +127,9 @@ void NextMapManager::HookChangeLevel(const char *map, const char *unknown, const
 	if (g_forcedChange)
 	{
 		logger->LogMessage("[SM] Changed map to \"%s\"", map);
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_IVEngineServer__ChangeLevel.create_return(MRES_IGNORED);
+		return;
 	}
 
 	const char *newmap = sm_nextmap.GetString();
@@ -142,7 +144,9 @@ void NextMapManager::HookChangeLevel(const char *map, const char *unknown, const
 
 	if (newmap[0] == '\0' || !g_HL2.IsMapValid(newmap))
 	{
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_IVEngineServer__ChangeLevel.create_return(MRES_IGNORED);
+		return;
 	}
 
 	logger->LogMessage("[SM] Changed map to \"%s\"", newmap);
@@ -151,7 +155,10 @@ void NextMapManager::HookChangeLevel(const char *map, const char *unknown, const
 	ke::SafeStrcpy(m_tempChangeInfo.m_changeReason, sizeof(m_tempChangeInfo.m_changeReason), "Normal level change");
 
 #if SOURCE_ENGINE != SE_DARKMESSIAH
-	RETURN_META_NEWPARAMS(MRES_IGNORED, &IVEngineServer::ChangeLevel, (newmap, unknown));
+	// RETURN_META_NEWPARAMS(MRES_IGNORED, &IVEngineServer::ChangeLevel, (newmap, unknown));
+	g_SMGlue_IVEngineServer__ChangeLevel.create_return(MRES_IGNORED);
+	g_SMGlue_IVEngineServer__ChangeLevel.invoke(g_SMGlue_IVEngineServer__ChangeLevel.candidate(), newmap, unknown);
+	return;
 #else
 	RETURN_META_NEWPARAMS(MRES_IGNORED, &IVEngineServer::ChangeLevel, (newmap, unknown, video, bLongLoading));
 #endif

@@ -30,6 +30,7 @@
  */
 
 #include <time.h>
+#include "sourcehook.h"
 #include "sourcemod.h"
 #include "sourcemm_api.h"
 #include "sm_stringutil.h"
@@ -54,7 +55,11 @@ static void HookLogPrint(const char *message)
 	g_in_game_log_hook = false;
 
 	if (stopped)
-		RETURN_META(MRES_SUPERCEDE);
+	{
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_IVEngineServer__LogPrint.create_return(MRES_SUPERCEDE);
+		return;
+	}
 }
 
 void LoggerCore::OnSourceModStartup(bool late)

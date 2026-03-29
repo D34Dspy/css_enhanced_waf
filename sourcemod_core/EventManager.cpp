@@ -34,6 +34,7 @@
 #include "PlayerManager.h"
 
 #include "logic_bridge.h"
+#include "sourcehook.h"
 #include <bridge/include/IScriptManager.h>
 
 EventManager g_EventManager;
@@ -400,7 +401,9 @@ bool EventManager::OnFireEvent(IGameEvent *pEvent, bool bDontBroadcast)
 	/* The engine accepts NULL without crashing, so to prevent a crash in SM we ignore these */
 	if (!pEvent)
 	{
-		RETURN_META_VALUE(MRES_IGNORED, false);
+		// RETURN_META_VALUE(MRES_IGNORED, false);
+		g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED);
+		return false;
 	}
 
 	name = pEvent->GetName();
@@ -443,7 +446,10 @@ bool EventManager::OnFireEvent(IGameEvent *pEvent, bool bDontBroadcast)
 		if (res >= Pl_Handled)
 		{
 			gameevents->FreeEvent(pEvent);
-			RETURN_META_VALUE(MRES_SUPERCEDE, false);
+			// RETURN_META_VALUE(MRES_SUPERCEDE, false);
+			g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_SUPERCEDE, {false});
+			return false;
+			
 		}
 	}
 	else
@@ -452,9 +458,16 @@ bool EventManager::OnFireEvent(IGameEvent *pEvent, bool bDontBroadcast)
 	}
 
 	if (broadcast != bDontBroadcast)
-		RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, true, &IGameEventManager2::FireEvent, (pEvent, broadcast));
+	 	{
+			// RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, true, &IGameEventManager2::FireEvent, (pEvent, broadcast));
+			g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {true});
+			g_SMGlue_IGameEventManager2__FireEvent.invoke(g_SMGlue_IGameEventManager2__FireEvent.candidate(), pEvent, broadcast);
+			return true;
+		}
 
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 /* IGameEventManager2::FireEvent post hook */
@@ -468,7 +481,9 @@ bool EventManager::OnFireEvent_Post(IGameEvent *pEvent, bool bDontBroadcast)
 	/* The engine accepts NULL without crashing, so to prevent a crash in SM we ignore these */
 	if (!pEvent)
 	{
-		RETURN_META_VALUE(MRES_IGNORED, false);
+		// RETURN_META_VALUE(MRES_IGNORED, false);
+		g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {false});
+		return false;
 	}
 
 	pHook = m_EventStack.front();
@@ -519,5 +534,8 @@ bool EventManager::OnFireEvent_Post(IGameEvent *pEvent, bool bDontBroadcast)
 
 	m_EventStack.pop();
 
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {true});
+	return true;
+
 }

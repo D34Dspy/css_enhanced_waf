@@ -30,8 +30,10 @@
  */
 
 #include "UserMessages.h"
+#include "glue.hpp"
 #include "sm_stringutil.h"
 #include "logic_bridge.h"
+#include "sourcehook.h"
 
 #if SOURCE_ENGINE == SE_CSGO
 #include <cstrike15_usermessage_helpers.h>
@@ -587,7 +589,10 @@ bf_write *UserMessages::OnStartMessage_Pre(IRecipientFilter *filter, int msg_typ
 		|| (m_InExec && (m_CurFlags & USERMSG_BLOCKHOOKS)))
 	{
 		m_InHook = false;
-		UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
+		// UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
+		g_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullptr});
+		decltype(g_SMGlue_IVEngineServer__UserMessageBegin)::RetStore a;
+		return nullptr;
 	}
 
 	m_CurId = msg_type;
@@ -605,11 +610,15 @@ bf_write *UserMessages::OnStartMessage_Pre(IRecipientFilter *filter, int msg_typ
 		UM_RETURN_META_VALUE(MRES_SUPERCEDE, m_InterceptBuffer);
 #else
 		m_InterceptBuffer.Reset();
-		UM_RETURN_META_VALUE(MRES_SUPERCEDE, &m_InterceptBuffer);
+		// UM_RETURN_META_VALUE(MRES_SUPERCEDE, &m_InterceptBuffer);
+		g_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_SUPERCEDE, {&m_InterceptBuffer});
+		return &m_InterceptBuffer;
 #endif
 	}
 
-	UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
+	// UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
+	g_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullptr});
+	return nullptr;
 }
 
 #if SOURCE_ENGINE == SE_CSGO || SOURCE_ENGINE == SE_BLADE || SOURCE_ENGINE == SE_MCV
@@ -622,7 +631,9 @@ bf_write *UserMessages::OnStartMessage_Post(IRecipientFilter *filter, int msg_ty
 {
 	if (!m_InHook)
 	{
-		UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
+		// UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
+		g_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullptr});
+		return nullptr;
 	}
 
 #ifdef USE_PROTOBUF_USERMESSAGES
@@ -634,14 +645,19 @@ bf_write *UserMessages::OnStartMessage_Post(IRecipientFilter *filter, int msg_ty
 	m_OrigBuffer = META_RESULT_ORIG_RET(bf_write *);
 #endif
 
-	UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
+	// UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
+	bf_write* nullbfw = nullptr;
+	g_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullbfw});
+	return nullptr;
 }
 
 void UserMessages::OnMessageEnd_Post()
 {
 	if (!m_InHook)
 	{
-		UM_RETURN_META(MRES_IGNORED);
+		// UM_RETURN_META(MRES_IGNORED);
+		g_SMGlue_IVEngineServer__MessageEnd.create_return(MRES_IGNORED);
+		return;
 	}
 
 	MsgList *pList;
@@ -709,7 +725,9 @@ void UserMessages::OnMessageEnd_Pre()
 {
 	if (!m_InHook)
 	{
-		UM_RETURN_META(MRES_IGNORED);
+		// UM_RETURN_META(MRES_IGNORED);
+		g_SMGlue_IVEngineServer__MessageEnd.create_return(MRES_IGNORED);
+		return;
 	}
 
 	MsgList *pList;
@@ -828,8 +846,12 @@ void UserMessages::OnMessageEnd_Pre()
 #endif
 	}
 
-	UM_RETURN_META((intercepted) ? MRES_SUPERCEDE : MRES_IGNORED);
+	// UM_RETURN_META((intercepted) ? MRES_SUPERCEDE : MRES_IGNORED);
+	g_SMGlue_IVEngineServer__MessageEnd.create_return((intercepted) ? MRES_SUPERCEDE : MRES_IGNORED);
+	return;
 supercede:
 	m_BlockEndPost = true;
-	UM_RETURN_META(MRES_SUPERCEDE);
+	// UM_RETURN_META(MRES_SUPERCEDE);
+	g_SMGlue_IVEngineServer__MessageEnd.create_return(MRES_SUPERCEDE);
+	return;
 }

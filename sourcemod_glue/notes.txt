@@ -1,0 +1,80 @@
+removed: vstdlib, tier1
+
+	if bld.options.SOURCEMOD and bld.options.DEDICATED:
+		libs += ['sourcemodglue']
+		includes += ['../sourcemod_glue']
+
+IServerGameDLL::GameServerSteamAPIActivated;
+ConCommand::Dispatch;
+IBaseFileSystem::FileExists;
+IClientMessageHandler::ProcessVoiceData;
+ICvar::CallGlobalChangeCallback;
+ICvar::CallGlobalChangeCallbacks;
+ICvar::RegisterConCommand;
+ICvar::UnregisterConCommand;
+IEngineSound::EmitSound2;
+IEngineSound::EmitSound;
+IGameEventManager2::FireEvent;
+INetChannel::ProcessPacket;
+INetChannel::SendFile;
+IServerGameClients::ClientCommand;
+IServerGameClients::ClientCommandKeyValues;
+IServerGameClients::ClientConnect;
+IServerGameClients::ClientDisconnect;
+IServerGameClients::ClientPutInServer;
+IServerGameClients::ClientSettingsChanged;
+IServerGameClients::ClientVoice;
+IServerGameClients::SetCommandClient;
+IServerGameDLL::GameFrame;
+IServerGameDLL::GetGameDescription;
+IServerGameDLL::LevelInit;
+IServerGameDLL::LevelShutdown;
+IServerGameDLL::OnQueryCvarValueFinished;
+IServerGameDLL::ServerActivate;
+IServerGameDLL::ServerHibernationUpdate;
+IServerGameDLL::SetServerHibernation;
+IServerGameDLL::Think;
+IServerPluginCallbacks::OnQueryCvarValueFinished;
+IServerPluginHelpers::CreateMessage;
+IVEngineServer::ChangeLevel;
+IVEngineServer::ClientCommand;
+IVEngineServer::ClientPrintf;
+IVEngineServer::EmitAmbientSound;
+IVEngineServer::GetMapEntitiesString;
+IVEngineServer::LogPrint;
+IVEngineServer::MessageEnd;
+IVEngineServer::PlaybackTempEntity;
+IVEngineServer::UserMessageBegin;
+IVoiceServer::SetClientListening;
+
+P0 CBaseEntity::CanBeAutobalanced;
+P0 CBaseEntity::GetMaxHealth;
+P0 CBaseEntity::PostThink;
+P0 CBaseEntity::PreThink;
+P0 CBaseEntity::Reload;
+P0 CBaseEntity::SGD_GameInit;
+P0 CBaseEntity::SGD_LevelShutdown;
+P0 CBaseEntity::Spawn;
+P0 CBaseEntity::Think;
+P1 CBaseEntity::Blocked;
+P1 CBaseEntity::EndTouch;
+P1 CBaseEntity::FireBullets;
+P1 CBaseEntity::GroundEntChanged;
+P1 CBaseEntity::OnTakeDamage;
+P1 CBaseEntity::OnTakeDamage_Alive;
+P1 CBaseEntity::StartTouch;
+P1 CBaseEntity::Touch;
+P1 CBaseEntity::VPhysicsUpdate;
+P1 CBaseEntity::Weapon_CanSwitchTo;
+P1 CBaseEntity::Weapon_CanUse;
+P1 CBaseEntity::Weapon_Equip;
+P2 CBaseEntity::PlayerRunCmdHook2;
+P2 CBaseEntity::PlayerRunCmdHook;
+P2 CBaseEntity::SetTransmit;
+P2 CBaseEntity::ShouldCollide;
+P2 CBaseEntity::Weapon_Switch;
+P3 CBaseEntity::TraceAttack;
+P3 CBaseEntity::Weapon_Drop;
+P4 CBaseEntity::TraceAttack;
+P4 CBaseEntity::Use;
+P6 CBaseEntity::SGD_LevelInit;

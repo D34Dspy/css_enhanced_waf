@@ -29,6 +29,7 @@
  * Version: $Id$
  */
 
+#include "sourcehook.h"
 #include "tempents.h"
 #include "CellRecipientFilter.h"
 #include <IForwardSys.h>
@@ -228,12 +229,16 @@ void TempEntHooks::OnPlaybackTempEntity(IRecipientFilter &filter, float delay, c
 			if (res != Pl_Continue)
 			{
 				g_CurrentTE = oldinfo;
-				RETURN_META(MRES_SUPERCEDE);
+				// RETURN_META(MRES_SUPERCEDE);
+				g_SMGlue_IVEngineServer__PlaybackTempEntity.create_return(MRES_SUPERCEDE);
+				return;
 			}
 		}
 
 		g_CurrentTE = oldinfo;
-		RETURN_META(MRES_IGNORED);
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_IVEngineServer__PlaybackTempEntity.create_return(MRES_IGNORED);
+		return;
 	}
 }
 

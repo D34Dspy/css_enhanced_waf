@@ -24,6 +24,7 @@
  */
 
 #include <stdio.h>
+#include "glue.hpp"
 #include "metamod_oslink.h"
 #include "metamod.h"
 #include <interface.h>
@@ -34,6 +35,7 @@
 #include "metamod_util.h"
 #include "metamod_console.h"
 #include "provider/provider_ep2.h"
+#include "sourcehook.h"
 #if defined __linux__
 #include <sys/stat.h>
 #endif
@@ -143,6 +145,10 @@ SourceMM::ISmmAPI *g_pMetamod = &g_Metamod;
 		} \
 	}
 
+static int hk_sgd_gameinit = 0;
+static int hk_sgd_levelinit = 0;
+static int hk_sgd_levelshutdown = 0;
+
 /* Initialize everything here */
 void
 mm_InitializeForLoad()
@@ -159,26 +165,30 @@ mm_InitializeForLoad()
 
 	SourceHook::MemFuncInfo info;
 
-	if (!provider->GetHookInfo(ProvidedHook_GameInit, &info))
-	{
-		provider->DisplayError("Metamod:Source could not find a valid hook for IServerGameDLL::GameInit");
-	}
-	SH_MANUALHOOK_RECONFIGURE(SGD_GameInit, info.vtblindex, info.vtbloffs, info.thisptroffs);
-	SH_ADD_MANUALHOOK_STATICFUNC(SGD_GameInit, server, Handler_GameInit, false);
+	// if (!provider->GetHookInfo(ProvidedHook_GameInit, &info))
+	// {
+		// provider->DisplayError("Metamod:Source could not find a valid hook for IServerGameDLL::GameInit");
+	// }
+	// SH_MANUALHOOK_RECONFIGURE(SGD_GameInit, info.vtblindex, info.vtbloffs, info.thisptroffs);
+	// SH_ADD_MANUALHOOK_STATICFUNC(SGD_GameInit, server, Handler_GameInit, false);
+	
+	hk_sgd_gameinit = g_SMGlue_P0__SGD_GameInit.add(SH_STATIC(Handler_GameInit), server);
 
-	if (!provider->GetHookInfo(ProvidedHook_LevelInit, &info))
-	{
-		provider->DisplayError("Metamod:Source could not find a valid hook for IServerGameDLL::LevelInit");
-	}
-	SH_MANUALHOOK_RECONFIGURE(SGD_LevelInit, info.vtblindex, info.vtbloffs, info.thisptroffs);
-	SH_ADD_MANUALHOOK_STATICFUNC(SGD_LevelInit, server, Handler_LevelInit, true);
+	// if (!provider->GetHookInfo(ProvidedHook_LevelInit, &info))
+	// {
+		// provider->DisplayError("Metamod:Source could not find a valid hook for IServerGameDLL::LevelInit");
+	// }
+	// SH_MANUALHOOK_RECONFIGURE(SGD_LevelInit, info.vtblindex, info.vtbloffs, info.thisptroffs);
+	// SH_ADD_MANUALHOOK_STATICFUNC(SGD_LevelInit, server, Handler_LevelInit, true);
+	hk_sgd_levelinit = g_SMGlue_IServerGameDLL__LevelInit.add(SH_STATIC(Handler_LevelInit), server);
 
-	if (!provider->GetHookInfo(ProvidedHook_LevelShutdown, &info))
-	{
-		provider->DisplayError("Metamod:Source could not find a valid hook for IServerGameDLL::LevelShutdown");
-	}
-	SH_MANUALHOOK_RECONFIGURE(SGD_LevelShutdown, info.vtblindex, info.vtbloffs, info.thisptroffs);
-	SH_ADD_MANUALHOOK_STATICFUNC(SGD_LevelShutdown, server, Handler_LevelShutdown, true);
+	// if (!provider->GetHookInfo(ProvidedHook_LevelShutdown, &info))
+	// {
+		// provider->DisplayError("Metamod:Source could not find a valid hook for IServerGameDLL::LevelShutdown");
+	// }
+	// SH_MANUALHOOK_RECONFIGURE(SGD_LevelShutdown, info.vtblindex, info.vtbloffs, info.thisptroffs);
+	// SH_ADD_MANUALHOOK_STATICFUNC(SGD_LevelShutdown, server, Handler_LevelShutdown, true);
+	hk_sgd_levelshutdown = g_SMGlue_IServerGameDLL__LevelShutdown.add(SH_STATIC(Handler_LevelShutdown), server);
 }
 
 bool
@@ -507,7 +517,9 @@ Handler_GameInit()
 
 	is_game_init = true;
 
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_P0__SGD_GameInit.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 void
@@ -555,7 +567,9 @@ Handler_LevelShutdown(void)
 
 	ITER_EVENT(OnLevelShutdown, ());
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_IServerGameDLL__LevelShutdown.create_return(MRES_IGNORED);
+	return;
 }
 
 static bool
@@ -568,7 +582,9 @@ Handler_LevelInit(char const *pMapName,
 {
 	ITER_EVENT(OnLevelInit, (pMapName, pMapEntities, pOldLevel, pLandmarkName, loadGame, background));
 
-	RETURN_META_VALUE(MRES_IGNORED, false);
+	// RETURN_META_VALUE(MRES_IGNORED, false);
+	g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {false});
+	return false;
 }
 
 void MetamodSource::LogMsg(ISmmPlugin *pl, const char *msg, ...)

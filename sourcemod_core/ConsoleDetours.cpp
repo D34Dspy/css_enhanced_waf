@@ -39,6 +39,7 @@
  * loading commands to remove stale hooks from SH.
  */
 
+#include "sourcehook.h"
 #include "sourcemod.h"
 #include "sourcemm_api.h"
 #include "Logger.h"
@@ -140,7 +141,10 @@ class GenericCommandHooker : public IConCommandLinkListener
 #endif
 			);
 		if (res >= Pl_Handled)
-			RETURN_META(MRES_SUPERCEDE);
+		 {
+			// RETURN_META(MRES_SUPERCEDE);
+			g_SMGlue_ConCommand__Dispatch.create_return(MRES_SUPERCEDE);
+		 }
 	}
 
 	void ReparseCommandList()

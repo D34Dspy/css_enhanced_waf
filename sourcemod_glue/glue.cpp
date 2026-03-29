@@ -33,7 +33,7 @@ SourcemodRouter<fastdelegate::FastDelegate2<edict_t *, const char*>, IVEngineSer
 SourcemodRouter<fastdelegate::FastDelegate2<edict_t *, const char *>, IServerGameClients> g_SMGlue_IServerGameClients__ClientPutInServer;
 SourcemodRouter<fastdelegate::FastDelegate2<edict_t *, const char *>, IVEngineServer> g_SMGlue_IVEngineServer__ClientPrintf;
 SourcemodRouter<fastdelegate::FastDelegate3<ConVar *, const char *, float>, ICvar> g_SMGlue_ICvar__CallGlobalChangeCallbacks;
-SourcemodRouter<fastdelegate::FastDelegate3<bf_write *, IRecipientFilter *, int, const char *>, IVEngineServer> g_SMGlue_IVEngineServer__UserMessageBegin;
+SourcemodRouter<fastdelegate::FastDelegate2< IRecipientFilter *, int, bf_write *>, IVEngineServer> g_SMGlue_IVEngineServer__UserMessageBegin;
 SourcemodRouter<fastdelegate::FastDelegate3<int, int, bool, bool>, IVoiceServer> g_SMGlue_IVoiceServer__SetClientListening;
 SourcemodRouter<fastdelegate::FastDelegate3<edict_t *, int, int>, IServerGameDLL> g_SMGlue_IServerGameDLL__ServerActivate;
 SourcemodRouter<fastdelegate::FastDelegate4<edict_t *, DIALOG_TYPE, KeyValues *, IServerPluginCallbacks *>, IServerPluginHelpers> g_SMGlue_IServerPluginHelpers__CreateMessage;
