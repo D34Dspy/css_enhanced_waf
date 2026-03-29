@@ -175,7 +175,11 @@ void CommandHook::Dispatch(DISPATCH_ARGS)
 	bool rval = callback_(sCoreProviderImpl.CommandClient(), &args);
 	Release();
 	if (rval)
-		RETURN_META(MRES_SUPERCEDE);
+	{
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_ConCommand__Dispatch.create_return(MRES_SUPERCEDE);
+		return;
+	}
 }
 
 void CommandHook::Zap()

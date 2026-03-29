@@ -855,8 +855,10 @@ public:
 //N=0
 template<class RetType=detail::DefaultVoid>
 class FastDelegate0 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { void unwrap(); };
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)();
 	typedef RetType (*UnvoidStaticFunctionPtr)();
 	typedef RetType (detail::GenericClass::*GenericMemFn)();
@@ -938,10 +940,16 @@ private:	// Invoker for static functions
 };
 
 //N=1
+template <typename T>
+using ParamRec = T;
+template <typename T>
+using ParamRef = T&;
 template<class Param1, class RetType=detail::DefaultVoid>
 class FastDelegate1 {
-private:
+public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1; ParameterSet(){} ParameterSet(ParamRec<Param1> v1) : p1(v1) { } void unwrap(ParamRef<Param1> v1) { v1 = p1; } };
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1);
@@ -1025,8 +1033,10 @@ private:	// Invoker for static functions
 //N=2
 template<class Param1, class Param2, class RetType=detail::DefaultVoid>
 class FastDelegate2 {
-private:
+public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;  ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2) : p1(v1), p2(v2) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2) { v1 = p1; v2 = p2; } };
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2);
@@ -1110,8 +1120,10 @@ private:	// Invoker for static functions
 //N=3
 template<class Param1, class Param2, class Param3, class RetType=detail::DefaultVoid>
 class FastDelegate3 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;   ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3) : p1(v1), p2(v2), p3(v3) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3) {v1=p1;v2=p2;v3=p3;} };
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3);
@@ -1195,8 +1207,11 @@ private:	// Invoker for static functions
 //N=4
 template<class Param1, class Param2, class Param3, class Param4, class RetType=detail::DefaultVoid>
 class FastDelegate4 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;    ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4) : p1(v1), p2(v2), p3(v3), p4(v4) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4) {v1=p1;v2=p2;v3=p3;v4=p4;} };
+
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4);
@@ -1280,8 +1295,11 @@ private:	// Invoker for static functions
 //N=5
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class RetType=detail::DefaultVoid>
 class FastDelegate5 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;     ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;} };
+
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5);
@@ -1365,8 +1383,10 @@ private:	// Invoker for static functions
 //N=6
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class RetType=detail::DefaultVoid>
 class FastDelegate6 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;      ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6);
@@ -1450,8 +1470,10 @@ private:	// Invoker for static functions
 //N=7
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class RetType=detail::DefaultVoid>
 class FastDelegate7 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;       ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7);
@@ -1535,8 +1557,10 @@ private:	// Invoker for static functions
 //N=8
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class RetType=detail::DefaultVoid>
 class FastDelegate8 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;        ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8);
@@ -1620,8 +1644,10 @@ private:	// Invoker for static functions
 //N=9
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class RetType=detail::DefaultVoid>
 class FastDelegate9 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;         ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9);
@@ -1705,8 +1731,10 @@ private:	// Invoker for static functions
 //N=10
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class RetType=detail::DefaultVoid>
 class FastDelegate10 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;          ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10);
@@ -1790,8 +1818,10 @@ private:	// Invoker for static functions
 //N=11
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class Param11, class RetType=detail::DefaultVoid>
 class FastDelegate11 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;Param11 p11;           ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10,ParamRec<Param11> v11) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10), p11(v11) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10,ParamRef<Param11> v11) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;v11=p11;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11);
@@ -1875,8 +1905,10 @@ private:	// Invoker for static functions
 //N=12
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class Param11, class Param12, class RetType=detail::DefaultVoid>
 class FastDelegate12 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;Param11 p11;Param12 p12;            ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10,ParamRec<Param11> v11,ParamRec<Param12> v12) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10), p11(v11), p12(v12) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10,ParamRef<Param11> v11,ParamRef<Param12> v12) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;v11=p11;v12=p12;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12);
@@ -1960,8 +1992,10 @@ private:	// Invoker for static functions
 //N=13
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class Param11, class Param12, class Param13, class RetType=detail::DefaultVoid>
 class FastDelegate13 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;Param11 p11;Param12 p12;Param13 p13;             ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10,ParamRec<Param11> v11,ParamRec<Param12> v12,ParamRec<Param13> v13) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10), p11(v11), p12(v12), p13(v13) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10,ParamRef<Param11> v11,ParamRef<Param12> v12,ParamRef<Param13> v13) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;v11=p11;v12=p12;v13=p13;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13);
@@ -2045,8 +2079,10 @@ private:	// Invoker for static functions
 //N=14
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class Param11, class Param12, class Param13, class Param14, class RetType=detail::DefaultVoid>
 class FastDelegate14 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;Param11 p11;Param12 p12;Param13 p13;Param14 p14;              ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10,ParamRec<Param11> v11,ParamRec<Param12> v12,ParamRec<Param13> v13,ParamRec<Param14> v14) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10), p11(v11), p12(v12), p13(v13), p14(v14) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10,ParamRef<Param11> v11,ParamRef<Param12> v12,ParamRef<Param13> v13,ParamRef<Param14> v14) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;v11=p11;v12=p12;v13=p13;v14=p14;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14);
@@ -2130,8 +2166,10 @@ private:	// Invoker for static functions
 //N=15
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class Param11, class Param12, class Param13, class Param14, class Param15, class RetType=detail::DefaultVoid>
 class FastDelegate15 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;Param11 p11;Param12 p12;Param13 p13;Param14 p14;Param15 p15;               ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10,ParamRec<Param11> v11,ParamRec<Param12> v12,ParamRec<Param13> v13,ParamRec<Param14> v14,ParamRec<Param15> v15) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10), p11(v11), p12(v12), p13(v13), p14(v14), p15(v15) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10,ParamRef<Param11> v11,ParamRef<Param12> v12,ParamRef<Param13> v13,ParamRef<Param14> v14,ParamRef<Param15> v15) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;v11=p11;v12=p12;v13=p13;v14=p14;v15=p15;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15);
@@ -2215,8 +2253,10 @@ private:	// Invoker for static functions
 //N=16
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class Param11, class Param12, class Param13, class Param14, class Param15, class Param16, class RetType=detail::DefaultVoid>
 class FastDelegate16 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;Param11 p11;Param12 p12;Param13 p13;Param14 p14;Param15 p15;Param16 p16;                ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10,ParamRec<Param11> v11,ParamRec<Param12> v12,ParamRec<Param13> v13,ParamRec<Param14> v14,ParamRec<Param15> v15,ParamRec<Param16> v16) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10), p11(v11), p12(v12), p13(v13), p14(v14), p15(v15), p16(v16) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10,ParamRef<Param11> v11,ParamRef<Param12> v12,ParamRef<Param13> v13,ParamRef<Param14> v14,ParamRef<Param15> v15,ParamRef<Param16> v16) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;v11=p11;v12=p12;v13=p13;v14=p14;v15=p15;v16=p16;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16);
@@ -2300,8 +2340,10 @@ private:	// Invoker for static functions
 //N=17
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class Param11, class Param12, class Param13, class Param14, class Param15, class Param16, class Param17, class RetType=detail::DefaultVoid>
 class FastDelegate17 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;Param11 p11;Param12 p12;Param13 p13;Param14 p14;Param15 p15;Param16 p16;Param17 p17;                 ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10,ParamRec<Param11> v11,ParamRec<Param12> v12,ParamRec<Param13> v13,ParamRec<Param14> v14,ParamRec<Param15> v15,ParamRec<Param16> v16,ParamRec<Param17> v17) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10), p11(v11), p12(v12), p13(v13), p14(v14), p15(v15), p16(v16), p17(v17) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10,ParamRef<Param11> v11,ParamRef<Param12> v12,ParamRef<Param13> v13,ParamRef<Param14> v14,ParamRef<Param15> v15,ParamRef<Param16> v16,ParamRef<Param17> v17) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;v11=p11;v12=p12;v13=p13;v14=p14;v15=p15;v16=p16;v17=p17;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17);
@@ -2385,8 +2427,10 @@ private:	// Invoker for static functions
 //N=18
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class Param11, class Param12, class Param13, class Param14, class Param15, class Param16, class Param17, class Param18, class RetType=detail::DefaultVoid>
 class FastDelegate18 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;Param11 p11;Param12 p12;Param13 p13;Param14 p14;Param15 p15;Param16 p16;Param17 p17;Param18 p18;                  ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10,ParamRec<Param11> v11,ParamRec<Param12> v12,ParamRec<Param13> v13,ParamRec<Param14> v14,ParamRec<Param15> v15,ParamRec<Param16> v16,ParamRec<Param17> v17,ParamRec<Param18> v18) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10), p11(v11), p12(v12), p13(v13), p14(v14), p15(v15), p16(v16), p17(v17), p18(v18) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10,ParamRef<Param11> v11,ParamRef<Param12> v12,ParamRef<Param13> v13,ParamRef<Param14> v14,ParamRef<Param15> v15,ParamRef<Param16> v16,ParamRef<Param17> v17,ParamRef<Param18> v18) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;v11=p11;v12=p12;v13=p13;v14=p14;v15=p15;v16=p16;v17=p17;v18=p18;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17, Param18 p18);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17, Param18 p18);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17, Param18 p18);
@@ -2470,8 +2514,10 @@ private:	// Invoker for static functions
 //N=19
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class Param11, class Param12, class Param13, class Param14, class Param15, class Param16, class Param17, class Param18, class Param19, class RetType=detail::DefaultVoid>
 class FastDelegate19 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;Param11 p11;Param12 p12;Param13 p13;Param14 p14;Param15 p15;Param16 p16;Param17 p17;Param18 p18;Param19 p19;                   ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10,ParamRec<Param11> v11,ParamRec<Param12> v12,ParamRec<Param13> v13,ParamRec<Param14> v14,ParamRec<Param15> v15,ParamRec<Param16> v16,ParamRec<Param17> v17,ParamRec<Param18> v18,ParamRec<Param19> v19) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10), p11(v11), p12(v12), p13(v13), p14(v14), p15(v15), p16(v16), p17(v17), p18(v18), p19(v19) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10,ParamRef<Param11> v11,ParamRef<Param12> v12,ParamRef<Param13> v13,ParamRef<Param14> v14,ParamRef<Param15> v15,ParamRef<Param16> v16,ParamRef<Param17> v17,ParamRef<Param18> v18,ParamRef<Param19> v19) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;v11=p11;v12=p12;v13=p13;v14=p14;v15=p15;v16=p16;v17=p17;v18=p18;v19=p19;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17, Param18 p18, Param19 p19);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17, Param18 p18, Param19 p19);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17, Param18 p18, Param19 p19);
@@ -2555,8 +2601,10 @@ private:	// Invoker for static functions
 //N=20
 template<class Param1, class Param2, class Param3, class Param4, class Param5, class Param6, class Param7, class Param8, class Param9, class Param10, class Param11, class Param12, class Param13, class Param14, class Param15, class Param16, class Param17, class Param18, class Param19, class Param20, class RetType=detail::DefaultVoid>
 class FastDelegate20 {
-private:
+	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
+	struct ParameterSet { Param1 p1;Param2 p2;Param3 p3;Param4 p4;Param5 p5;Param6 p6;Param7 p7;Param8 p8;Param9 p9;Param10 p10;Param11 p11;Param12 p12;Param13 p13;Param14 p14;Param15 p15;Param16 p16;Param17 p17;Param18 p18;Param19 p19;Param20 p20;                    ParameterSet(){} ParameterSet(ParamRec<Param1> v1, ParamRec<Param2> v2,ParamRec<Param3> v3,ParamRec<Param4> v4,ParamRec<Param5> v5,ParamRec<Param6> v6,ParamRec<Param7> v7,ParamRec<Param8> v8,ParamRec<Param9> v9,ParamRec<Param10> v10,ParamRec<Param11> v11,ParamRec<Param12> v12,ParamRec<Param13> v13,ParamRec<Param14> v14,ParamRec<Param15> v15,ParamRec<Param16> v16,ParamRec<Param17> v17,ParamRec<Param18> v18,ParamRec<Param19> v19,ParamRec<Param20> v20) : p1(v1), p2(v2), p3(v3), p4(v4), p5(v5), p6(v6), p7(v7), p8(v8), p9(v9), p10(v10), p11(v11), p12(v12), p13(v13), p14(v14), p15(v15), p16(v16), p17(v17), p18(v18), p19(v19), p20(v20) { } void unwrap(ParamRef<Param1> v1, ParamRef<Param2> v2,ParamRef<Param3> v3,ParamRef<Param4> v4,ParamRef<Param5> v5,ParamRef<Param6> v6,ParamRef<Param7> v7,ParamRef<Param8> v8,ParamRef<Param9> v9,ParamRef<Param10> v10,ParamRef<Param11> v11,ParamRef<Param12> v12,ParamRef<Param13> v13,ParamRef<Param14> v14,ParamRef<Param15> v15,ParamRef<Param16> v16,ParamRef<Param17> v17,ParamRef<Param18> v18,ParamRef<Param19> v19,ParamRef<Param20> v20) {v1=p1;v2=p2;v3=p3;v4=p4;v5=p5;v6=p6;v7=p7;v8=p8;v9=p9;v10=p10;v11=p11;v12=p12;v13=p13;v14=p14;v15=p15;v16=p16;v17=p17;v18=p18;v19=p19;v20=p20;}};
+private:
 	typedef DesiredRetType (*StaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17, Param18 p18, Param19 p19, Param20 p20);
 	typedef RetType (*UnvoidStaticFunctionPtr)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17, Param18 p18, Param19 p19, Param20 p20);
 	typedef RetType (detail::GenericClass::*GenericMemFn)(Param1 p1, Param2 p2, Param3 p3, Param4 p4, Param5 p5, Param6 p6, Param7 p7, Param8 p8, Param9 p9, Param10 p10, Param11 p11, Param12 p12, Param13 p13, Param14 p14, Param15 p15, Param16 p16, Param17 p17, Param18 p18, Param19 p19, Param20 p20);

@@ -33,6 +33,7 @@
 #include <sourcemod_version.h>
 #include "eiface.h"
 #include "cbase.h"
+#include "platform.h"
 #include "player.h"
 #include "gamerules.h"
 #include "entitylist.h"
@@ -48,6 +49,7 @@
 
 #include "glue.hpp"
 #include "smsdk_ext.h"
+#include "sourcehook.h"
 #include "takedamageinfo.h"
 #include "takedamageinfohack.h"
 
@@ -979,7 +981,9 @@ bool SDKHooks::Hook_LevelInit(char const *pMapName, char const *pMapEntities, ch
 	g_pOnLevelInit->PushString("");
 	g_pOnLevelInit->Execute();
 
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 
@@ -989,8 +993,8 @@ bool SDKHooks::Hook_LevelInit(char const *pMapName, char const *pMapEntities, ch
 bool SDKHooks::Hook_CanBeAutobalanced()
 {
 	CBaseEntity *pPlayer = META_IFACEPTR(CBaseEntity);
-	CBaseMultiplayerPlayer* pPlayer2 = pPlayer;
-	pPlayer2->CanBeAutobalanced();
+	CBaseMultiplayerPlayer* pPlayer2 = (CBaseMultiplayerPlayer*)pPlayer;
+	// pPlayer2->CanBeAutobalanced();
 	
 
 	CVTableHook vhook(pPlayer);
@@ -1027,27 +1031,41 @@ bool SDKHooks::Hook_CanBeAutobalanced()
 		}
 
 		if (newRet != origRet)
-			RETURN_META_VALUE(MRES_SUPERCEDE, newRet);
+		{
+			// RETURN_META_VALUE(MRES_SUPERCEDE, newRet);
+			g_SMGlue_P0__CanBeAutobalanced.create_return(MRES_SUPERCEDE, {newRet});
+			return newRet;
+		}
 
 		break;
 	}
 
-	RETURN_META_VALUE(MRES_IGNORED, false);
+	// RETURN_META_VALUE(MRES_IGNORED, false);
+	g_SMGlue_P0__CanBeAutobalanced.create_return(MRES_IGNORED, {false});
+	return false;
 }
 
 void SDKHooks::Hook_EndTouch(CBaseEntity *pOther)
 {
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_EndTouch, pOther);
 	if(result >= Pl_Handled)
-		RETURN_META(MRES_SUPERCEDE);
+	{
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_P1__EndTouch.create_return(MRES_SUPERCEDE);
+		return;
 
-	RETURN_META(MRES_IGNORED);
+	}
+
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__EndTouch.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_EndTouchPost(CBaseEntity *pOther)
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_EndTouchPost, pOther);
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__EndTouch.create_return(MRES_IGNORED);
 }
 
 void SDKHooks::Hook_FireBulletsPost(const FireBulletsInfo_t &info)
@@ -1057,11 +1075,19 @@ void SDKHooks::Hook_FireBulletsPost(const FireBulletsInfo_t &info)
 
 	IGamePlayer *pPlayer = playerhelpers->GetGamePlayer(entity);
 	if(!pPlayer)
-		RETURN_META(MRES_IGNORED);
+	{
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
+		return;
+	}
 
 	IPlayerInfo *pInfo = pPlayer->GetPlayerInfo();
 	if(!pInfo)
-		RETURN_META(MRES_IGNORED);
+	{
+		// RETURN_META(MRES_IGNORED);
+		g_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
+		return;
+	}
 
 	CVTableHook vhook(pEntity);
 	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_FireBulletsPost];
@@ -1088,7 +1114,9 @@ void SDKHooks::Hook_FireBulletsPost(const FireBulletsInfo_t &info)
 		break;
 	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
+	return;
 }
 
 #ifdef GETMAXHEALTH_IS_VIRTUAL
@@ -1130,15 +1158,25 @@ int SDKHooks::Hook_GetMaxHealth()
 		}
 
 		if (ret >= Pl_Handled)
-			RETURN_META_VALUE(MRES_SUPERCEDE, original_max);
+		{
+			// RETURN_META_VALUE(MRES_SUPERCEDE, original_max);
+			g_SMGlue_P0__GetMaxHealth.create_return(MRES_SUPERCEDE, {original_max});
+			return original_max;
+		}
 
 		if (ret >= Pl_Changed)
-			RETURN_META_VALUE(MRES_SUPERCEDE, new_max);
+		{
+			// RETURN_META_VALUE(MRES_SUPERCEDE, new_max);
+			g_SMGlue_P0__GetMaxHealth.create_return(MRES_SUPERCEDE, {new_max});
+			return new_max;
+		}
 
 		break;
 	}
 
-	RETURN_META_VALUE(MRES_IGNORED, original_max);
+	// RETURN_META_VALUE(MRES_IGNORED, original_max);
+	g_SMGlue_P0__GetMaxHealth.create_return(MRES_IGNORED, {original_max});
+	return original_max;
 }
 #endif
 
@@ -1204,13 +1242,17 @@ int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo &info2, SDKHookType hookTyp
 					if (!pEntAttacker && attacker != -1)
 					{
 						callback->GetParentContext()->BlamePluginError(callback, "Callback-provided entity %d for attacker is invalid", attacker);
-						RETURN_META_VALUE(MRES_IGNORED, 0);
+						// RETURN_META_VALUE(MRES_IGNORED, 0);
+						g_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
+						return 0;
 					}
 					CBaseEntity *pEntInflictor = gamehelpers->ReferenceToEntity(inflictor);
 					if (!pEntInflictor && inflictor != -1)
 					{
 						callback->GetParentContext()->BlamePluginError(callback, "Callback-provided entity %d for inflictor is invalid", inflictor);
-						RETURN_META_VALUE(MRES_IGNORED, 0);
+						// RETURN_META_VALUE(MRES_IGNORED, 0);
+						g_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
+						return 0;
 					}
 
 					info.SetAttacker(pEntAttacker);
@@ -1231,15 +1273,25 @@ int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo &info2, SDKHookType hookTyp
 		}
 
 		if (ret >= Pl_Handled)
-			RETURN_META_VALUE(MRES_SUPERCEDE, 1);
+		{
+			// RETURN_META_VALUE(MRES_SUPERCEDE, 1);
+			g_SMGlue_P1__OnTakeDamage.create_return(MRES_SUPERCEDE, {1});
+			return 1;
+		}
 
 		if (ret == Pl_Changed)
-			RETURN_META_VALUE(MRES_HANDLED, 1);
+		{
+			// RETURN_META_VALUE(MRES_HANDLED, 1);
+			g_SMGlue_P1__OnTakeDamage.create_return(MRES_HANDLED, {1});
+			return 1;
+		}
 
 		break;
 	}
 
-	RETURN_META_VALUE(MRES_IGNORED, 0);
+	// RETURN_META_VALUE(MRES_IGNORED, 0);
+	g_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
+	return 0;
 }
 
 int SDKHooks::HandleOnTakeDamageHookPost(CTakeDamageInfo &info2, SDKHookType hookType)
@@ -1286,7 +1338,9 @@ int SDKHooks::HandleOnTakeDamageHookPost(CTakeDamageInfo &info2, SDKHookType hoo
 		break;
 	}
 
-	RETURN_META_VALUE(MRES_IGNORED, 0);
+	// RETURN_META_VALUE(MRES_IGNORED, 0);
+	g_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
+	return 0;
 }
 
 
@@ -1313,7 +1367,9 @@ int SDKHooks::Hook_OnTakeDamage_AlivePost(CTakeDamageInfo &info)
 void SDKHooks::Hook_PreThink()
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_PreThink);
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P0__PreThink.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_PreThinkPost()
@@ -1324,7 +1380,9 @@ void SDKHooks::Hook_PreThinkPost()
 void SDKHooks::Hook_PostThink()
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_PostThink);
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P0__PostThink.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_PostThinkPost()
@@ -1358,12 +1416,18 @@ bool SDKHooks::Hook_Reload()
 		}
 
 		if (res >= Pl_Handled)
-			RETURN_META_VALUE(MRES_SUPERCEDE, false);
+		{
+			// RETURN_META_VALUE(MRES_SUPERCEDE, false);
+			g_SMGlue_P0__Reload.create_return(MRES_SUPERCEDE, {false});
+			return false;
+		}
 
 		break;
 	}
 
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_P0__Reload.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 bool SDKHooks::Hook_ReloadPost()
@@ -1403,9 +1467,16 @@ void SDKHooks::Hook_SetTransmit(CCheckTransmitInfo *pInfo, bool bAlways)
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_SetTransmit, gamehelpers->IndexOfEdict(pInfo->m_pClientEnt));
 
 	if(result >= Pl_Handled)
-		RETURN_META(MRES_SUPERCEDE);
+	{
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_P2__SetTransmit.create_return(MRES_SUPERCEDE);
+		return;
 
-	RETURN_META(MRES_IGNORED);
+	}
+
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P2__SetTransmit.create_return(MRES_IGNORED);
+	return;
 }
 
 bool SDKHooks::Hook_ShouldCollide(int collisionGroup, int contentsMask)
@@ -1443,10 +1514,15 @@ bool SDKHooks::Hook_ShouldCollide(int collisionGroup, int contentsMask)
 			ret = true;
 		}
 
-		RETURN_META_VALUE(MRES_SUPERCEDE, ret);
+		// RETURN_META_VALUE(MRES_SUPERCEDE, ret);
+		g_SMGlue_P2__ShouldCollide.create_return(MRES_SUPERCEDE, {ret});
+		return ret;
+		
 	}
 
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_P2__ShouldCollide.create_return(MRES_SUPERCEDE, {true});
+	return true;
 }
 
 void SDKHooks::Hook_Spawn()
@@ -1482,12 +1558,19 @@ void SDKHooks::Hook_Spawn()
 		}
 
 		if (ret >= Pl_Handled)
-			RETURN_META(MRES_SUPERCEDE);
+		{
+			// RETURN_META(MRES_SUPERCEDE);
+			g_SMGlue_P0__Spawn.create_return(MRES_SUPERCEDE);
+			return;
+
+		}
 
 		break;
 	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P0__Spawn.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_SpawnPost()
@@ -1499,15 +1582,22 @@ void SDKHooks::Hook_StartTouch(CBaseEntity *pOther)
 {
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_StartTouch, pOther);
 	if(result >= Pl_Handled)
-		RETURN_META(MRES_SUPERCEDE);
+	{
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_P1__StartTouch.create_return(MRES_SUPERCEDE);
+		return;
+	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__StartTouch.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_StartTouchPost(CBaseEntity *pOther)
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_StartTouchPost, pOther);
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__StartTouch.create_return(MRES_IGNORED);
 }
 
 void SDKHooks::Hook_Think()
@@ -1515,9 +1605,15 @@ void SDKHooks::Hook_Think()
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_Think);
 
 	if(result >= Pl_Handled)
-		RETURN_META(MRES_SUPERCEDE);
+	{
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_P0__Think.create_return(MRES_SUPERCEDE);
+		return;
 
-	RETURN_META(MRES_IGNORED);
+	}
+
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P0__Think.create_return(MRES_IGNORED);
 }
 
 void SDKHooks::Hook_ThinkPost()
@@ -1530,15 +1626,23 @@ void SDKHooks::Hook_Touch(CBaseEntity *pOther)
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_Touch, pOther);
 
 	if(result >= Pl_Handled)
-		RETURN_META(MRES_SUPERCEDE);
+	{
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_P1__Touch.create_return(MRES_SUPERCEDE);
+		return;
+	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__Touch.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_TouchPost(CBaseEntity *pOther)
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_TouchPost, pOther);
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__Touch.create_return(MRES_IGNORED);
+	return;
 }
 
 #if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
@@ -1593,13 +1697,17 @@ void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir,
 					if(!pEntAttacker)
 					{
 						callback->GetParentContext()->BlamePluginError(callback, "Callback-provided entity %d for attacker is invalid", attacker);
-						RETURN_META(MRES_IGNORED);
+						// nRETURN_META(MRES_IGNORED);
+						g_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
+						return;
 					}
 					CBaseEntity *pEntInflictor = gamehelpers->ReferenceToEntity(inflictor);
 					if(!pEntInflictor)
 					{
 						callback->GetParentContext()->BlamePluginError(callback, "Callback-provided entity %d for inflictor is invalid", inflictor);
-						RETURN_META(MRES_IGNORED);
+						// RETURN_META(MRES_IGNORED);
+						g_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
+						return;
 					}
 					
 					info.SetAttacker(pEntAttacker);
@@ -1612,15 +1720,25 @@ void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir,
 		}
 
 		if(ret >= Pl_Handled)
-			RETURN_META(MRES_SUPERCEDE);
+		{
+			// RETURN_META(MRES_SUPERCEDE);
+			g_SMGlue_P4__TraceAttack.create_return(MRES_SUPERCEDE);
+			return;
+		}
 
 		if(ret == Pl_Changed)
-			RETURN_META(MRES_HANDLED);
+		{
+			// RETURN_META(MRES_HANDLED);
+			g_SMGlue_P4__TraceAttack.create_return(MRES_HANDLED);
+			return;
+		}
 
 		break;
 	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
+	return;
 }
 
 #if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
@@ -1663,7 +1781,9 @@ void SDKHooks::Hook_TraceAttackPost(CTakeDamageInfoHack &info, const Vector &vec
 		break;
 	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
@@ -1705,12 +1825,18 @@ void SDKHooks::Hook_Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 		}
 
 		if (ret >= Pl_Handled)
-			RETURN_META(MRES_SUPERCEDE);
+		{
+			// RETURN_META(MRES_SUPERCEDE);
+			g_SMGlue_P4__Use.create_return(MRES_SUPERCEDE);
+			return;
+		}
 
 		break;
 	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P4__Use.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_UsePost(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
@@ -1746,7 +1872,9 @@ void SDKHooks::Hook_UsePost(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 		break;
 	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P4__Use.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::OnEntityDeleted(CBaseEntity *pEntity)
@@ -1765,7 +1893,9 @@ void SDKHooks::OnEntityDeleted(CBaseEntity *pEntity)
 void SDKHooks::Hook_VPhysicsUpdate(IPhysicsObject *pPhysics)
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_VPhysicsUpdate);
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__VPhysicsUpdate.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_VPhysicsUpdatePost(IPhysicsObject *pPhysics)
@@ -1778,15 +1908,23 @@ void SDKHooks::Hook_Blocked(CBaseEntity *pOther)
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_Blocked, pOther);
 
 	if(result >= Pl_Handled)
-		RETURN_META(MRES_SUPERCEDE);
+	{
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_P1__Blocked.create_return(MRES_SUPERCEDE);
+		return;
+	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__Blocked.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_BlockedPost(CBaseEntity *pOther)
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_BlockedPost, pOther);
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__Blocked.create_return(MRES_IGNORED);
+	return;
 }
 
 bool SDKHooks::Hook_WeaponCanSwitchTo(CBaseCombatWeapon *pWeapon)
@@ -1794,15 +1932,23 @@ bool SDKHooks::Hook_WeaponCanSwitchTo(CBaseCombatWeapon *pWeapon)
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponCanSwitchTo, pWeapon);
 
 	if(result >= Pl_Handled)
-		RETURN_META_VALUE(MRES_SUPERCEDE, false);
+	{
+		// RETURN_META_VALUE(MRES_SUPERCEDE, false);
+		g_SMGlue_P1__Weapon_CanSwitchTo.create_return(MRES_SUPERCEDE, {false});
+		return false;
+	}
 
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_P1__Weapon_CanSwitchTo.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 bool SDKHooks::Hook_WeaponCanSwitchToPost(CBaseCombatWeapon *pWeapon)
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponCanSwitchToPost, pWeapon);
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_P1__Weapon_CanSwitchTo.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 bool SDKHooks::Hook_WeaponCanUse(CBaseCombatWeapon *pWeapon)
@@ -1810,15 +1956,23 @@ bool SDKHooks::Hook_WeaponCanUse(CBaseCombatWeapon *pWeapon)
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponCanUse, pWeapon);
 
 	if(result >= Pl_Handled)
-		RETURN_META_VALUE(MRES_SUPERCEDE, false);
+	{
+		// RETURN_META_VALUE(MRES_SUPERCEDE, false);
+		g_SMGlue_P1__Weapon_CanUse.create_return(MRES_SUPERCEDE, {false});
+		return false;
+	}
 
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_P1__Weapon_CanUse.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 bool SDKHooks::Hook_WeaponCanUsePost(CBaseCombatWeapon *pWeapon)
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponCanUsePost, pWeapon);
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_P1__Weapon_CanUse.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 void SDKHooks::Hook_WeaponDrop(CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity)
@@ -1826,15 +1980,23 @@ void SDKHooks::Hook_WeaponDrop(CBaseCombatWeapon *pWeapon, const Vector *pvecTar
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponDrop, pWeapon);
 
 	if(result >= Pl_Handled)
-		RETURN_META(MRES_SUPERCEDE);
+	{
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_P3__Weapon_Drop.create_return(MRES_SUPERCEDE);
+		return;
+	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P3__Weapon_Drop.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_WeaponDropPost(CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity)
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponDropPost, pWeapon);
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P3__Weapon_Drop.create_return(MRES_IGNORED);
+	return;
 }
 
 void SDKHooks::Hook_WeaponEquip(CBaseCombatWeapon *pWeapon)
@@ -1842,15 +2004,23 @@ void SDKHooks::Hook_WeaponEquip(CBaseCombatWeapon *pWeapon)
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponEquip, pWeapon);
 
 	if(result >= Pl_Handled)
-		RETURN_META(MRES_SUPERCEDE);
+	{
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_P1__Weapon_Equip.create_return(MRES_SUPERCEDE);
+		return; 
+	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__Weapon_Equip.create_return(MRES_IGNORED);
+	return; 
 }
 
 void SDKHooks::Hook_WeaponEquipPost(CBaseCombatWeapon *pWeapon)
 {
 	Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponEquipPost, pWeapon);
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_P1__Weapon_Equip.create_return(MRES_IGNORED);
+	return; 
 }
 
 bool SDKHooks::Hook_WeaponSwitch(CBaseCombatWeapon *pWeapon, int viewmodelindex)
@@ -1858,15 +2028,23 @@ bool SDKHooks::Hook_WeaponSwitch(CBaseCombatWeapon *pWeapon, int viewmodelindex)
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponSwitch, pWeapon);
 
 	if(result >= Pl_Handled)
-		RETURN_META_VALUE(MRES_SUPERCEDE, false);
+	{
+		// RETURN_META_VALUE(MRES_SUPERCEDE, false);
+		g_SMGlue_P2__Weapon_Switch.create_return(MRES_SUPERCEDE, {false});
+		return false;
+	}
 
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_P2__Weapon_Switch.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 bool SDKHooks::Hook_WeaponSwitchPost(CBaseCombatWeapon *pWeapon, int viewmodelindex)
 {
 	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponSwitchPost, pWeapon);
-	RETURN_META_VALUE(MRES_IGNORED, true);
+	// RETURN_META_VALUE(MRES_IGNORED, true);
+	g_SMGlue_P2__Weapon_Switch.create_return(MRES_IGNORED, {true});
+	return true;
 }
 
 void SDKHooks::HandleEntityCreated(CBaseEntity *pEntity, int index, cell_t ref)

@@ -1,5 +1,6 @@
 #pragma once
 
+// #include "iserverplugin.h"
 #include "tier1/convar.h"
 #include "filesystem.h"
 #include "protocol.h"
@@ -13,7 +14,6 @@
 #define CBASEPLAYER_HIDE_INLINE
 #include "router.hpp"
 #include "igameevents.h"
-#include "iserverplugin.h"
 #include "ivoiceserver.h"
 #include "eiface.h"
 #include "engine/IEngineSound.h"
@@ -32,6 +32,8 @@ class CPredictableId;
 class IEntityListener;
 class IEntityListener2;
 class IClientMessageHandler;
+class IServerPluginCallbacks;
+class IServerPluginHelpers;
 
 #if defined(_WIN32) || defined(__CYGWIN__)
   #ifdef GLUE_LOCAL
@@ -112,6 +114,8 @@ inline int SMGlue_MkHook4_IServerGameClients__ClientCommand ( fastdelegate::Fast
 inline void SMGlue_RmHook4_IServerGameClients__ClientCommand ( int hk, IServerGameClients * instance, bool post = false ) {g_SMGlue_IServerGameClients__ClientCommand.remove(hk, instance, post ? 1 : 0);}
 
 GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<edict_t *, const char*>, IVEngineServer> g_SMGlue_IVEngineServer__ClientCommand;
+inline int SMGlue_MkHook4_IVEngineServer__ClientCommand ( fastdelegate::FastDelegate2<edict_t *, const char*> delegate, IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__ClientCommand.add(delegate,instance, post ? 1 : 0);}
+inline void SMGlue_RmHook4_IVEngineServer__ClientCommand ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__ClientCommand.remove(hk, instance, post ? 1 : 0);}
 
 GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<edict_t *>, IServerGameClients> g_SMGlue_IServerGameClients__ClientSettingsChanged;
 inline int SMGlue_MkHook4_IServerGameClients__ClientSettingsChanged ( fastdelegate::FastDelegate1<edict_t *> delegate , IServerGameClients * instance, bool post = false ) {return g_SMGlue_IServerGameClients__ClientSettingsChanged.add(delegate,instance, post ? 1 : 0);}
@@ -157,8 +161,8 @@ GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<const char *>, IVEng
 inline int SMGlue_MkHook4_IVEngineServer__GetMapEntitiesString ( fastdelegate::FastDelegate0<const char *> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__GetMapEntitiesString.add(delegate,instance, post ? 1 : 0);}
 inline void SMGlue_RmHook4_IVEngineServer__GetMapEntitiesString ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__GetMapEntitiesString.remove(hk, instance, post ? 1 : 0);}
 
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate3<bf_write *, IRecipientFilter *, int, const char *>, IVEngineServer> g_SMGlue_IVEngineServer__UserMessageBegin;
-inline int SMGlue_MkHook4_IVEngineServer__UserMessageBegin ( fastdelegate::FastDelegate3<bf_write *, IRecipientFilter *, int, const char *> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__UserMessageBegin.add(delegate,instance, post ? 1 : 0);}
+GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2< IRecipientFilter *, int, bf_write *>, IVEngineServer> g_SMGlue_IVEngineServer__UserMessageBegin;
+inline int SMGlue_MkHook4_IVEngineServer__UserMessageBegin ( fastdelegate::FastDelegate2< IRecipientFilter *, int, bf_write *> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__UserMessageBegin.add(delegate,instance, post ? 1 : 0);}
 inline void SMGlue_RmHook4_IVEngineServer__UserMessageBegin ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__UserMessageBegin.remove(hk, instance, post ? 1 : 0);}
 
 GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<>, IVEngineServer> g_SMGlue_IVEngineServer__MessageEnd;
@@ -498,5 +502,12 @@ inline void SMGlue_RmHook4_P2__PlayerRunCmdHook ( int hk, CBaseEntity * instance
 #define SH_ADD_MANUALVPHOOK(name,instance,delegate,is_post) (( is_post ) ? (ADD_MANMEMBER(iface, name, N) ( delegate , instance , true )) : (ADD_MANMEMBER(iface, name, N) ( delegate , instance )))
 #define SH_ADD_MANUALVPHOOK_N(name,instance,delegate,is_post,N) (( is_post ) ? (ADD_MANMEMBER(iface, name, N) ( delegate , instance , true )) : (ADD_MANMEMBER(iface, name, N) ( delegate , instance )))
         // hookid = SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_EndTouch), false);
+    
+#define RETURN_META(result)					xxx
+#define RETURN_META_VALUE(result, value)	xxx
+
+
+#define SH_MANUALHOOK_RECONFIGURE(...) xxx
+#define SH_ADD_MANUALHOOK_STATICFUNC(...) xxx
 
 #endif // !GLUE_HPP

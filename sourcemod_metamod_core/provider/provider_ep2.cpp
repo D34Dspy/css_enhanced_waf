@@ -579,10 +579,12 @@ void ClientCommand(edict_t *client)
 	if (strcmp(cmd.GetArg(0), "meta") == 0)
 	{
 		Command_ClientMeta(client, &cmd);
-		RETURN_META(MRES_SUPERCEDE);
+		// RETURN_META(MRES_SUPERCEDE);
+		g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
 	}
 
-	RETURN_META(MRES_IGNORED);
+	// RETURN_META(MRES_IGNORED);
+	g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_IGNORED);
 }
 
 #if SOURCE_ENGINE == SE_CSGO || SOURCE_ENGINE == SE_DOTA
