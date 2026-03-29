@@ -88,7 +88,7 @@ DEFAULT = {
 		'../sourcemod_sourcepawn/include',
         '../sourcemodglue'
     ],
-    "libraries": ['tier0','tier1','tier2','tier3','vstdlib', 'mathlib'],
+    "libraries": ['tier0','tier2','tier3', 'mathlib'],
 }
 
 CONFIG = {
@@ -96,17 +96,17 @@ CONFIG = {
     "perProject": {
         'sourcemodcore': {
             **BASIC,
-            'libraries': ['sourcemod_logic', 'sourcemodglue']
+            'libraries': ['sourcemod_logic', 'sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodcstrike': {
             **BASIC,
-            'libraries': ['sourcemod_core', 'sourcemodglue']
+            'libraries': ['sourcemod_core', 'sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodlogic': {
             **BASIC,
             'defines': ['SM_LOGIC'],
             'includes': ['../sourcemod_core'],
-            'libraries': ['sourcemod_core', 'sourcemodglue']
+            'libraries': ['sourcemod_core', 'sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodcurl': {
             **BASIC,
@@ -117,34 +117,34 @@ CONFIG = {
             **BASIC,
             'defines': [],
             'includes': ['DynamicHooks', 'DynamicHooks/conventions'],
-            'libraries': ['sourcemod_core', 'sourcemodglue']
+            'libraries': ['sourcemod_core', 'sourcemodglue', 'tier1', 'vstdlib']
             # not used
         },
         'sourcemodsdktools': {
             **BASIC,
 			'includes': ['../game/server'],
             'defines': ['HOOKING_ENABLED', 'HAVE_STRING_H', 'HAVE_STDINT_H'],
-            'libraries': ['sourcemod_core', 'sourcemodglue']
+            'libraries': ['sourcemod_core', 'sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodsdkhooks': {
             **BASIC,
             'includes': ['../game/server', '../game/shared/cstrike'],
             'defines': [],
-            'libraries': ['sourcemod_core', 'sourcemodglue']
+            'libraries': ['sourcemod_core', 'sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodclientprefs': {
             **BASIC,
             'defines': [],
-            'libraries': ['sourcemod_core', 'sourcemodglue']
+            'libraries': ['sourcemod_core', 'sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodregex': {
             **BASIC,
             'defines': [],
-            'libraries': ['sourcemod_core', 'sourcemodglue']
+            'libraries': ['sourcemod_core', 'sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodtopmenus': {
             **BASIC,
-            'libraries': ['sourcemodglue']
+            'libraries': ['sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodsqlite': {
             **BASIC,
@@ -152,7 +152,7 @@ CONFIG = {
         },
         'sourcemodstructs': {
             **BASIC,
-            'libraries': ['sourcemodglue']
+            'libraries': ['sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodgeoip': {
             **BASIC,
@@ -161,7 +161,7 @@ CONFIG = {
         'sourcemodmetamodcore': {
             **BASIC,
             'includes': ['../sourcemod_metamod_versionlib', '../sourcemod_metamod_loader'],
-            'libraries': ['sourcemod_metamod_versionlib', 'sourcemodglue']
+            'libraries': ['sourcemod_metamod_versionlib', 'sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodmetamodloader': {
             **BASIC,
@@ -183,7 +183,7 @@ CONFIG = {
         'sourcemodbintools': {
              **BASIC,
             'includes': ['../public/sourcemod/jit', '../public/sourcemod/jit/x86'],
-            'libraries': ['sourcemodglue']
+            'libraries': ['sourcemodglue', 'tier1', 'vstdlib']
         },
         'sourcemodsqlite1': {
              **BASIC,

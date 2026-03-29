@@ -568,7 +568,18 @@ bool ConCommand::IsCommand( void ) const
 //-----------------------------------------------------------------------------
 // Purpose: Invoke the function if there is one
 //-----------------------------------------------------------------------------
+#if WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void ConCommand::Dispatch( const CCommand &command )
+{
+#if WAF_USE_SOURCEMOD == 1
+	g_SMGlue_ConCommand__Dispatch.invoke(this, command);
+#endif
+	this->DispatchOrig(command);
+}
+
+void ConCommand::DispatchOrig( const CCommand &command )
 {
 	if ( m_bUsingNewCommandCallback )
 	{

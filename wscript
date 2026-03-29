@@ -213,6 +213,9 @@ def define_platform(conf):
 	if conf.options.DEDICATED:
 		conf.options.SDL = False
 		conf.define('DEDICATED', 1)
+	
+	if conf.options.SOURCEMOD:
+		conf.define('WAF_USE_SOURCEMOD', 1)
 
 	if conf.options.TESTS:
 		conf.define('UNITTESTS', 1)
