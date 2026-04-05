@@ -231,8 +231,9 @@ NextMapManager::NextMapManager()
 }
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-void CmdChangeLevelCallback(const CCommand &command)
+void CmdChangeLevelCallback(CCommand *command_)
 {
+	const CCommand& command = *command_;
 #else
 void CmdChangeLevelCallback()
 {

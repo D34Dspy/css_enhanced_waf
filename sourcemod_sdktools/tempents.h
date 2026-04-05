@@ -103,7 +103,7 @@ public:
 	void Shutdown();
 	bool AddHook(const char *name, IPluginFunction *pFunc);
 	bool RemoveHook(const char *name, IPluginFunction *pFunc);
-	void OnPlaybackTempEntity(IRecipientFilter &filter, float delay, const void *pSender, const SendTable *pST, int classID);
+	void OnPlaybackTempEntity(IRecipientFilter *filter, float delay, const void *pSender, SendTable *pST, int classID);
 private:
 	void _IncRefCounter();
 	void _DecRefCounter();

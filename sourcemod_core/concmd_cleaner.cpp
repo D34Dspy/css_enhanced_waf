@@ -94,7 +94,7 @@ public:
 #if SOURCE_ENGINE == SE_CSGO || SOURCE_ENGINE == SE_BLADE || SOURCE_ENGINE == SE_MCV
 	void LinkConCommandBase(ConCommandBase *pBase, bool unknown)
 #else
-	void LinkConCommandBase(ConCommandBase *pBase, bool unk)
+	void LinkConCommandBase(ConCommandBase *pBase)
 #endif
 	{
 		IConCommandLinkListener *listener = IConCommandLinkListener::head;

@@ -184,7 +184,7 @@ cell_t Native_TakeDamage(IPluginContext *pContext, const cell_t *params)
 	if (params[0] < 9 || params[9] != 0)
 	{
 		// SH_MCALL(pVictim, OnTakeDamage)((CTakeDamageInfoHack&)info);
-		pVictim->OnTakeDamage((CTakeDamageInfoHack&)info);
+		// pVictim->OnTakeDamage((CTakeDamageInfoHack&)info);
 		pVictim->OnTakeDamageOrig((CTakeDamageInfoHack&)info);
 	}
 	else

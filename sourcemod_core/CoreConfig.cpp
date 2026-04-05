@@ -73,7 +73,7 @@ void CheckAndFinalizeConfigs();
 int HkPre_ConCommand__Dispatch;
 int HkPost_ConCommand__Dispatch;
 // SH_DECL_EXTERN1_void(ConCommand, Dispatch, SH_NOATTRIB, false, const CCommand &);
-void Hook_ExecDispatchPre(const CCommand &cmd)
+void Hook_ExecDispatchPre(CCommand *cmd_)
 #else
 SH_DECL_EXTERN0_void(ConCommand, Dispatch, SH_NOATTRIB, false)};
 void Hook_ExecDispatchPre()
@@ -82,6 +82,7 @@ void Hook_ExecDispatchPre()
 #if SOURCE_ENGINE <= SE_DARKMESSIAH
 	CCommand cmd;
 #endif
+	const CCommand& cmd = *cmd_;
 
 	const char *arg = cmd.Arg(1);
 
@@ -92,11 +93,12 @@ void Hook_ExecDispatchPre()
 }
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-void Hook_ExecDispatchPost(const CCommand &cmd)
+void Hook_ExecDispatchPost(CCommand *cmd_)
 #else
 void Hook_ExecDispatchPost()
 #endif
-{
+{	
+	const CCommand& cmd = *cmd_;
 	if (g_bGotTrigger)
 	{
 		g_bGotTrigger = false;

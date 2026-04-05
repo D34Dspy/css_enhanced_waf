@@ -29,6 +29,7 @@
  * Version: $Id$
  */
 
+#include "convar.h"
 #include "extension.h"
 #include "hooks.h"
 #include "sourcehook.h"
@@ -106,8 +107,10 @@ void SDKTools::VoiceShutdown()
 }
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-void SDKTools::OnClientCommand(edict_t *pEntity, const CCommand &args)
+void SDKTools::OnClientCommand(edict_t *pEntity, CCommand *args_)
 {
+
+	const CCommand& args = *args_;
 	int client = IndexOfEdict(pEntity);
 #else
 void SDKTools::OnClientCommand(edict_t *pEntity)

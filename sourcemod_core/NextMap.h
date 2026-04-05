@@ -60,7 +60,7 @@ struct MapChangeData
 };
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-void CmdChangeLevelCallback(const CCommand &command);
+void CmdChangeLevelCallback(CCommand *command);
 #else
 void CmdChangeLevelCallback();
 #endif
@@ -94,7 +94,6 @@ public:
 public:
 	SourceHook::List<MapChangeData *> m_mapHistory;
 
-private:
 	MapChangeData m_tempChangeInfo;
 	char lastMap[PLATFORM_MAX_PATH];
 };

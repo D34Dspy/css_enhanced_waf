@@ -184,7 +184,7 @@ public:
 	void OnClientDisconnect(edict_t *pEntity);
 	void OnClientDisconnect_Post(edict_t *pEntity);
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-	void OnClientCommand(edict_t *pEntity, const CCommand &args);
+	void OnClientCommand(edict_t *pEntity, CCommand *args);
 #if SOURCE_ENGINE >= SE_EYE
 	void OnClientCommandKeyValues(edict_t *pEntity, KeyValues *pCommand);
 	void OnClientCommandKeyValues_Post(edict_t *pEntity, KeyValues *pCommand);
@@ -282,7 +282,7 @@ private:
 };
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-void CmdMaxplayersCallback(const CCommand &command);
+void CmdMaxplayersCallback(CCommand *command);
 #else
 void CmdMaxplayersCallback();
 #endif

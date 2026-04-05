@@ -126,7 +126,7 @@ public: // IVoiceServer
 	void VoiceInit();
 	void VoiceShutdown();
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-	void OnClientCommand(edict_t *pEntity, const CCommand &args);
+	void OnClientCommand(edict_t *pEntity, CCommand *args);
 #else
 	void OnClientCommand(edict_t *pEntity);
 #endif

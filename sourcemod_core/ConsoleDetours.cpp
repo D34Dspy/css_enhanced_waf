@@ -130,14 +130,14 @@ class GenericCommandHooker : public IConCommandLinkListener
 	}
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-	void Dispatch(const CCommand& args)
+	void Dispatch(CCommand* args)
 #else
 	void Dispatch()
 #endif
 	{
 		cell_t res = ConsoleDetours::Dispatch(META_IFACEPTR(ConCommand)
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-			, args
+			, *args
 #endif
 			);
 		if (res >= Pl_Handled)

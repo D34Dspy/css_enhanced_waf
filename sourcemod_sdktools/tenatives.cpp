@@ -201,7 +201,7 @@ bool TempEntHooks::RemoveHook(const char *name, IPluginFunction *pFunc)
 	return true;
 }
 
-void TempEntHooks::OnPlaybackTempEntity(IRecipientFilter &filter, float delay, const void *pSender, const SendTable *pST, int classID)
+void TempEntHooks::OnPlaybackTempEntity(IRecipientFilter *filter, float delay, const void *pSender, SendTable *pST, int classID)
 {
 	TEHookInfo *pInfo;
 	const char *name = g_TEManager.GetNameFromThisPtr(const_cast<void *>(pSender));
@@ -215,7 +215,7 @@ void TempEntHooks::OnPlaybackTempEntity(IRecipientFilter &filter, float delay, c
 
 		TempEntityInfo *oldinfo = g_CurrentTE;
 		g_CurrentTE = pInfo->te;
-		size = _FillInPlayers(g_TEPlayers, &filter);
+		size = _FillInPlayers(g_TEPlayers, filter);
 
 		for (iter=pInfo->lst.begin(); iter!=pInfo->lst.end(); iter++)
 		{

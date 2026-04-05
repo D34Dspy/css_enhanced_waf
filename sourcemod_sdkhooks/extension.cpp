@@ -48,6 +48,7 @@
 #include <IBinTools.h>
 
 #include "glue.hpp"
+#include "shareddefs.h"
 #include "smsdk_ext.h"
 #include "sourcehook.h"
 #include "takedamageinfo.h"
@@ -1068,8 +1069,9 @@ void SDKHooks::Hook_EndTouchPost(CBaseEntity *pOther)
 	g_SMGlue_P1__EndTouch.create_return(MRES_IGNORED);
 }
 
-void SDKHooks::Hook_FireBulletsPost(const FireBulletsInfo_t &info)
+void SDKHooks::Hook_FireBulletsPost(FireBulletsInfo_t *info_)
 {
+	const FireBulletsInfo_t& info = *info_;
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
 	int entity = gamehelpers->EntityToBCompatRef(pEntity);
 
@@ -1188,10 +1190,10 @@ void SDKHooks::Hook_GroundEntChangedPost(void *pVar)
 CTakeDamageInfoHack& getcast(CTakeDamageInfo& info) {
 	return *(reinterpret_cast<CTakeDamageInfoHack*>(&info));
 }
-int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo &info2, SDKHookType hookType)
+int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo *info2, SDKHookType hookType)
 {
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
-	CTakeDamageInfoHack& info = getcast(info2);
+	CTakeDamageInfoHack& info = getcast(*info2);
 
 	CVTableHook vhook(pEntity);
 	std::vector<CVTableList *> &vtablehooklist = g_HookList[hookType];
@@ -1294,9 +1296,9 @@ int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo &info2, SDKHookType hookTyp
 	return 0;
 }
 
-int SDKHooks::HandleOnTakeDamageHookPost(CTakeDamageInfo &info2, SDKHookType hookType)
+int SDKHooks::HandleOnTakeDamageHookPost(CTakeDamageInfo *info2, SDKHookType hookType)
 {
-	CTakeDamageInfoHack& info = getcast(info2);
+	CTakeDamageInfoHack& info = getcast(*info2);
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
 
 	CVTableHook vhook(pEntity);
@@ -1344,22 +1346,22 @@ int SDKHooks::HandleOnTakeDamageHookPost(CTakeDamageInfo &info2, SDKHookType hoo
 }
 
 
-int SDKHooks::Hook_OnTakeDamage(CTakeDamageInfo &info)
+int SDKHooks::Hook_OnTakeDamage(CTakeDamageInfo *info)
 {
-	return HandleOnTakeDamageHook(getcast(info), SDKHook_OnTakeDamage);
+	return HandleOnTakeDamageHook(info, SDKHook_OnTakeDamage);
 }
 
-int SDKHooks::Hook_OnTakeDamagePost(CTakeDamageInfo &info)
+int SDKHooks::Hook_OnTakeDamagePost(CTakeDamageInfo *info)
 {
-	return HandleOnTakeDamageHookPost(getcast(info), SDKHook_OnTakeDamagePost);
+	return HandleOnTakeDamageHookPost(info, SDKHook_OnTakeDamagePost);
 }
 
-int SDKHooks::Hook_OnTakeDamage_Alive(CTakeDamageInfo&info)
+int SDKHooks::Hook_OnTakeDamage_Alive(CTakeDamageInfo*info)
 {
-	return HandleOnTakeDamageHook(getcast(info), SDKHook_OnTakeDamage_Alive);
+	return HandleOnTakeDamageHook(info, SDKHook_OnTakeDamage_Alive);
 }
 
-int SDKHooks::Hook_OnTakeDamage_AlivePost(CTakeDamageInfo &info)
+int SDKHooks::Hook_OnTakeDamage_AlivePost(CTakeDamageInfo *info)
 {
 	return HandleOnTakeDamageHookPost(info, SDKHook_OnTakeDamage_AlivePost);
 }
@@ -1647,12 +1649,13 @@ void SDKHooks::Hook_TouchPost(CBaseEntity *pOther)
 
 #if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_PVKII
-void SDKHooks::Hook_TraceAttack(CTakeDamageInfo&info2,const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator)
+void SDKHooks::Hook_TraceAttack(CTakeDamageInfo*info2,Vector *vecDir_, trace_t *ptr, CDmgAccumulator *pAccumulator)
 #else
 void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr)
 #endif
 {
-	auto& info = getcast(info2);
+	const Vector& vecDir = *vecDir_;
+	auto& info = getcast(*info2);
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
 
 	CVTableHook vhook(pEntity);
@@ -1743,12 +1746,13 @@ void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir,
 
 #if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_PVKII
-void SDKHooks::Hook_TraceAttackPost(CTakeDamageInfo&info2, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator)
+void SDKHooks::Hook_TraceAttackPost(CTakeDamageInfo*info2, Vector *vecDir_, trace_t *ptr, CDmgAccumulator *pAccumulator)
 #else
 void SDKHooks::Hook_TraceAttackPost(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr)
 #endif
 {
-	auto& info = getcast(info2);
+	const Vector& vecDir = *vecDir_;
+	auto& info = getcast(*info2);
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
 
 	CVTableHook vhook(pEntity);
