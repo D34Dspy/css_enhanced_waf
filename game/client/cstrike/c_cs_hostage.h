@@ -51,7 +51,7 @@ public:
 	bool WasRecentlyKilledOrRescued( void );
 
 	int GetHealth( void ) const { return m_iHealth; }
-	int GetMaxHealth( void ) const { return m_iMaxHealth; }
+	int GetMaxHealth( void ) const;
 
 	virtual void ClientThink( void );
 

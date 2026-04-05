@@ -33,6 +33,7 @@
 //=============================================================================
 
 // memdbgon must be the last include file in a .cpp file!!!
+#include "takedamageinfo.h"
 #include "tier0/memdbgon.h"
 
 #define HOSTAGE_THINK_INTERVAL	gpGlobals->interval_per_tick
@@ -292,8 +293,14 @@ float CHostage::GetModifiedDamage( float flDamage, int nHitGroup )
 }
 
 //-----------------------------------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CHostage::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#endif
 	CTakeDamageInfo scaledInfo = info;
 	scaledInfo.SetDamage( GetModifiedDamage( info.GetDamage(), ptr->hitgroup ) );
 	BaseClass::TraceAttack( scaledInfo, vecDir, ptr, pAccumulator );
@@ -534,6 +541,9 @@ void CHostage::HostageRescueZoneTouch( inputdata_t &inputdata )
  */
 void CHostage::Touch( CBaseEntity *other )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__StartTouch.invoke(this, other);
+#endif
 	BaseClass::Touch( other );
 
 	// allow players and other hostages to push me around

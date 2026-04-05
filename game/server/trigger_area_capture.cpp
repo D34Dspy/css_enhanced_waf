@@ -171,9 +171,14 @@ bool CTriggerAreaCapture::IsActive( void )
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-//-----------------------------------------------------------------------------
+//--#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif---------------------------------------------------------------------------
 void CTriggerAreaCapture::StartTouch(CBaseEntity *pOther)
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__StartTouch.invoke(this, pOther);
+#endif
 	BaseClass::StartTouch( pOther );
 
 	if ( PassesTriggerFilters(pOther) && m_hPoint )
@@ -218,8 +223,12 @@ void CTriggerAreaCapture::StartTouch(CBaseEntity *pOther)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+
 void CTriggerAreaCapture::EndTouch(CBaseEntity *pOther)
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__EndTouch.invoke(this, pOther);
+#endif
 	if ( IsTouching( pOther ) && m_hPoint )
 	{
 		IGameEvent *event = gameeventmanager->CreateEvent( "controlpoint_endtouch" );

@@ -32,8 +32,14 @@ void CInfoIntermission::Spawn( void )
 	SetNextThink( gpGlobals->curtime + 2 );// let targets spawn !
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CInfoIntermission::Think ( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	CBaseEntity *pTarget;
 
 	// find my target

@@ -12,6 +12,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 
 #undef CHostage
 
@@ -158,6 +162,13 @@ void C_CHostage::RecvProxy_Rescued( const CRecvProxyData *pData, void *pStruct, 
 	pHostage->m_isRescued = isRescued;
 }
 
+int C_CHostage::GetMaxHealth( void ) const { 
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__GetMaxHealth.invoke(this);
+#endif
+	return m_iMaxHealth; 
+}
+
 //-----------------------------------------------------------------------------
 IMPLEMENT_CLIENTCLASS_DT(C_CHostage, DT_CHostage, CHostage)
 	
@@ -207,6 +218,9 @@ C_CHostage::~C_CHostage()
 //-----------------------------------------------------------------------------
 void C_CHostage::Spawn( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Spawn.invoke(this);
+#endif
 	m_leader = NULL;
 	m_blinkTimer.Invalidate();
 }

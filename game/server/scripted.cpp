@@ -469,8 +469,15 @@ void CAI_ScriptedSequence::Blocked( CBaseEntity *pOther )
 // Purpose: 
 // Input  : pOther - The entity touching us.
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CAI_ScriptedSequence::Touch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, pOther);
+#endif
 /*
 	DevMsg( 2,  "Cine Touch\n" );
 	if (m_pentTarget && OFFSET(pOther->pev) == OFFSET(m_pentTarget))

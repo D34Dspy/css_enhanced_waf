@@ -350,8 +350,14 @@ IGameEvent *CGameEventManager::CreateEvent( const char *name, bool bForce )
 	return new CGameEvent ( descriptor );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 bool CGameEventManager::FireEvent( IGameEvent *event, bool bServerOnly )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IGameEventManager2__FireEvent.invoke(this, event, bServerOnly);
+#endif
 	return FireEventIntern( event, bServerOnly, false );
 }
 

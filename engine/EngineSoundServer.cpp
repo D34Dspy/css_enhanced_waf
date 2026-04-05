@@ -6,6 +6,7 @@
 //=============================================================================//
 
 #include "engine/IEngineSound.h"
+#include "precache.h"
 #include "tier0/dbg.h"
 #include "quakedef.h"
 #include "vox.h"
@@ -268,10 +269,16 @@ void CEngineSoundServer::EmitSentenceByIndex( IRecipientFilter& filter, int iEnt
 //-----------------------------------------------------------------------------
 // Emits a sound
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CEngineSoundServer::EmitSound( IRecipientFilter& filter, int iEntIndex, int iChannel, const char *pSample, 
 	float flVolume, float flAttenuation, int iFlags, int iPitch, int iSpecialDSP,
 	const Vector *pOrigin, const Vector *pDirection, CUtlVector< Vector >* pUtlVecOrigins, bool bUpdatePositions, float soundtime /*= 0.0f*/, int speakerentity /*= -1*/ )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IEngineSound__EmitSound2.invoke(this, &filter, iEntIndex, iChannel, pSample, flVolume, flAttenuation, iFlags, iPitch, iSpecialDSP, const_cast<Vector*>(pOrigin), const_cast<Vector*>(pDirection), pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
+#endif
 	VPROF( "CEngineSoundServer::EmitSound" );
 	EmitSound( filter, iEntIndex, iChannel, pSample, flVolume, ATTN_TO_SNDLVL( flAttenuation ), iFlags, 
 		iPitch, iSpecialDSP, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity );
@@ -282,6 +289,9 @@ void CEngineSoundServer::EmitSound( IRecipientFilter& filter, int iEntIndex, int
 	float flVolume, soundlevel_t iSoundLevel, int iFlags, int iPitch, int iSpecialDSP,
 	const Vector *pOrigin, const Vector *pDirection, CUtlVector< Vector >* pUtlVecOrigins, bool bUpdatePositions, float soundtime /*= 0.0f*/, int speakerentity /*= -1*/ )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IEngineSound__EmitSound.invoke(this, &filter, iEntIndex, iChannel, pSample, flVolume, iSoundLevel, iFlags, iPitch, iSpecialDSP, const_cast<Vector*>(pOrigin), const_cast<Vector*>(pDirection), pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
+#endif
 	VPROF( "CEngineSoundServer::EmitSound" );
 	if ( pSample && TestSoundChar(pSample, CHAR_SENTENCE) )
 	{

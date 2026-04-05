@@ -61,8 +61,14 @@ void CShower::Spawn( void )
 }
 
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CShower::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	g_pEffects->Sparks( GetAbsOrigin() );
 
 	m_flSpeed -= 0.1;
@@ -76,6 +82,9 @@ void CShower::Think( void )
 
 void CShower::Touch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, pOther);
+#endif
 	Vector vecNewVelocity = GetAbsVelocity();
 
 	if ( GetFlags() & FL_ONGROUND )

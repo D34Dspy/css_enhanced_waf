@@ -16,6 +16,8 @@
 #include "cs_bot.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
+#include "shareddefs.h"
+#include "takedamageinfo.h"
 #include "tier0/memdbgon.h"
 
 LINK_ENTITY_TO_CLASS( cs_bot, CCSBot );
@@ -100,8 +102,14 @@ bool CCSBot::Jump( bool mustJump )
  * Invoked when injured by something
  * NOTE: We dont want to directly call Attack() here, or the bots will have super-human reaction times when injured
  */
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 int CCSBot::OnTakeDamage( const CTakeDamageInfo &info )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__FireBullets.invoke(this, (FireBulletsInfo_t*)const_cast<CTakeDamageInfo*>(&info));
+#endif
 	CBaseEntity *attacker = info.GetInflictor();
 
 	// getting hurt makes us alert
@@ -244,8 +252,14 @@ extern void UTIL_DrawBox( Extent *extent, int lifetime, int red, int green, int 
 /**
  * When bot is touched by another entity.
  */
+ #ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CCSBot::Touch( CBaseEntity *other )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__StartTouch.invoke(this, other);
+#endif
 	// EXTEND
 	BaseClass::Touch( other );
 

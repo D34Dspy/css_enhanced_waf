@@ -6,6 +6,7 @@
 //
 //===========================================================================//
 
+#include "glue.hpp"
 #include "server_pch.h"
 #include "sv_plugin.h"
 #include "filesystem.h"
@@ -612,6 +613,9 @@ void CServerPlugin::OnEdictFreed( const edict_t *edict )
 //---------------------------------------------------------------------------------
 void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValues *data, IServerPluginCallbacks *plugin )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerPluginHelpers__CreateMessage.invoke(this, pEntity, type, data, plugin);
+#endif
 	if ( !pEntity )
 	{
 		ConMsg( "Invaid pEntity\n" );

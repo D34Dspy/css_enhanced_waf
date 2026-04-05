@@ -77,8 +77,15 @@ bool CWeaponMP5Navy::Deploy( )
 	return ret;
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 bool CWeaponMP5Navy::Reload( )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Reload.invoke(this);
+#endif
 	bool ret = BaseClass::Reload();
 
 	m_flAccuracy = 0.0;

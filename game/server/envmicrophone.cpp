@@ -378,8 +378,14 @@ void CEnvMicrophone::SetSpeakerName( string_t iszSpeakerName )
 //-----------------------------------------------------------------------------
 // Purpose: Listens for sounds and updates the value of the SoundLevel output.
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CEnvMicrophone::Think(void)
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	int nSound = CSoundEnt::ActiveList();
 	bool fHearSound = false;
 

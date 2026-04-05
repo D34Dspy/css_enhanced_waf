@@ -2095,9 +2095,14 @@ int CBaseEntity::ObjectCaps( void )
 	return FCAP_ACROSS_TRANSITION | parentCaps;
 #endif
 }
-
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CBaseEntity::StartTouch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__StartTouch.invoke(this, pOther);
+#endif
 	// notify parent
 	if ( m_pParent != NULL )
 		m_pParent->StartTouch( pOther );
@@ -2105,6 +2110,9 @@ void CBaseEntity::StartTouch( CBaseEntity *pOther )
 
 void CBaseEntity::Touch( CBaseEntity *pOther )
 { 
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, pOther);
+#endif
 	if ( m_pfnTouch ) 
 		(this->*m_pfnTouch)( pOther );
 
@@ -2115,6 +2123,9 @@ void CBaseEntity::Touch( CBaseEntity *pOther )
 
 void CBaseEntity::EndTouch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__EndTouch.invoke(this, pOther);
+#endif
 	// notify parent
 	if ( m_pParent != NULL )
 	{
@@ -2127,8 +2138,14 @@ void CBaseEntity::EndTouch( CBaseEntity *pOther )
 // Purpose: Dispatches blocked events to this entity's blocked handler, set via SetBlocked.
 // Input  : pOther - The entity that is blocking us.
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CBaseEntity::Blocked( CBaseEntity *pOther )
 { 
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	if ( m_pfnBlocked )
 	{
 		(this->*m_pfnBlocked)( pOther );
@@ -2153,6 +2170,9 @@ void CBaseEntity::Blocked( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 void CBaseEntity::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) 
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	if ( m_pfnUse != NULL ) 
 	{
 		(this->*m_pfnUse)( pActivator, pCaller, useType, value );
@@ -3544,6 +3564,9 @@ int CBaseEntity::ShouldTransmit( const CCheckTransmitInfo *pInfo )
 //-----------------------------------------------------------------------------
 void CBaseEntity::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#endif
 	int index = entindex();
 
 	// Are we already marked for transmission?

@@ -812,9 +812,15 @@ void CRagdollProp::RecheckCollisionFilter( void )
 	}
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 void CRagdollProp::TraceAttack( const CTakeDamageInfo &info, const Vector &dir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#endif
 	if ( ptr->physicsbone >= 0 && ptr->physicsbone < m_ragdoll.listCount )
 	{
 		VPhysicsSwapObject( m_ragdoll.list[ptr->physicsbone].pObject );
@@ -963,8 +969,14 @@ void CRagdollProp::Teleport( const Vector *newPosition, const QAngle *newAngles,
 	UpdateNetworkDataFromVPhysics( m_ragdoll.list[0].pObject, 0 );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CRagdollProp::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#endif
 	if ( m_lastUpdateTickCount == (unsigned int)gpGlobals->tickcount )
 		return;
 
@@ -1449,8 +1461,15 @@ void CRagdollPropAttached::DetachOnNextUpdate()
 	m_bShouldDetach = true;
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CRagdollPropAttached::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#endif
 	if ( m_bShouldDetach )
 	{
 		Detach();

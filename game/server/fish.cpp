@@ -188,8 +188,15 @@ void CFish::Event_Killed( const CTakeDamageInfo &info )
 /**
  * In contact with "other"
  */
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CFish::Touch( CBaseEntity *other )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, other);
+#endif
 	if (other && other->IsPlayer())
 	{
 		// touched a Player - panic!

@@ -568,8 +568,14 @@ void CSprite::TurnOn( void )
 
 #if !defined( CLIENT_DLL )
 // DVS TODO: Obsolete Use handler
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CSprite::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	int on = !IsEffectActive( EF_NODRAW );
 	if ( ShouldToggle( useType, on ) )
 	{

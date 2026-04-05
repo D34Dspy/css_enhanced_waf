@@ -159,9 +159,15 @@ float CWeaponSG552::GetMaxSpeed() const
 		return 200; // zoomed in.
 }	
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 bool CWeaponSG552::Reload()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Reload.invoke(this);
+#endif
 	m_weaponMode = Primary_Mode;
 	return BaseClass::Reload();
 }

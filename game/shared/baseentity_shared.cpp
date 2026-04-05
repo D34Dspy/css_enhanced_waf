@@ -5,6 +5,7 @@
 // $NoKeywords: $
 //=============================================================================//
 
+#include "baseentity.h"
 #include "cbase.h"
 
 #include "decals.h"
@@ -12,6 +13,7 @@
 #include "model_types.h"
 #include "gamestringpool.h"
 #include "ammodef.h"
+#include "shareddefs.h"
 #include "takedamageinfo.h"
 #include "shot_manipulator.h"
 #include "ai_debug_shared.h"
@@ -614,8 +616,15 @@ bool CBaseEntity::GetKeyValue( const char *szKeyName, char *szValue, int iMaxLen
 // Input  : collisionGroup - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 bool CBaseEntity::ShouldCollide( int collisionGroup, int contentsMask ) const
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P2__ShouldCollide.invoke(const_cast<CBaseEntity*>(this), collisionGroup, contentsMask);
+#endif
 	if ( m_CollisionGroup == COLLISION_GROUP_DEBRIS )
 	{
 		if ( ! (contentsMask & CONTENTS_DEBRIS) )
@@ -1592,8 +1601,14 @@ public:
 typedef CTraceFilterSimpleList CBulletsTraceFilter;
 #endif
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__FireBullets.invoke(this, const_cast<FireBulletsInfo_t*>(&info));
+#endif
 	static int	tracerCount;
 	trace_t		tr;
 	CAmmoDef*	pAmmoDef	= GetAmmoDef();
@@ -2120,6 +2135,9 @@ void CBaseEntity::DispatchTraceAttack( const CTakeDamageInfo &info, const Vector
 
 void CBaseEntity::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#endif
 	Vector vecOrigin = ptr->endpos - vecDir * 4;
 
 	if ( m_takedamage )

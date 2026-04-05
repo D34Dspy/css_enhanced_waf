@@ -841,8 +841,14 @@ void CBasePlayer::Weapon_SetLast( CBaseCombatWeapon *pWeapon )
 // Input  :
 // Output :
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 bool CBasePlayer::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex /*=0*/ ) 
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P2__Weapon_Switch.invoke(this, pWeapon, viewmodelindex);
+#endif
 	CBaseCombatWeapon *pLastWeapon = GetActiveWeapon();
 
 	if ( BaseClass::Weapon_Switch( pWeapon, viewmodelindex ))

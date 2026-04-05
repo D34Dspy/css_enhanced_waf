@@ -522,8 +522,15 @@ void CAmbientGeneric::Activate( void )
 //-----------------------------------------------------------------------------
 // Rules about which entities need to transmit along with me
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CAmbientGeneric::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#endif
 	// Ambient generics never transmit; this is just a way for us to ensure
 	// the sound source gets transmitted; that's why we don't call pInfo->m_pTransmitEdict->Set
 	if ( !m_hSoundSource || m_hSoundSource == this || !m_fActive )

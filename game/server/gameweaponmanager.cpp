@@ -178,8 +178,14 @@ void CGameWeaponManager::Spawn()
 // really want. We may only want to conduct the cleanup on
 // weapons that are IN the player's PVS.
 //---------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CGameWeaponManager::Think()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	int i;
 
 	// Don't have to think all that often. 

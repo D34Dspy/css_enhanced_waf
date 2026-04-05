@@ -277,9 +277,15 @@ int CBoneFollower::UpdateTransmitState()
 	// Send to the client for client-side collisions and visualization
 	return SetTransmitState( FL_EDICT_ALWAYS );
 }
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 void CBoneFollower::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#endif
 	Vector origin;
 	QAngle angles;
 
@@ -414,6 +420,9 @@ int CBoneFollower::ObjectCaps()
 //-----------------------------------------------------------------------------
 void CBoneFollower::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	CBaseEntity *pOwner = GetOwnerEntity();
 	if ( pOwner )
 	{
@@ -427,8 +436,15 @@ void CBoneFollower::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 //-----------------------------------------------------------------------------
 // Purpose: Pass on Touch calls to the entity we're following
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CBoneFollower::Touch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, pOther);
+#endif
 	CBaseEntity *pOwner = GetOwnerEntity();
 	if ( pOwner )
 	{
@@ -443,8 +459,15 @@ void CBoneFollower::Touch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 // Purpose: Pass on trace attack calls to the entity we're following
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CBoneFollower::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#endif
 	CBaseEntity *pOwner = GetOwnerEntity();
 	if ( pOwner )
 	{

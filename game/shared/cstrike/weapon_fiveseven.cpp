@@ -181,9 +181,15 @@ void CWeaponFiveSeven::SecondaryAttack()
 {
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 bool CWeaponFiveSeven::Reload()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Reload.invoke(this);
+#endif
 	if ( !DefaultPistolReload() )
 		return false;
 

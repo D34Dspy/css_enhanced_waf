@@ -294,8 +294,14 @@ CVarDLLIdentifier_t CCvar::AllocateDLLIdentifier()
 // Purpose: 
 // Input  : *variable - 
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CCvar::RegisterConCommand( ConCommandBase *variable )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_ICvar__RegisterConCommand.invoke(this, variable);
+#endif
 	// Already registered
 	if ( variable->IsRegistered() )
 		return;
@@ -409,6 +415,9 @@ void CCvar::RegisterConCommand( ConCommandBase *variable )
 
 void CCvar::UnregisterConCommand( ConCommandBase *pCommandToRemove )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_ICvar__UnregisterConCommand.invoke(this, pCommandToRemove);
+#endif
 	// Not registered? Don't bother
 	if ( !pCommandToRemove->IsRegistered() )
 		return;

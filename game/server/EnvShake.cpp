@@ -305,8 +305,15 @@ void CEnvShake::InputFrequency( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 // Purpose: Calculates the physics shake values
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CEnvShake::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	int i;
 
 	if ( gpGlobals->curtime > m_nextShake )

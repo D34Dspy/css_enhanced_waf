@@ -409,9 +409,15 @@ void CGibShooter::Precache ( void )
 	}
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 void CGibShooter::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	SetThink( &CGibShooter::ShootThink );
 	SetNextThink( gpGlobals->curtime );
 }
@@ -949,8 +955,14 @@ void CTestEffect::Precache( void )
 	PrecacheModel( "sprites/lgtning.vmt" );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CTestEffect::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	int i;
 	float t = (gpGlobals->curtime - m_flStartTime);
 
@@ -1008,6 +1020,9 @@ void CTestEffect::Think( void )
 
 void CTestEffect::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	SetNextThink( gpGlobals->curtime + 0.1f );
 	m_flStartTime = gpGlobals->curtime;
 }
@@ -1268,6 +1283,9 @@ void CEnvFunnel::Precache ( void )
 
 void CEnvFunnel::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	CBroadcastRecipientFilter filter;
 	te->LargeFunnel( filter, 0.0,
 		&GetAbsOrigin(), m_iSprite, HasSpawnFlags( SF_FUNNEL_REVERSE ) ? 1 : 0 );
@@ -1338,6 +1356,9 @@ bool CEnvBeverage::KeyValue( const char *szKeyName, const char *szValue )
 
 void CEnvBeverage::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	if ( m_CanInDispenser || m_iHealth <= 0 )
 	{
 		// no more cans while one is waiting in the dispenser, or if I'm out of cans.

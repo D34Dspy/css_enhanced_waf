@@ -367,8 +367,15 @@ void CPropJeep::DoImpactEffect( trace_t &tr, int nDamageType )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CPropJeep::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vecDir, trace_t *ptr )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P3__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr);
+#endif
 	CTakeDamageInfo info = inputInfo;
 	if ( ptr->hitbox != VEHICLE_HITBOX_DRIVER )
 	{
@@ -748,8 +755,14 @@ void CPropJeep::CreateRipple( const Vector &vecPosition )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CPropJeep::Think(void)
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	BaseClass::Think();
 
 /*
@@ -1138,6 +1151,9 @@ void CPropJeep::GetCannonAim( Vector *resultDir )
 //-----------------------------------------------------------------------------
 void CPropJeep::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	
 	if ( pPlayer == NULL)

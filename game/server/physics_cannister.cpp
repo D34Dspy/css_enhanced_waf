@@ -194,8 +194,15 @@ int CPhysicsCannister::OnTakeDamage( const CTakeDamageInfo &info )
 }
 
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CPhysicsCannister::TraceAttack( const CTakeDamageInfo &info, const Vector &dir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
+#endif
+
 	if ( !m_active && ptr->hitgroup != 0 )
 	{
 		Vector direction = -dir;
@@ -467,8 +474,15 @@ CBasePlayer *CPhysicsCannister::HasPhysicsAttacker( float dt )
 //-----------------------------------------------------------------------------
 // Purpose: Update the visible representation of the physic system's representation of this object
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CPhysicsCannister::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#endif
 	BaseClass::VPhysicsUpdate( pPhysics );
 
 	// if this is the first time we have moved, fire our target

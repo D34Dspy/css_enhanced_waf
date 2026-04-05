@@ -451,6 +451,10 @@ CCollisionEvent::CCollisionEvent()
 	m_lastTickFrictionError = 0;
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 int CCollisionEvent::ShouldCollide( IPhysicsObject *pObj0, IPhysicsObject *pObj1, void *pGameData0, void *pGameData1 )
 #if _DEBUG
 {
@@ -2422,7 +2426,6 @@ void CCollisionEvent::LevelShutdown( void )
 		}
 	}
 }
-
 
 void CCollisionEvent::StartTouch( IPhysicsObject *pObject1, IPhysicsObject *pObject2, IPhysicsCollisionData *pTouchData )
 {

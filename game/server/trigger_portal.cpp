@@ -132,8 +132,15 @@ void CTriggerPortal::SetRemotePortal(const char *strRemotePortalName )
 // Purpose: 
 // Input  : *pOther - 
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CTriggerPortal::EndTouch(CBaseEntity *pOther)
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__EndTouch.invoke(this, pOther);
+#endif
 	BaseClass::EndTouch(pOther);
 
 	if ( portal_debug.GetBool() )
@@ -153,6 +160,9 @@ void CTriggerPortal::EndTouch(CBaseEntity *pOther)
 //-----------------------------------------------------------------------------
 void CTriggerPortal::Touch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, pOther);
+#endif
 	// If we are enabled, and allowed to react to the touched entity
 	if ( PassesTriggerFilters(pOther) )
 	{

@@ -568,8 +568,14 @@ int CPhysBox::ObjectCaps()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CPhysBox::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	if ( pPlayer )
 	{
@@ -707,10 +713,16 @@ void CPhysBox::Move( const Vector &direction )
 {
 	VPhysicsGetObject()->ApplyForceCenter( direction );
 }
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 // Update the visible representation of the physic system's representation of this object
 void CPhysBox::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#endif
 	BaseClass::VPhysicsUpdate( pPhysics );
 
 	// if this is the first time we have moved, fire our target
@@ -1607,8 +1619,15 @@ void CPhysMagnet::Precache( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CPhysMagnet::Touch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, pOther);
+#endif
 }
 
 //-----------------------------------------------------------------------------

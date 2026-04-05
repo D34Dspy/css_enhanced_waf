@@ -76,9 +76,15 @@ bool CFuncWall::CreateVPhysics( void )
 	return true;
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 void CFuncWall::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	if ( ShouldToggle( useType, m_nState ) )
 	{
 		m_nState = 1 - m_nState;
@@ -171,6 +177,9 @@ void CFuncWallToggle::InputToggle( inputdata_t &inputdata )
 //Adrian - Is this function needed at all?
 void CFuncWallToggle::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	int status = IsOn();
 
 	if ( ShouldToggle( useType, status ) )
@@ -337,6 +346,9 @@ void CFuncConveyor::UpdateSpeed( float flNewSpeed )
 
 void CFuncConveyor::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
     m_flSpeed = -m_flSpeed;
 	UpdateSpeed( m_flSpeed );
 }
@@ -1311,6 +1323,9 @@ void CFuncRotating::InputToggle( inputdata_t &inputdata )
 // Purpose: An entity has blocked the brush.
 // Input  : pOther - 
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CFuncRotating::Blocked( CBaseEntity *pOther )
 {
 #ifdef HL1_DLL

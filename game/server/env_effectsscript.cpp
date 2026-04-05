@@ -229,8 +229,14 @@ void CEnvEffectsScript::Spawn()
 	SetNextThink( gpGlobals->curtime + 0.1f );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CEnvEffectsScript::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	StudioFrameAdvance();
 	DispatchAnimEvents( this );
 

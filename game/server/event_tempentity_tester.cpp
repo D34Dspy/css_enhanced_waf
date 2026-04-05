@@ -104,8 +104,15 @@ void CTempEntTester::Spawn( void )
 //-----------------------------------------------------------------------------
 // Purpose: Called when object should fire itself and move on
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CTempEntTester::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	// Should never happen
 	if ( !m_pCurrent )
 	{

@@ -2071,8 +2071,15 @@ void CBaseCombatCharacter::SetLightingOriginRelative( CBaseEntity *pLightingOrig
 // Purpose:	Add new weapon to the character
 // Input  : New weapon
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CBaseCombatCharacter::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+#endif
 	// Add the weapon to my weapon inventory
 	for (int i=0;i<MAX_WEAPONS;i++) 
 	{
@@ -2281,8 +2288,15 @@ CBaseCombatWeapon *CBaseCombatCharacter::Weapon_GetWpnForAmmo( int iAmmoIndex )
 // Input  : A weapon
 // Output :	true or false
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Weapon_CanUse.invoke(this, pWeapon);
+#endif
 	acttable_t *pTable		= pWeapon->ActivityList();
 	int			actCount	= pWeapon->ActivityListCount();
 
@@ -2553,6 +2567,9 @@ Vector CBaseCombatCharacter::BodyDirection3D( void )
 
 void CBaseCombatCharacter::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#endif
 	// Skip this work if we're already marked for transmission.
 	if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
 		return;
@@ -3013,9 +3030,15 @@ int CBaseCombatCharacter::GiveAmmo( int iCount, const char *szName, bool bSuppre
 }
 
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 ConVar	phys_stressbodyweights( "phys_stressbodyweights", "5.0" );
 void CBaseCombatCharacter::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#endif
 	ApplyStressDamage( pPhysics, false );
 	BaseClass::VPhysicsUpdate( pPhysics );
 }

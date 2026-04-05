@@ -87,8 +87,15 @@ void CSteamJet::Precache( void )
 	PrecacheMaterial( "sprites/heatwave" );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
  void CSteamJet::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
  {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	if (!pActivator->IsPlayer())
 	{
 		if (useType == USE_ON)
