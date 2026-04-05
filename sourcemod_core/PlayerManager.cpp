@@ -1098,8 +1098,9 @@ void ListPluginsToClient(CPlayer *player, const CCommand &args)
 }
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-void PlayerManager::OnClientCommand(edict_t *pEntity, const CCommand &args)
+void PlayerManager::OnClientCommand(edict_t *pEntity, CCommand *args_)
 {
+	const CCommand& args = *args_;
 #else
 void PlayerManager::OnClientCommand(edict_t *pEntity)
 {
@@ -2004,7 +2005,7 @@ int PlayerManager::GetClientFromSerial(unsigned int serial)
 }
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-void CmdMaxplayersCallback(const CCommand &command)
+void CmdMaxplayersCallback(CCommand *command)
 {
 #else
 void CmdMaxplayersCallback()

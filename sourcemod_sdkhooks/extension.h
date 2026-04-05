@@ -322,15 +322,15 @@ public:
 	bool Hook_CanBeAutobalanced();
 	void Hook_EndTouch(CBaseEntity *pOther);
 	void Hook_EndTouchPost(CBaseEntity *pOther);
-	void Hook_FireBulletsPost(const FireBulletsInfo_t &info);
+	void Hook_FireBulletsPost(FireBulletsInfo_t *info);
 #ifdef GETMAXHEALTH_IS_VIRTUAL
 	int Hook_GetMaxHealth();
 #endif
 	void Hook_GroundEntChangedPost(void *pVar);
-	int Hook_OnTakeDamage(CTakeDamageInfo &info);
-	int Hook_OnTakeDamagePost(CTakeDamageInfo &info);
-	int Hook_OnTakeDamage_Alive(CTakeDamageInfo &info);
-	int Hook_OnTakeDamage_AlivePost(CTakeDamageInfo &info);
+	int Hook_OnTakeDamage(CTakeDamageInfo *info);
+	int Hook_OnTakeDamagePost(CTakeDamageInfo *info);
+	int Hook_OnTakeDamage_Alive(CTakeDamageInfo *info);
+	int Hook_OnTakeDamage_AlivePost(CTakeDamageInfo *info);
 	void Hook_PreThink();
 	void Hook_PreThinkPost();
 	void Hook_PostThink();
@@ -349,8 +349,8 @@ public:
 	void Hook_TouchPost(CBaseEntity *pOther);
 #if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_PVKII
-	void Hook_TraceAttack(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
-	void Hook_TraceAttackPost(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
+	void Hook_TraceAttack(CTakeDamageInfo *info, Vector *vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
+	void Hook_TraceAttackPost(CTakeDamageInfo *info, Vector *vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
 #else
 	void Hook_TraceAttack(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr);
 	void Hook_TraceAttackPost(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr);
@@ -379,8 +379,8 @@ private:
 	void Unhook(IPluginContext *pContext);
 
 private:
-	int HandleOnTakeDamageHook(CTakeDamageInfo &info, SDKHookType hookType);
-	int HandleOnTakeDamageHookPost(CTakeDamageInfo &info, SDKHookType hookType);
+	int HandleOnTakeDamageHook(CTakeDamageInfo *info, SDKHookType hookType);
+	int HandleOnTakeDamageHookPost(CTakeDamageInfo *info, SDKHookType hookType);
 
 private:
 	inline bool IsEntityIndexInRange(int i) { return i >= 0 && i < NUM_ENT_ENTRIES; }

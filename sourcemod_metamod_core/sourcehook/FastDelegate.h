@@ -857,7 +857,7 @@ template<class RetType=detail::DefaultVoid>
 class FastDelegate0 {
 	public:
 	typedef typename detail::DefaultVoidToVoid<RetType>::type DesiredRetType;
-	struct ParameterSet { void unwrap(); };
+	struct ParameterSet { void unwrap() {} };
 private:
 	typedef DesiredRetType (*StaticFunctionPtr)();
 	typedef RetType (*UnvoidStaticFunctionPtr)();

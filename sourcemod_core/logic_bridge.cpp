@@ -30,6 +30,7 @@
  */
 #include <stdio.h>
 #include <assert.h>
+#include "convar.h"
 #include "sm_platform.h"
 #include "sourcemod.h"
 #include "sourcemm_api.h"
@@ -752,7 +753,7 @@ CoreProviderImpl::DefineCommand(const char *name, const char *help, const Comman
 	char *new_help = sm_strdup(help);
 	int flags = 0;
 
-	auto ignore_callback = [] (DISPATCH_ARGS) -> void {
+	auto ignore_callback = [] (const CCommand&) -> void {
 	};
 
 	ConCommand *cmd = new ConCommand(new_name, ignore_callback, new_help, flags);

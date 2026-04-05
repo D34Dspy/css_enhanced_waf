@@ -66,7 +66,7 @@ void Detour_Error(const tchar *pMsg, ...);
 void ClientCommand(CEntityIndex index, const CCommand &args);
 void LocalCommand_Meta(const CCommandContext &context, const CCommand &args);
 #elif SOURCE_ENGINE >= SE_ORANGEBOX
-void ClientCommand(edict_t *pEdict, const CCommand &args);
+void ClientCommand(edict_t *pEdict, CCommand *args);
 void LocalCommand_Meta(const CCommand &args);
 #else
 void ClientCommand(edict_t *pEdict);
@@ -568,8 +568,9 @@ void ClientCommand(CEntityIndex index, const CCommand &_cmd)
 	int client = index.Get();
 	GlobCommand cmd(&_cmd);
 #elif SOURCE_ENGINE >= SE_ORANGEBOX
-void ClientCommand(edict_t *client, const CCommand &_cmd)
+void ClientCommand(edict_t *client, CCommand *_cmd_)
 {
+	CCommand& _cmd = *_cmd_;
 	GlobCommand cmd(&_cmd);
 #else
 void ClientCommand(edict_t *client)

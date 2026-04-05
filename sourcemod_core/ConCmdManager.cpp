@@ -47,6 +47,7 @@ ConCmdManager g_ConCmds;
 
 typedef std::list<CmdHook *> PluginHookList;
 void RegisterInPlugin(CmdHook *hook);
+void CommandCallbackAdapt(const CCommand& cmd);
 
 ConCmdManager::ConCmdManager()
 {
@@ -144,6 +145,7 @@ void CommandCallback(DISPATCH_ARGS)
 	AutoEnterCommand autoEnterCommand(&args);
 	g_ConCmds.InternalDispatch(sCoreProviderImpl.CommandClient(), &args);
 }
+void CommandCallbackAdapt(const CCommand& cmd) { CommandCallback(const_cast<CCommand*>(&cmd)) ;};
 
 ConCmdInfo *ConCmdManager::FindInTrie(const char *name)
 {
@@ -556,7 +558,7 @@ ConCmdInfo *ConCmdManager::AddOrFindCommand(const char *name, const char *descri
 			}
 			char *new_name = sm_strdup(name);
 			char *new_help = sm_strdup(description);
-			pCmd = new ConCommand(new_name, CommandCallback, new_help, flags);
+			pCmd = new ConCommand(new_name, CommandCallbackAdapt, new_help, flags);
 			pInfo->pPlugin = pPlugin;
 			pInfo->sourceMod = true;
 		}

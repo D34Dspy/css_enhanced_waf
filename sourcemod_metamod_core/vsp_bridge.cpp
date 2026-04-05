@@ -51,7 +51,7 @@ SourceHook::String vsp_desc("Metamod:Source");
 #if SOURCE_ENGINE == SE_DOTA
 void InterceptPluginUnloads(const CCommandContext &context, const CCommand &args)
 #elif SOURCE_ENGINE >= SE_ORANGEBOX
-void InterceptPluginUnloads(const CCommand &args)
+void InterceptPluginUnloads(CCommand *args)
 #else
 void InterceptPluginUnloads()
 #endif
@@ -62,7 +62,7 @@ void InterceptPluginUnloads()
 #if SOURCE_ENGINE == SE_DOTA
 void InterceptPluginUnloads_Post(const CCommandContext &context, const CCommand &args)
 #elif SOURCE_ENGINE >= SE_ORANGEBOX
-void InterceptPluginUnloads_Post(const CCommand &args)
+void InterceptPluginUnloads_Post(CCommand* args_)
 #else
 void InterceptPluginUnloads_Post()
 #endif

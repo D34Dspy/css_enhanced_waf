@@ -33,6 +33,7 @@
 #include <IForwardSys.h>
 
 #include "glue.hpp"
+#include "irecipientfilter.h"
 #include "sourcehook.h"
 
 SH_DECL_HOOK8_void(IVEngineServer, EmitAmbientSound, SH_NOATTRIB, 0, int, const Vector &, const char *, float, soundlevel_t, int, int, float);
@@ -225,9 +226,10 @@ bool SoundHooks::RemoveHook(int type, IPluginFunction *pFunc)
 	return false;
 }
 
-void SoundHooks::OnEmitAmbientSound(int entindex, const Vector &pos, const char *samp, float vol, 
+void SoundHooks::OnEmitAmbientSound(int entindex, Vector *pos_, const char *samp, float vol, 
 									soundlevel_t soundlevel, int fFlags, int pitch, float delay)
 {
+	const Vector& pos = *pos_;
 	SoundHookIter iter;
 	IPluginFunction *pFunc;
 	cell_t vec[3] = {sp_ftoc(pos.x), sp_ftoc(pos.y), sp_ftoc(pos.z)};
@@ -268,7 +270,7 @@ void SoundHooks::OnEmitAmbientSound(int entindex, const Vector &pos, const char 
 				// RETURN_META_NEWPARAMS(MRES_IGNORED, &IVEngineServer::EmitAmbientSound,
 										// (entindex, vec2, buffer, vol, soundlevel, fFlags, pitch, delay));
 				g_SMGlue_IVEngineServer__EmitAmbientSound.create_return(MRES_SUPERCEDE);
-				g_SMGlue_IVEngineServer__EmitAmbientSound.invoke(g_SMGlue_IVEngineServer__EmitAmbientSound.candidate(), entindex, vec2, (const char*)buffer, vol, soundlevel, fFlags, pitch, delay);
+				g_SMGlue_IVEngineServer__EmitAmbientSound.invoke(g_SMGlue_IVEngineServer__EmitAmbientSound.candidate(), entindex, &vec2, (const char*)buffer, vol, soundlevel, fFlags, pitch, delay);
 				return;
 			}
 		}
@@ -338,9 +340,9 @@ int SoundHooks::OnEmitSound(IRecipientFilter &filter, int iEntIndex, int iChanne
 							 float soundtime, int speakerentity)
 #elif SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_SDK2013 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_PVKII
-void SoundHooks::OnEmitSound(IRecipientFilter &filter, int iEntIndex, int iChannel, const char *pSample, 
-							 float flVolume, soundlevel_t iSoundlevel, int iFlags, int iPitch, int iSpecialDSP, const Vector *pOrigin, 
-							 const Vector *pDirection, CUtlVector<Vector> *pUtlVecOrigins, bool bUpdatePositions, 
+void SoundHooks::OnEmitSound(IRecipientFilter *filter_, int iEntIndex, int iChannel, const char *pSample, 
+							 float flVolume, soundlevel_t iSoundlevel, int iFlags, int iPitch, int iSpecialDSP, Vector *pOrigin, 
+							 Vector *pDirection, CUtlVector<Vector> *pUtlVecOrigins, bool bUpdatePositions, 
 							 float soundtime, int speakerentity)
 #else
 void SoundHooks::OnEmitSound(IRecipientFilter &filter, int iEntIndex, int iChannel, const char *pSample, 
@@ -349,6 +351,7 @@ void SoundHooks::OnEmitSound(IRecipientFilter &filter, int iEntIndex, int iChann
 							 float soundtime, int speakerentity)
 #endif
 {
+	IRecipientFilter& filter = *filter_;
 	SoundHookIter iter;
 	IPluginFunction *pFunc;
 	cell_t res = static_cast<ResultType>(Pl_Continue);
@@ -475,7 +478,7 @@ void SoundHooks::OnEmitSound(IRecipientFilter &filter, int iEntIndex, int iChann
 					// );
 				g_SMGlue_IEngineSound__EmitSound.create_return(MRES_IGNORED);
 				g_SMGlue_IEngineSound__EmitSound.invoke(g_SMGlue_IEngineSound__EmitSound.candidate(), 
-					crf, iEntIndex, iChannel, (const char*)buffer, flVolume, iSoundlevel, iFlags, iPitch, iSpecialDSP, pOrigin, 
+					(IRecipientFilter*)&crf, iEntIndex, iChannel, (const char*)buffer, flVolume, iSoundlevel, iFlags, iPitch, iSpecialDSP, pOrigin, 
 					pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
 				return;
 #else
@@ -508,9 +511,9 @@ int SoundHooks::OnEmitSound2(IRecipientFilter &filter, int iEntIndex, int iChann
 							 float soundtime, int speakerentity)
 #elif SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_SDK2013 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_PVKII
-void SoundHooks::OnEmitSound2(IRecipientFilter &filter, int iEntIndex, int iChannel, const char *pSample, 
-							 float flVolume, float flAttenuation, int iFlags, int iPitch, int iSpecialDSP, const Vector *pOrigin, 
-							 const Vector *pDirection, CUtlVector<Vector> *pUtlVecOrigins, bool bUpdatePositions, 
+void SoundHooks::OnEmitSound2(IRecipientFilter *filter_, int iEntIndex, int iChannel, const char *pSample, 
+							 float flVolume, float flAttenuation, int iFlags, int iPitch, int iSpecialDSP, Vector *pOrigin, 
+							 Vector *pDirection, CUtlVector<Vector> *pUtlVecOrigins, bool bUpdatePositions, 
 							 float soundtime, int speakerentity)
 #else
 void SoundHooks::OnEmitSound2(IRecipientFilter &filter, int iEntIndex, int iChannel, const char *pSample, 
@@ -519,6 +522,7 @@ void SoundHooks::OnEmitSound2(IRecipientFilter &filter, int iEntIndex, int iChan
 							 float soundtime, int speakerentity)
 #endif
 {
+	IRecipientFilter& filter = *filter_;
 	SoundHookIter iter;
 	IPluginFunction *pFunc;
 	cell_t res = static_cast<ResultType>(Pl_Continue);
@@ -647,7 +651,7 @@ void SoundHooks::OnEmitSound2(IRecipientFilter &filter, int iEntIndex, int iChan
 					g_SMGlue_IEngineSound__EmitSound2.create_return(MRES_SUPERCEDE);
 					float vol = SNDLVL_TO_ATTN(static_cast<soundlevel_t>(sndlevel));
 					g_SMGlue_IEngineSound__EmitSound2.invoke(g_SMGlue_IEngineSound__EmitSound2.candidate(), 
-						crf, iEntIndex, iChannel, (const char*)buffer, flVolume, vol, iFlags, 
+						(IRecipientFilter*)&crf, iEntIndex, iChannel, (const char*)buffer, flVolume, vol, iFlags, 
 						iPitch, iSpecialDSP, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
 					return;
 #else
@@ -1030,11 +1034,12 @@ static cell_t EmitSound(IPluginContext *pContext, const cell_t *params)
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_PVKII
 			if (g_InSoundHook)
 			{
+				IRecipientFilter* crf2 = &crf;
 				SH_CALL(enginesoundPatch, 
 					static_cast<void (IEngineSound::*)(IRecipientFilter &, int, int, const char*, float, 
 					soundlevel_t, int, int, int, const Vector *, const Vector *, CUtlVector<Vector> *, bool, float, int)>
 					(&IEngineSound::EmitSound))
-					(crf, 
+					(*crf2, 
 					player[0], 
 					channel, 
 					sample, 

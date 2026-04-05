@@ -51,7 +51,7 @@ public:
 	void AddHook(int type, IPluginFunction *pFunc);
 	bool RemoveHook(int type, IPluginFunction *pFunc);
 
-	void OnEmitAmbientSound(int entindex, const Vector &pos, const char *samp, float vol, soundlevel_t soundlevel, int fFlags, int pitch, float delay);
+	void OnEmitAmbientSound(int entindex, Vector *pos, const char *samp, float vol, soundlevel_t soundlevel, int fFlags, int pitch, float delay);
 
 #if SOURCE_ENGINE == SE_CSGO || SOURCE_ENGINE == SE_BLADE || SOURCE_ENGINE == SE_MCV
 	int OnEmitSound(IRecipientFilter& filter, int iEntIndex, int iChannel, const char *, unsigned int, const char *pSample, float flVolume, 
@@ -75,13 +75,13 @@ public:
 #if SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_SDK2013 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_PVKII
 	
-	void OnEmitSound(IRecipientFilter& filter, int iEntIndex, int iChannel, const char *pSample, float flVolume, 
-		soundlevel_t iSoundlevel, int iFlags, int iPitch, int iSpecialDSP, const Vector *pOrigin, 
-		const Vector *pDirection, CUtlVector<Vector> *pUtlVecOrigins, bool bUpdatePositions, 
+	void OnEmitSound(IRecipientFilter* filter, int iEntIndex, int iChannel, const char *pSample, float flVolume, 
+		soundlevel_t iSoundlevel, int iFlags, int iPitch, int iSpecialDSP, Vector *pOrigin, 
+		Vector *pDirection, CUtlVector<Vector> *pUtlVecOrigins, bool bUpdatePositions, 
 		float soundtime, int speakerentity);
-	void OnEmitSound2(IRecipientFilter& filter, int iEntIndex, int iChannel, const char *pSample, float flVolume, 
-		float flAttenuation, int iFlags, int iPitch, int iSpecialDSP, const Vector *pOrigin, 
-		const Vector *pDirection, CUtlVector<Vector> *pUtlVecOrigins, bool bUpdatePositions, 
+	void OnEmitSound2(IRecipientFilter* filter, int iEntIndex, int iChannel, const char *pSample, float flVolume, 
+		float flAttenuation, int iFlags, int iPitch, int iSpecialDSP, Vector *pOrigin, 
+		Vector *pDirection, CUtlVector<Vector> *pUtlVecOrigins, bool bUpdatePositions, 
 		float soundtime, int speakerentity);
 #else
 	void OnEmitSound(IRecipientFilter& filter, int iEntIndex, int iChannel, const char *pSample, float flVolume, 

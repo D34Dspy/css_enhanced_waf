@@ -41,8 +41,8 @@ class CCommand;
 struct CCommandContext;
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-# define DISPATCH_ARGS      const CCommand &command
-# define DISPATCH_PROLOGUE
+# define DISPATCH_ARGS      CCommand *command_
+# define DISPATCH_PROLOGUE const CCommand& command = *command_;
 #else
 # define DISPATCH_ARGS
 # define DISPATCH_PROLOGUE  CCommand command

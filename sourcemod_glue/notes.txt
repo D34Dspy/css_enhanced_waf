@@ -8,7 +8,6 @@ IServerGameDLL::GameServerSteamAPIActivated;
 ConCommand::Dispatch;
 IBaseFileSystem::FileExists;
 IClientMessageHandler::ProcessVoiceData;
-ICvar::CallGlobalChangeCallback;
 ICvar::CallGlobalChangeCallbacks;
 ICvar::RegisterConCommand;
 ICvar::UnregisterConCommand;
@@ -23,7 +22,7 @@ IServerGameClients::ClientConnect;
 IServerGameClients::ClientDisconnect;
 IServerGameClients::ClientPutInServer;
 IServerGameClients::ClientSettingsChanged;
-IServerGameClients::ClientVoice;
+IServerGameClients::ClientVoice; # IGNORE
 IServerGameClients::SetCommandClient;
 IServerGameDLL::GameFrame;
 IServerGameDLL::GetGameDescription;
@@ -31,10 +30,10 @@ IServerGameDLL::LevelInit;
 IServerGameDLL::LevelShutdown;
 IServerGameDLL::OnQueryCvarValueFinished;
 IServerGameDLL::ServerActivate;
-IServerGameDLL::ServerHibernationUpdate;
+IServerGameDLL::ServerHibernationUpdate; # IGNORE
 IServerGameDLL::SetServerHibernation;
 IServerGameDLL::Think;
-IServerPluginCallbacks::OnQueryCvarValueFinished;
+IServerPluginCallbacks::OnQueryCvarValueFinished; # HELP
 IServerPluginHelpers::CreateMessage;
 IVEngineServer::ChangeLevel;
 IVEngineServer::ClientCommand;
@@ -45,16 +44,14 @@ IVEngineServer::LogPrint;
 IVEngineServer::MessageEnd;
 IVEngineServer::PlaybackTempEntity;
 IVEngineServer::UserMessageBegin;
-IVoiceServer::SetClientListening;
+IVoiceServer::SetClientListening; # IGNORE
 
 P0 CBaseEntity::CanBeAutobalanced;
 P0 CBaseEntity::GetMaxHealth;
 P0 CBaseEntity::PostThink;
 P0 CBaseEntity::PreThink;
 P0 CBaseEntity::Reload;
-P0 CBaseEntity::SGD_GameInit;
-P0 CBaseEntity::SGD_LevelShutdown;
-P0 CBaseEntity::Spawn;
+P0 CBaseEntity::Spawn; #  HERE POSITION LAST TIME
 P0 CBaseEntity::Think;
 P1 CBaseEntity::Blocked;
 P1 CBaseEntity::EndTouch;
@@ -77,4 +74,14 @@ P3 CBaseEntity::TraceAttack;
 P3 CBaseEntity::Weapon_Drop;
 P4 CBaseEntity::TraceAttack;
 P4 CBaseEntity::Use;
-P6 CBaseEntity::SGD_LevelInit;
+
+
+further refactoring:
+	EndTouch guard to prevent duplicate calls
+		Think perhaps too
+
+	PlayerRunCmd where?
+
+	EmitSound has SH_CALL, provide an original member
+	
+	IVEngineServer::EmitAmbientSound not implemented
