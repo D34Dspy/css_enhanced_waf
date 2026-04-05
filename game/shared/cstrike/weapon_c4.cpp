@@ -41,6 +41,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 
 #define BLINK_INTERVAL 2.0
 #define PLANTED_C4_MODEL "models/weapons/w_c4_planted.mdl"
@@ -229,6 +233,9 @@ END_PREDICTION_DATA()
 
 	void CPlantedC4::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 	{
+#ifdef WAF_USE_SOURCEMOD == 1
+		g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#endif
 		// Are we already marked for transmission?
 		if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
 			return;
@@ -651,6 +658,9 @@ END_PREDICTION_DATA()
 	// For CTs to defuse the c4
 	void CPlantedC4::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 	{
+#ifdef WAF_USE_SOURCEMOD == 1
+		g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 		//Can't defuse if its already defused or if it has blown up
 		if( !m_bBombTicking )
 		{

@@ -75,6 +75,10 @@
 #undef CBasePlayer	
 #endif
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 int g_nKillCamMode = OBS_MODE_NONE;
 int g_nKillCamTarget1 = 0;
 int g_nKillCamTarget2 = 0;
@@ -463,6 +467,9 @@ C_BasePlayer::~C_BasePlayer()
 //-----------------------------------------------------------------------------
 void C_BasePlayer::Spawn( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Spawn.invoke(this);
+#endif
 	// Clear all flags except for FL_FULLEDICT
 	ClearFlags();
 	AddFlag( FL_CLIENT );
@@ -1986,6 +1993,9 @@ void C_BasePlayer::UpdateClientData( void )
 // Prediction stuff
 void C_BasePlayer::PreThink( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__PreThink.invoke(this);
+#endif
 #if !defined( NO_ENTITY_PREDICTION )
 	StartInterpolatingCommand();
 

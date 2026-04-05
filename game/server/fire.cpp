@@ -1262,8 +1262,14 @@ void CEnvFireSource::Spawn()
 	}
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CEnvFireSource::Think()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	if ( !m_bEnabled )
 		return;
 	SetNextThink( gpGlobals->curtime + FIRESOURCE_THINK_TIME );
@@ -1367,6 +1373,9 @@ void CEnvFireSensor::Spawn()
 
 void CEnvFireSensor::Think()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	if ( !m_bEnabled )
 		return;
 

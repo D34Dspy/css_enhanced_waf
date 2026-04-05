@@ -331,9 +331,15 @@ void CWeaponGlock::ItemPostFrame()
 	BaseClass::ItemPostFrame();
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 bool CWeaponGlock::Reload()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Reload.invoke(this);
+#endif
 	if ( m_iBurstShotsRemaining != 0 )
 		return true;
 

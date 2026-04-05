@@ -136,8 +136,15 @@ void CTankTargetChange::Precache( void )
 	m_newTarget.SetString( m_newTargetName );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CTankTargetChange::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	CBaseEntity *pTarget = gEntList.FindEntityByName( NULL, m_target.Get(), NULL, pActivator, pCaller );
 
 	// UNDONE: This should use more of the event system

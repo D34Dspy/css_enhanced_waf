@@ -313,8 +313,14 @@ void CMatchmaking::ConnectionStart( INetChannel *chan )
 //-----------------------------------------------------------------------------
 // Purpose: Process a networked voice packet
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 bool CMatchmaking::ProcessVoiceData( CLC_VoiceData *pVoice )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, pVoice);
+#endif
 	char chReceived[4096];
 	DWORD dwLength = pVoice->m_nLength;
 	pVoice->m_DataIn.ReadBits( chReceived, dwLength );

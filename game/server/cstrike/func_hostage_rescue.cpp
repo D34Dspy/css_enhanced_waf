@@ -46,8 +46,14 @@ void CHostageRescueZone::HostageRescueTouch( CBaseEntity *pOther )
 	pOther->AcceptInput( "OnRescueZoneTouch", NULL, NULL, emptyVariant, 0 );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CHostageRescueZone::EndTouch( CBaseEntity* pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__EndTouch.invoke(this, pOther);
+#endif
 	CCSPlayer *p = dynamic_cast< CCSPlayer* >( pOther );
 	if ( p )
 	{

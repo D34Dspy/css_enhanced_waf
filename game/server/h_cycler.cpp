@@ -13,6 +13,10 @@
 #include "h_cycler.h"
 #include "Sprite.h"
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -126,6 +130,9 @@ void CCycler::Spawn( )
 //
 void CCycler::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	SetNextThink( gpGlobals->curtime + 0.1f );
 
 	if (m_animate)
@@ -379,6 +386,9 @@ void CWreckage::Precache( )
 
 void CWreckage::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	StudioFrameAdvance( );
 	SetNextThink( gpGlobals->curtime + 0.2 );
 
@@ -487,6 +497,9 @@ bool CBlendingCycler::KeyValue( const char *szKeyName, const char *szValue )
 // Blending Cycler think
 void CBlendingCycler::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	SetNextThink( gpGlobals->curtime + 0.1f );
 
 	// Move

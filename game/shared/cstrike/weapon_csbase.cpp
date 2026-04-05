@@ -13,6 +13,10 @@
 #include "ammodef.h"
 #include "cs_gamerules.h"
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 #define ALLOW_WEAPON_SPREAD_DISPLAY	1
 
 #if defined( CLIENT_DLL )
@@ -1654,6 +1658,9 @@ void CWeaponCSBase::DefaultTouch(CBaseEntity *pOther)
 	//-----------------------------------------------------------------------------
 	void CWeaponCSBase::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 	{
+#ifdef WAF_USE_SOURCEMOD == 1
+		g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 		CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 		
 		if ( pPlayer )

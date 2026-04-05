@@ -93,6 +93,10 @@
 #include "querycache.h"
 #include "ilagcompensationmanager.h"
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 
 #ifdef TF_DLL
 #include "gc_clientsystem.h"
@@ -940,6 +944,9 @@ bool CServerGameDLL::IsRestoring()
 // Called any time a new level is started (after GameInit() also on level transitions within a game)
 bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, char const *pOldLevel, char const *pLandmarkName, bool loadGame, bool background )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameDLL__LevelInit.invoke(this, pMapName, pMapEntities, pOldLevel, pLandmarkName, loadGame, background);
+#endif
 	VPROF("CServerGameDLL::LevelInit");
 
 #ifdef USES_ECON_ITEMS
@@ -1081,6 +1088,9 @@ bool g_bCheckForChainedActivate;
 
 void CServerGameDLL::ServerActivate( edict_t *pEdictList, int edictCount, int clientMax )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameDLL__ServerActivate.invoke(this, pEdictList, edictCount, clientMax);
+#endif
 	// HACKHACK: UNDONE: We need to redesign the main loop with respect to save/load/server activate
 	if ( g_InRestore )
 		return;
@@ -1136,6 +1146,10 @@ void CServerGameDLL::ServerActivate( edict_t *pEdictList, int edictCount, int cl
 //-----------------------------------------------------------------------------
 void CServerGameDLL::GameServerSteamAPIActivated( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameDLL__GameServerSteamAPIActivated.invoke(this);
+#endif
+
 #ifndef NO_STEAM
 	steamgameserverapicontext->Clear();
 	steamgameserverapicontext->Init();
@@ -1175,6 +1189,9 @@ ConVar  trace_report( "trace_report", "0" );
 
 void CServerGameDLL::GameFrame( bool simulating, bool bFinalTick )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameDLL__GameFrame.invoke(this, simulating, bFinalTick);
+#endif
 	VPROF( "CServerGameDLL::GameFrame" );
 
 	// Don't run frames until fully restored
@@ -1302,6 +1319,9 @@ void CServerGameDLL::PostClientUpdate( bool simulating, bool bFinalTick )
 
 void CServerGameDLL::Think( bool finalTick )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameDLL__Think.invoke(this, finalTick);
+#endif
 	if ( m_fAutoSaveDangerousTime != 0.0f && m_fAutoSaveDangerousTime < gpGlobals->curtime )
 	{
 		// The safety timer for a dangerous auto save has expired
@@ -1325,12 +1345,18 @@ void CServerGameDLL::Think( bool finalTick )
 
 void CServerGameDLL::OnQueryCvarValueFinished( QueryCvarCookie_t iCookie, edict_t *pPlayerEntity, EQueryCvarValueStatus eStatus, const char *pCvarName, const char *pCvarValue )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameDLL__OnQueryCvarValueFinished.invoke(this, iCookie, pPlayerEntity, eStatus, pCvarName, pCvarValue);
+#endif
 }
 
 
 // Called when a level is shutdown (including changing levels)
 void CServerGameDLL::LevelShutdown( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameDLL__LevelShutdown.invoke(this);
+#endif
 #ifndef NO_STEAM
 	IGameSystem::LevelShutdownPreClearSteamAPIContextAllSystems();
 
@@ -1381,6 +1407,9 @@ ServerClass* CServerGameDLL::GetAllServerClasses()
 
 const char *CServerGameDLL::GetGameDescription( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameDLL__GetGameDescription.invoke(this);
+#endif
 	return ::GetGameDescription();
 }
 
@@ -1836,6 +1865,9 @@ IServerGCLobby *CServerGameDLL::GetServerGCLobby()
 
 void CServerGameDLL::SetServerHibernation( bool bHibernating )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameDLL__SetServerHibernation.invoke(this, bHibernating);
+#endif
 	m_bIsHibernating = bHibernating;
 
 #ifdef INFESTED_DLL
@@ -2626,6 +2658,9 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CServerGameClients, IServerGameClients, INTERF
 //-----------------------------------------------------------------------------
 bool CServerGameClients::ClientConnect( edict_t *pEdict, const char *pszName, const char *pszAddress, char *reject, int maxrejectlen )
 {	
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameClients__ClientConnect.invoke(this, pEdict, pszName, pszAddress, reject, maxrejectlen);
+#endif
 	if ( !g_pGameRules )
 		return false;
 	
@@ -2697,6 +2732,9 @@ void CServerGameClients::ClientSpawned( edict_t *pPlayer )
 //-----------------------------------------------------------------------------
 void CServerGameClients::ClientDisconnect( edict_t *pEdict )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameClients__ClientDisconnect.invoke(this, pEdict);
+#endif
 	extern bool	g_fGameOver;
 
 	CBasePlayer *player = ( CBasePlayer * )CBaseEntity::Instance( pEdict );
@@ -2759,6 +2797,9 @@ void CServerGameClients::ClientDisconnect( edict_t *pEdict )
 
 void CServerGameClients::ClientPutInServer( edict_t *pEntity, const char *playername )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameClients__ClientPutInServer.invoke(this, pEntity, playername);
+#endif
 	if ( g_pClientPutInServerOverride )
 		g_pClientPutInServerOverride( pEntity, playername );
 	else
@@ -2767,6 +2808,9 @@ void CServerGameClients::ClientPutInServer( edict_t *pEntity, const char *player
 
 void CServerGameClients::ClientCommand( edict_t *pEntity, const CCommand &args )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameClients__ClientCommand.invoke(this, pEntity, const_cast<CCommand*>(&args));
+#endif
 	CBasePlayer *pPlayer = ToBasePlayer( GetContainingEntity( pEntity ) );
 	::ClientCommand( pPlayer, args );
 }
@@ -2779,6 +2823,9 @@ void CServerGameClients::ClientCommand( edict_t *pEntity, const CCommand &args )
 //-----------------------------------------------------------------------------
 void CServerGameClients::ClientSettingsChanged( edict_t *pEdict )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameClients__ClientSettingsChanged.invoke(this, pEdict);
+#endif
 	// Is the client spawned yet?
 	if ( !pEdict->GetUnknown() )
 		return;
@@ -3077,6 +3124,9 @@ void CServerGameClients::PostClientMessagesSent_DEPRECIATED( void )
 // Sets the client index for the client who typed the command into his/her console
 void CServerGameClients::SetCommandClient( int index )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameClients__SetCommandClient.invoke(this, index);
+#endif
 	g_nCommandClientIndex = index;
 }
 
@@ -3179,6 +3229,9 @@ void CServerGameClients::NetworkIDValidated( const char *pszUserName, const char
 // The client has submitted a keyvalues command
 void CServerGameClients::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValues )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IServerGameClients__ClientCommandKeyValues.invoke(this, pEntity,pKeyValues);
+#endif
 	if ( !pKeyValues )
 		return;
 

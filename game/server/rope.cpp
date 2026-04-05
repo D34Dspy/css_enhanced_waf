@@ -426,9 +426,16 @@ void CRopeKeyframe::DieAtNextRest( void )
 	SetNextThink( gpGlobals->curtime + 1.0f );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 
 void CRopeKeyframe::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#endif
 	if ( !pInfo->m_pTransmitEdict->Get( entindex() ) )
 	{	
 		BaseClass::SetTransmit( pInfo, bAlways );

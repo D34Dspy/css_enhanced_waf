@@ -289,8 +289,14 @@ void CTriggerBrush::Spawn( void )
 // Purpose: Called when an entity starts touching us.
 // Input  : pOther - the entity that is now touching us.
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CTriggerBrush::StartTouch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__StartTouch.invoke(this, pOther);
+#endif
 	if ( PassesInputFilter(pOther, m_iInputFilter) && !(m_iInputFilter & TRIGGER_IGNORETOUCH) )
 	{
 		m_OnStartTouch.FireOutput( pOther, this );
@@ -304,8 +310,14 @@ void CTriggerBrush::StartTouch( CBaseEntity *pOther )
 // Purpose: Called when an entity stops touching us.
 // Input  : pOther - the entity that was touching us.
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CTriggerBrush::EndTouch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__EndTouch.invoke(this, pOther);
+#endif
 	if ( PassesInputFilter(pOther, m_iInputFilter) && !(m_iInputFilter & TRIGGER_IGNORETOUCH) )
 	{
 		m_OnEndTouch.FireOutput( pOther, this );
@@ -325,6 +337,9 @@ void CTriggerBrush::EndTouch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 void CTriggerBrush::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	if ( PassesInputFilter(pActivator, m_iInputFilter) && !(m_iInputFilter & TRIGGER_IGNOREUSE) )
 	{
 		m_OnUse.FireOutput( pActivator, this );

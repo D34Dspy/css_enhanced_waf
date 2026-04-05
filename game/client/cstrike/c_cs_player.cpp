@@ -74,6 +74,10 @@
 
 #include "cs_hud_chat.h"
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 //=============================================================================
 // HPE_BEGIN:
 // [menglish] Adding and externing variables needed for the freezecam
@@ -1368,6 +1372,9 @@ bool C_CSPlayer::Interpolate( size_t nAmountOfTicks, float flInterpolationAmount
 
 int	C_CSPlayer::GetMaxHealth() const
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__GetMaxHealth.invoke(this);
+#endif
 	return 100;
 }
 
@@ -2712,6 +2719,9 @@ void C_CSPlayer::Simulate( void )
 
 void C_CSPlayer::PostThink()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__PostThink.invoke(this);
+#endif
 	// TODO_ENHANCED: These can't be predicted (yet)
 	m_iv_angEyeAngles.RestoreToLastKnownValue();
 	m_iv_angRenderAngles.RestoreToLastKnownValue();

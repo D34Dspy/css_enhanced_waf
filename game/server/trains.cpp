@@ -410,8 +410,14 @@ void CPlatTrigger::SpawnInsideTrigger( CFuncPlat *pPlatform )
 //
 // When the platform's trigger field is touched, the platform ???
 //
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CPlatTrigger::Touch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, pOther);
+#endif
 	// Ignore touches by non-players
 	if ( !pOther->IsPlayer() )
 		return;
@@ -802,6 +808,9 @@ void CFuncTrain::Blocked( CBaseEntity *pOther )
 
 void CFuncTrain::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	//If we've been waiting to be retriggered, move to the next destination
 	if ( m_spawnflags & SF_TRAIN_WAIT_RETRIGGER )
 	{
@@ -1441,6 +1450,9 @@ void CFuncTrackTrain::InputToggle( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CFuncTrackTrain::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	// player +USE
 	if ( useType == USE_SET )
 	{
@@ -2957,6 +2969,9 @@ void CFuncTrackChange::Precache( void )
 // UNDONE: Filter touches before re-evaluating the train.
 void CFuncTrackChange::Touch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, pOther);
+#endif
 }
 
 
@@ -3168,6 +3183,9 @@ void CFuncTrackChange::UpdateAutoTargets( int toggleState )
 
 void CFuncTrackChange::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	if ( m_toggle_state != TS_AT_TOP && m_toggle_state != TS_AT_BOTTOM )
 		return;
 
@@ -3336,6 +3354,9 @@ void CFuncTrackAuto::TriggerTrackChange ( inputdata_t &inputdata )
 
 void CFuncTrackAuto::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	CPathTrack *pTarget;
 
 	if ( !UseEnabled() )

@@ -136,6 +136,9 @@ bool CAreaPortal::UpdateVisibility( const Vector &vOrigin, float fovDistanceAdju
 }
 
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 //------------------------------------------------------------------------------
 // Purpose :
 // Input   :
@@ -143,6 +146,9 @@ bool CAreaPortal::UpdateVisibility( const Vector &vOrigin, float fovDistanceAdju
 //------------------------------------------------------------------------------
 void CAreaPortal::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	if ( useType == USE_ON )
 	{
 		m_state = AREAPORTAL_OPEN;

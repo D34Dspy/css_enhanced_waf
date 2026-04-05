@@ -91,8 +91,14 @@ void CWaterBullet::BulletThink()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CWaterBullet::Touch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, pOther);
+#endif
 	Vector	vecDir = GetAbsVelocity();
 	float speed = VectorNormalize( vecDir );
 

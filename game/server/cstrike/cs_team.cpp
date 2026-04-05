@@ -56,8 +56,14 @@ void CCSTeam::Precache( void )
 //-----------------------------------------------------------------------------
 // Purpose: Called every frame
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CCSTeam::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 }
 
 

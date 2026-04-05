@@ -115,8 +115,14 @@ void CEntityParticleTrail::UpdateOnRemove()
 //-----------------------------------------------------------------------------
 // Force our constraint entity to be trasmitted
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CEntityParticleTrail::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#endif
 	// Are we already marked for transmission?
 	if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
 		return;

@@ -166,9 +166,16 @@ bool CAI_BaseHumanoid::OnMoveBlocked( AIMoveResult_t *pResult )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 #define SNEAK_ATTACK_DIST	360.0f // 30 feet
 void CAI_BaseHumanoid::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#endif
 	bool bSneakAttacked = false;
 
 	if( ptr->hitgroup == HITGROUP_HEAD )

@@ -149,9 +149,15 @@ void CWeaponAug::PrimaryAttack()
 		pPlayer->KickBack ( 0.625, 0.375, 0.25, 0.0125, 3.5, 2.25, 8 );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 bool CWeaponAug::Reload()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Reload.invoke(this);
+#endif
 	m_weaponMode = Primary_Mode;
 	return BaseClass::Reload();
 }

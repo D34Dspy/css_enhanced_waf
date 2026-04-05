@@ -10,6 +10,7 @@
 #include "cs_player.h"
 #include "cs_gamerules.h"
 #include "dt_send.h"
+#include "glue.hpp"
 #include "mathlib/mathlib.h"
 #include "trains.h"
 #include "vcollide_parse.h"
@@ -566,6 +567,10 @@ void CCSPlayer::Precache()
 ConVar sv_runcmds( "sv_runcmds", "1" );
 void CCSPlayer::PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P2__PlayerRunCmdHook2.invoke(this, ucmd, moveHelper);
+#endif
+
 	VPROF( "CCSPlayer::PlayerRunCommand" );
 
 	if ( !sv_runcmds.GetInt() )
@@ -1626,8 +1631,15 @@ void CCSPlayer::PushawayThink()
 // Purpose: Returns whether or not we can switch to the given weapon.
 // Input  : pWeapon -
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 bool CCSPlayer::Weapon_CanSwitchTo( CBaseCombatWeapon *pWeapon )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
+#endif
 	if ( !pWeapon->CanDeploy() )
 		return false;
 
@@ -2104,9 +2116,16 @@ bool CCSPlayer::IsHittingShield( const Vector &vecDirection, trace_t *ptr )
 	return false;
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 
 void CCSPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#endif
 	bool bShouldBleed = true;
 	bool bShouldSpark = false;
 	bool bHitShield = IsHittingShield( vecDir, ptr );
@@ -5491,9 +5510,16 @@ void CCSPlayer::State_PreThink_ACTIVE()
 	Assert( !IsSolidFlagSet( FSOLID_NOT_SOLID ) );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 
 void CCSPlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+#endif
 	CWeaponCSBase *pCSWeapon = dynamic_cast< CWeaponCSBase* >( pWeapon );
 	if ( pCSWeapon )
 	{
@@ -5528,6 +5554,9 @@ void CCSPlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 
 bool CCSPlayer::Weapon_CanUse( CBaseCombatWeapon *pBaseWeapon )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Weapon_CanUse.invoke(this, pBaseWeapon);
+#endif
 	CWeaponCSBase *pWeapon = dynamic_cast< CWeaponCSBase* >( pBaseWeapon );
 
 	if ( pWeapon )

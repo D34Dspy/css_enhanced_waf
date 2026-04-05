@@ -867,9 +867,15 @@ int CBeam::UpdateTransmitState( void )
 
 	return BaseClass::UpdateTransmitState( );
 }
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 void CBeam::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#endif
 	// Are we already marked for transmission?
 	if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
 		return;

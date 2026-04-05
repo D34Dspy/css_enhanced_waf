@@ -208,9 +208,15 @@ float CWeaponScout::GetMaxSpeed() const
 		return 220;	// zoomed in.
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 bool CWeaponScout::Reload()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Reload.invoke(this);
+#endif
 	m_weaponMode = Primary_Mode;
 	return BaseClass::Reload();
 

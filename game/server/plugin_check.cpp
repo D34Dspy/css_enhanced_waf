@@ -9,6 +9,7 @@
 
 #include "cbase.h"
 #include "eiface.h"
+#include "glue.hpp"
 
 //-----------------------------------------------------------------------------
 // Purpose: An implementation 

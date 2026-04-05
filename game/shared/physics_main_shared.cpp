@@ -2121,8 +2121,14 @@ bool CBaseEntity::PhysicsRunSpecificThink( int nContextIndex, BASEPTR thinkFunc 
 	return ( !IsMarkedForDeletion() );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CBaseEntity::SetGroundEntity( CBaseEntity *ground )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__GroundEntChanged.invoke(this, (void*)ground);
+#endif
 	if ( m_hGroundEntity.Get() == ground )
 		return;
 

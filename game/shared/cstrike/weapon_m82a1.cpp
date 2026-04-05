@@ -285,9 +285,15 @@ bool CWeaponM82A1::IsM82a1() const
 	return true;
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 bool CWeaponM82A1::Reload()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Reload.invoke(this);
+#endif
 	m_weaponMode = Primary_Mode;
 	return BaseClass::Reload();
 }

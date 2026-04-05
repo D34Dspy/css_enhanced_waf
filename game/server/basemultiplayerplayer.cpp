@@ -10,6 +10,10 @@
 #include "mp_shareddefs.h"
 #include "basemultiplayerplayer.h"
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 // Minimum interval between rate-limited commands that players can run.
 #define COMMAND_MAX_RATE  0.3
 
@@ -218,6 +222,13 @@ int	CBaseMultiplayerPlayer::CalculateTeamBalanceScore( void )
 	}
 	return iScore;
 }
+bool CBaseMultiplayerPlayer::CanBeAutobalanced( void ) {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__CanBeAutobalanced.invoke(this);
+#endif
+	return CanBeAutobalancedOrig();
+}
+
 
 void CBaseMultiplayerPlayer::Spawn( void )
 {

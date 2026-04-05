@@ -287,8 +287,14 @@ bool CWeaponAWP::IsAwp() const
 }
 
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 bool CWeaponAWP::Reload()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Reload.invoke(this);
+#endif
 	m_weaponMode = Primary_Mode;
 	return BaseClass::Reload();
 }

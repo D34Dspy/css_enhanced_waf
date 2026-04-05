@@ -915,8 +915,15 @@ void CBasePlayer::DrawDebugGeometryOverlays(void)
 //=========================================================
 // TraceAttack
 //=========================================================
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CBasePlayer::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#endif
 	if ( m_takedamage )
 	{
 		CTakeDamageInfo info = inputInfo;
@@ -4791,8 +4798,14 @@ void CBasePlayer::PostThink()
 }
 
 // handles touching physics objects
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CBasePlayer::Touch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Touch.invoke(this, pOther);
+#endif
 	if ( pOther == GetGroundEntity() )
 		return;
 
@@ -7435,8 +7448,15 @@ void CBasePlayer::ResetAutoaim( void )
 // Input  : A weapon
 // Output :	true or false
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 bool CBasePlayer::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
+#endif
 	return true;
 }
 
@@ -7507,8 +7527,15 @@ void CBasePlayer::Weapon_DropSlot( int weaponSlot )
 //-----------------------------------------------------------------------------
 // Purpose: Override to add weapon to the hud
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 void CBasePlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+#endif
 	BaseClass::Weapon_Equip( pWeapon );
 
 	bool bShouldSwitch = g_pGameRules->FShouldSwitchWeapon( this, pWeapon );
@@ -7871,6 +7898,9 @@ CBaseEntity *CreatePlayerLoadSave( Vector vOrigin, float flDuration, float flHol
 
 void CRevertSaved::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	UTIL_ScreenFadeAll( m_clrRender, Duration(), HoldTime(), FFADE_OUT );
 	SetNextThink( gpGlobals->curtime + LoadTime() );
 	SetThink( &CRevertSaved::LoadThink );
@@ -8225,8 +8255,14 @@ void CBasePlayer::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CBasePlayer::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#endif
 	float savedImpact = m_impactEnergyScale;
 	
 	// HACKHACK: Reduce player's stress by 1/8th

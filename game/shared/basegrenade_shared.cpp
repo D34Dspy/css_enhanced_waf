@@ -239,11 +239,17 @@ void CBaseGrenade::Event_Killed( const CTakeDamageInfo &info )
 }
 
 #if !defined( CLIENT_DLL )
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CBaseGrenade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#endif
 	// Support player pickup
 	if ( useType == USE_TOGGLE )
 	{

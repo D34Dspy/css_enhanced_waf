@@ -86,8 +86,14 @@ void CPoseController::Spawn( void )
 	SetNextThink( gpGlobals->curtime + 1.0 );
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CPoseController::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	if ( !m_bDisablePropLookup )
 	{
 		// Refresh the list of models

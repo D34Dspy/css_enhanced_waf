@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "../utils/bzip2/bzlib.h"
+#include "glue.hpp"
 #include "net_chan.h"
 #include "common.h"
 #include "tier1/strtools.h"
@@ -431,6 +432,9 @@ void CNetChan::DenyFile(const char *filename, unsigned int transferID)
 
 bool CNetChan::SendFile(const char *filename, unsigned int transferID)
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_INetChannel__SendFile.invoke(this, filename ,transferID);
+#endif
 	// add file to waiting list
 	if ( remote_address.GetType() == NA_NULL )
 		return true;
@@ -2478,8 +2482,14 @@ sequence numbers are extracted, fragments/file streams stripped
 and then the netmessages processed
 =================
 */
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CNetChan::ProcessPacket( netpacket_t * packet, bool bHasHeader )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_INetChannel__ProcessPacket.invoke(this, packet, bHasHeader);
+#endif
 	VPROF( "CNetChan::ProcessPacket" );
 
 	Assert( packet );

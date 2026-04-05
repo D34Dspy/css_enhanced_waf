@@ -113,8 +113,14 @@ bool CHLTVClient::ProcessSaveReplay( CLC_SaveReplay *msg )
 	return true;
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 bool CHLTVClient::ProcessVoiceData(CLC_VoiceData *msg)
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, msg);
+#endif
 	// HLTV clients can't speak
 	return true;
 }

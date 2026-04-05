@@ -237,8 +237,14 @@ bool CGameClient::ProcessMove(CLC_Move *msg)
 	return true;
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 bool CGameClient::ProcessVoiceData( CLC_VoiceData *msg )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, msg);
+#endif
 	char voiceDataBuffer[4096];
 	int bitsRead = msg->m_DataIn.ReadBitsClamped( voiceDataBuffer, msg->m_nLength );
 

@@ -516,8 +516,14 @@ CTriggerSoundscape::CTriggerSoundscape()
 }
 
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CTriggerSoundscape::StartTouch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__StartTouch.invoke(this, pOther);
+#endif
 	if ( m_hSoundscape )
 		m_hSoundscape->DelegateStartTouch( pOther );
 
@@ -527,6 +533,9 @@ void CTriggerSoundscape::StartTouch( CBaseEntity *pOther )
 
 void CTriggerSoundscape::EndTouch( CBaseEntity *pOther )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__EndTouch.invoke(this, pOther);
+#endif
 	if ( m_hSoundscape )
 		m_hSoundscape->DelegateEndTouch( pOther );
 

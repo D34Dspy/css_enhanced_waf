@@ -518,6 +518,7 @@ typedef enum
 	USE_SET = 2, 
 	USE_TOGGLE = 3
 } USE_TYPE;
+#define USE_TYPE_DEFINED
 
 // basic team colors
 #define COLOR_RED		Color(255, 64, 64, 255)

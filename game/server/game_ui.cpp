@@ -253,8 +253,14 @@ void CGameUI::InputActivate( inputdata_t &inputdata )
 // Purpose: Samples the player's inputs and fires outputs based on what buttons
 //			are currently held down.
 //------------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CGameUI::Think( void )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P0__Think.invoke(this);
+#endif
 	CBasePlayer *pPlayer = m_player;
 
 	// If player is gone, stop thinking

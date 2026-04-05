@@ -61,8 +61,14 @@ void CBombTarget::BombTargetTouch( CBaseEntity* pOther )
 	}
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 void CBombTarget::EndTouch(CBaseEntity* pOther)
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_P1__EndTouch.invoke(this, pOther);
+#endif
 	CCSPlayer *p = dynamic_cast< CCSPlayer* >( pOther );
 	if ( p )
 	{
