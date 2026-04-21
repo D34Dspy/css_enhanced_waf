@@ -4,6 +4,7 @@
 //
 //=====================================================================================//
 
+#include "utils/common/filesystem_tools.h"
 #ifdef PROTECTED_THINGS_ENABLE
 	#undef PROTECTED_THINGS_ENABLE
 #endif
@@ -4245,8 +4246,35 @@ bool SLoadTextureBitsFromFile( IVTFTexture **ppOutVtfTexture, FileHandle_t hFile
 	if ( !HardwareConfig()->CanStretchRectFromTextures() && ( nForceFlags & TEXTUREFLAGS_STREAMABLE_FINE ) )
 		nForceFlags = 0;
 
+	if (strstr(pName, "c166")) {
+		DevWarning("Helo");
+	}
+
 	// NOTE: Skipping mip levels here will cause the size to be changed
 	bool bRetVal = ( *ppOutVtfTexture )->UnserializeEx( buf, false, nForceFlags, nMipSkipCount );
+
+	if (strstr(pName, "c166")) {
+		auto tex = *ppOutVtfTexture;
+		for(int mip = 0; mip < tex->MipCount(); mip++) {
+			for(int face = 0; face < tex->FaceCount(); face++) {
+				for(int frame = 0; frame < tex->FrameCount(); frame++) {
+					char layer[512];
+					V_StrSubst(pName, "/", "_", layer, sizeof(layer));
+					sprintf(layer, "%s.m%d.f%d.%d",layer,mip,frame,face);
+					CUtlBuffer data(
+						tex->ImageData(frame,face,mip), 
+						tex->ComputeMipSize(mip)
+					);
+
+					char filename[512];
+					sprintf(filename, "/home/god/repo/css_enhanced_origin/cubemaps/%s.m%d.f%d.%d",layer,mip,frame,face);
+					COutputFile f(filename);
+					f.Write(data.Base(), data.Size());
+					
+				}
+			}
+		}
+	}
 
 	FreeOptimalReadBuffer( 6*1024*1024 );
 

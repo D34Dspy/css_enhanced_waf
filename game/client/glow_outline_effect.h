@@ -58,6 +58,8 @@ public:
 	void UnregisterGlowObject( int nGlowObjectHandle )
 	{
 		Assert( !m_GlowObjectDefinitions[nGlowObjectHandle].IsUnused() );
+		if (m_GlowObjectDefinitions.IsEmpty()) // Crash
+			return;
 
 		m_GlowObjectDefinitions[nGlowObjectHandle].m_nNextFreeSlot = m_nFirstFreeSlot;
 		m_GlowObjectDefinitions[nGlowObjectHandle].m_hEntity = NULL;

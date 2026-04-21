@@ -5,6 +5,10 @@
 // $NoKeywords: $
 //===========================================================================//
 
+#include "bitmap/imageformat.h"
+#include "bitmap/tgaloader.h"
+#include "imageutils.h"
+#include "png.h"
 #include "render_pch.h"
 #include "common.h"
 #include "modelloader.h"
@@ -2420,6 +2424,7 @@ void Mod_LoadLeafWaterData( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+			#include "bitmap/bitmap.h"
 void Mod_LoadCubemapSamples( void )
 {
 	char textureName[512];
@@ -2441,7 +2446,7 @@ void Mod_LoadCubemapSamples( void )
 	lh.GetMap()->m_pCubemapSamples = out;
 	lh.GetMap()->m_nCubemapSamples = count;
 
-	bool bHDR =  g_pMaterialSystemHardwareConfig->GetHDREnabled(); //g_pMaterialSystemHardwareConfig->GetHDRType() != HDR_TYPE_NONE;
+	bool bHDR = false; //g_pMaterialSystemHardwareConfig->GetHDREnabled(); //g_pMaterialSystemHardwareConfig->GetHDRType() != HDR_TYPE_NONE;
 	int nCreateFlags = bHDR ? 0 : TEXTUREFLAGS_SRGB;
 
 	// We have separate HDR versions of the textures.  In order to deal with this,
@@ -2480,6 +2485,78 @@ void Mod_LoadCubemapSamples( void )
 				}
 				Warning( "Failed, using default cubemap '%s'\n", out->pTexture->GetName() );
 			}
+			else {
+				char filename[1024];
+				sprintf(filename, "/home/god/repo/css_enhanced_origin/gamedata/css_enhanced/game/cstrike/materialsrc/%s.png", textureName);
+				out->pTexture->SaveToFile(filename);
+			}
+		}
+		else {
+			char filename[1024];
+			sprintf(filename, "/home/god/repo/css_enhanced_origin/gamedata/css_enhanced/game/cstrike/materialsrc/%s.tga", textureName);
+			out->pTexture->SaveToFile(filename);
+			CInputFile tga(filename);
+			CUtlBuffer buf;
+			tga.ReadFile(buf);
+			CUtlBuffer img;
+			int width, height;
+			ImageFormat format;
+			float gamma;
+			TGALoader::GetInfo(buf,&width,&height,&format,&gamma);
+			auto fmt_size = ImageLoader::SizeInBytes(format);
+			auto size = width * height * fmt_size;
+			unsigned char* buffer = new unsigned char[size];
+			TGALoader::Load(buffer, img, width, height, format, gamma, false);
+			Bitmap_t bm;
+			bm.SetBuffer(width, height, format, buffer, false);
+			CUtlBuffer out;
+			sprintf(filename, "/home/god/repo/css_enhanced_origin/gamedata/css_enhanced/game/cstrike/materialsrc/%s.png", textureName);
+			FILE* fp = fopen(filename, "wb");
+			png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+			if (!png) abort();
+			png_infop info = png_create_info_struct(png);
+			if (!info) abort();
+			if (setjmp(png_jmpbuf(png))) abort();
+			png_bytep *row_pointers = NULL;
+			row_pointers = new png_bytep[height];
+			for(int i = 0; i < height;i ++) {
+				// bug here i suppose, atleast the PNGs do not seem to be correct, either its bit depth or this
+				row_pointers[i] = buffer + i * width * fmt_size;
+			}
+			png_init_io(png, fp);
+
+			// Output is 8bit depth, RGBA format.
+			png_set_IHDR(
+				png,
+				info,
+				width, height,
+				16,
+				PNG_COLOR_TYPE_RGBA,
+				PNG_INTERLACE_NONE,
+				PNG_COMPRESSION_TYPE_DEFAULT,
+				PNG_FILTER_TYPE_DEFAULT
+			);
+			png_write_info(png, info);
+
+			// To remove the alpha channel for PNG_COLOR_TYPE_RGB format,
+			// Use png_set_filler().
+			//png_set_filler(png, 0, PNG_FILLER_AFTER);
+
+			if (!row_pointers) abort();
+
+			png_write_image(png, row_pointers);
+			png_write_end(png, NULL);
+
+			for(int y = 0; y < height; y++) {
+				// free(row_pointers[y]);
+			}
+			free(row_pointers);
+
+			fclose(fp);
+
+			png_destroy_write_struct(&png, &info);
+			
+			delete[] buffer;
 		}
 		out->pTexture->IncrementReferenceCount();
 	}

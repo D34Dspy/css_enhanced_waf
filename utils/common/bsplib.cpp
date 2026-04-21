@@ -1835,7 +1835,7 @@ void ValidateLump( int lump, int length, int size, int forceVersion )
 {
 	if ( length % size )
 	{
-		Error( "ValidateLump: odd size for lump %d", lump );
+		Warning( "Error: ValidateLump: odd size for lump %d", lump );
 	}
 
 	if ( forceVersion >= 0 && forceVersion != g_pBSPHeader->lumps[lump].version )

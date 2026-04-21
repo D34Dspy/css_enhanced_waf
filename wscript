@@ -92,6 +92,7 @@ projects={
 		'vstdlib',
 		'vtf',
 		'utils/vtex',
+			'utils/bsppack',
 		'unicode',
 		'video'
 	],

@@ -1,0 +1,63 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+from waflib import Utils
+import os
+
+top = '.'
+PROJECT_NAME = 'bsppack'
+
+def options(opt):
+	# stub
+	return
+
+def configure(conf):
+	conf.define('PROTECTED_THINGS_DISABLE', 1)
+	conf.define('_7ZIP_ST', 1)
+
+def build(bld):
+	source = [
+		'bsppack.cpp',
+		'../../public/zip_utils.cpp',
+		'../../public/lumpfiles.cpp',
+		'../../public/filesystem_init.cpp',
+		'../../public/filesystem_helpers.cpp',
+		'../../filesystem/linux_support.cpp',
+		'../common/bsplib.cpp',
+		'../common/scriplib.cpp',
+		'../common/cmdlib.cpp',
+		'../common/filesystem_tools.cpp',
+		'../lzma/lzma.cpp',
+		'../lzma/C/LzmaEnc.c',
+		'../lzma/C/LzmaDec.c',
+		'../lzma/C/LzFind.c',
+	]
+
+	includes = [
+		'.',
+		'../../public',
+		'../../public/tier0',
+		'../../public/tier1',
+		'../../common',
+		'../common'
+	]
+
+	defines = ['_7ZIP_ST']
+
+	libs = ['tier0', 'tier1', 'bitmap', 'tier2', 'tier3', 'vstdlib', 'mathlib', 'vtf', 'JPEG', 'PNG', 'ZLIB', 'filesystem', 'ZSTD']
+	
+	install_path = bld.env.LIBDIR
+
+	bld.shlib(
+		source   = source,
+		target   = PROJECT_NAME,
+		name     = PROJECT_NAME,
+		features = 'c cxx',
+		includes = includes,
+		defines  = defines,
+		use      = libs,
+		install_path = install_path,
+		subsystem = bld.env.MSVC_SUBSYSTEM,
+		idx      = bld.get_taskgen_count()
+	)
+
