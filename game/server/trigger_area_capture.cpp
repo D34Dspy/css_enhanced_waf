@@ -177,7 +177,11 @@ bool CTriggerAreaCapture::IsActive( void )
 void CTriggerAreaCapture::StartTouch(CBaseEntity *pOther)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	BaseClass::StartTouch( pOther );
 
@@ -227,7 +231,11 @@ void CTriggerAreaCapture::StartTouch(CBaseEntity *pOther)
 void CTriggerAreaCapture::EndTouch(CBaseEntity *pOther)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( IsTouching( pOther ) && m_hPoint )
 	{

@@ -82,7 +82,11 @@ void CBuyZone::BuyZoneTouch( CBaseEntity* pOther )
 void CBuyZone::EndTouch( CBaseEntity* pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	CCSPlayer *p = dynamic_cast< CCSPlayer* >( pOther );
 	if ( p )

@@ -461,7 +461,11 @@ bool EventManager::OnFireEvent(IGameEvent *pEvent, bool bDontBroadcast)
 	 	{
 			// RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, true, &IGameEventManager2::FireEvent, (pEvent, broadcast));
 			gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {true});
-			gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke(gameevents, pEvent, broadcast);
+			auto sm_result = gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke(gameevents, pEvent, broadcast);
+			if (gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.skip_original())
+			{
+				return sm_result.unwrap();
+			}
 			return true;
 		}
 

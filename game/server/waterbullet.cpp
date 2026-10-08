@@ -97,7 +97,11 @@ void CWaterBullet::BulletThink()
 void CWaterBullet::Touch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	Vector	vecDir = GetAbsVelocity();
 	float speed = VectorNormalize( vecDir );

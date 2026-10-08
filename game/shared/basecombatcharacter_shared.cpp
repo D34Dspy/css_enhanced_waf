@@ -41,7 +41,11 @@ bool CBaseCombatCharacter::SwitchToNextBestWeapon(CBaseCombatWeapon *pCurrent)
 bool CBaseCombatCharacter::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex /*=0*/ ) 
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke(this, pWeapon, viewmodelindex);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke(this, pWeapon, viewmodelindex);
+	if (GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( pWeapon == NULL )
 		return false;
@@ -81,7 +85,11 @@ bool CBaseCombatCharacter::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmo
 bool CBaseCombatCharacter::Weapon_CanSwitchTo( CBaseCombatWeapon *pWeapon )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if (IsPlayer())
 	{

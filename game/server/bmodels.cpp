@@ -83,7 +83,11 @@ bool CFuncWall::CreateVPhysics( void )
 void CFuncWall::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( ShouldToggle( useType, m_nState ) )
 	{
@@ -178,7 +182,11 @@ void CFuncWallToggle::InputToggle( inputdata_t &inputdata )
 void CFuncWallToggle::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	int status = IsOn();
 
@@ -347,7 +355,11 @@ void CFuncConveyor::UpdateSpeed( float flNewSpeed )
 void CFuncConveyor::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
     m_flSpeed = -m_flSpeed;
 	UpdateSpeed( m_flSpeed );

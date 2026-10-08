@@ -298,7 +298,11 @@ void CEngineSoundServer::EmitSound( IRecipientFilter& filter, int iEntIndex, int
 	const Vector *pOrigin, const Vector *pDirection, CUtlVector< Vector >* pUtlVecOrigins, bool bUpdatePositions, float soundtime /*= 0.0f*/, int speakerentity /*= -1*/ )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound2.invoke(this, &filter, iEntIndex, iChannel, pSample, flVolume, flAttenuation, iFlags, iPitch, iSpecialDSP, const_cast<Vector*>(pOrigin), const_cast<Vector*>(pDirection), pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound2.invoke(this, &filter, iEntIndex, iChannel, pSample, flVolume, flAttenuation, iFlags, iPitch, iSpecialDSP, const_cast<Vector*>(pOrigin), const_cast<Vector*>(pDirection), pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
+	if (GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound2.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	VPROF( "CEngineSoundServer::EmitSound" );
 	EmitSound( filter, iEntIndex, iChannel, pSample, flVolume, ATTN_TO_SNDLVL( flAttenuation ), iFlags, 
@@ -311,7 +315,11 @@ void CEngineSoundServer::EmitSound( IRecipientFilter& filter, int iEntIndex, int
 	const Vector *pOrigin, const Vector *pDirection, CUtlVector< Vector >* pUtlVecOrigins, bool bUpdatePositions, float soundtime /*= 0.0f*/, int speakerentity /*= -1*/ )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound.invoke(this, &filter, iEntIndex, iChannel, pSample, flVolume, iSoundLevel, iFlags, iPitch, iSpecialDSP, const_cast<Vector*>(pOrigin), const_cast<Vector*>(pDirection), pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound.invoke(this, &filter, iEntIndex, iChannel, pSample, flVolume, iSoundLevel, iFlags, iPitch, iSpecialDSP, const_cast<Vector*>(pOrigin), const_cast<Vector*>(pDirection), pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
+	if (GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	VPROF( "CEngineSoundServer::EmitSound" );
 	if ( pSample && TestSoundChar(pSample, CHAR_SENTENCE) )

@@ -1067,7 +1067,11 @@ void CAI_PlayerAlly::ClearTransientConditions()
 void CAI_PlayerAlly::Touch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	BaseClass::Touch( pOther );
 
@@ -1108,7 +1112,11 @@ void CAI_PlayerAlly::OnKilledNPC( CBaseCombatCharacter *pKilled )
 void CAI_PlayerAlly::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	const char *pszHitLocCriterion = NULL;
 

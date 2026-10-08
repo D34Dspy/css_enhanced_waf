@@ -190,7 +190,11 @@ void CWeaponP228::PrimaryAttack( void )
 bool CWeaponP228::Reload()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
+	if (GetSourcemodGlue()->l_SMGlue_P0__Reload.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( !DefaultPistolReload() )
 		return false;

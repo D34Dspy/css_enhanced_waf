@@ -923,7 +923,11 @@ void CBasePlayer::DrawDebugGeometryOverlays(void)
 void CBasePlayer::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( m_takedamage )
 	{
@@ -4805,7 +4809,11 @@ void CBasePlayer::PostThink()
 void CBasePlayer::Touch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( pOther == GetGroundEntity() )
 		return;
@@ -7456,7 +7464,11 @@ void CBasePlayer::ResetAutoaim( void )
 bool CBasePlayer::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	return true;
 }
@@ -7535,7 +7547,11 @@ void CBasePlayer::Weapon_DropSlot( int weaponSlot )
 void CBasePlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	BaseClass::Weapon_Equip( pWeapon );
 
@@ -7900,7 +7916,11 @@ CBaseEntity *CreatePlayerLoadSave( Vector vOrigin, float flDuration, float flHol
 void CRevertSaved::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	UTIL_ScreenFadeAll( m_clrRender, Duration(), HoldTime(), FFADE_OUT );
 	SetNextThink( gpGlobals->curtime + LoadTime() );
@@ -8264,7 +8284,11 @@ void CBasePlayer::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 void CBasePlayer::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	float savedImpact = m_impactEnergyScale;
 	

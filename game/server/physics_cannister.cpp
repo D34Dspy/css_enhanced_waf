@@ -200,7 +200,11 @@ int CPhysicsCannister::OnTakeDamage( const CTakeDamageInfo &info )
 void CPhysicsCannister::TraceAttack( const CTakeDamageInfo &info, const Vector &dir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
+	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 
 	if ( !m_active && ptr->hitgroup != 0 )
@@ -481,7 +485,11 @@ CBasePlayer *CPhysicsCannister::HasPhysicsAttacker( float dt )
 void CPhysicsCannister::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	BaseClass::VPhysicsUpdate( pPhysics );
 

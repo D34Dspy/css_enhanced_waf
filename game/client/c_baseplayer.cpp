@@ -472,7 +472,11 @@ C_BasePlayer::~C_BasePlayer()
 void C_BasePlayer::Spawn( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke(this);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke(this);
+	if (GetSourcemodGlue()->l_SMGlue_P0__Spawn.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// Clear all flags except for FL_FULLEDICT
 	ClearFlags();
@@ -1998,7 +2002,11 @@ void C_BasePlayer::UpdateClientData( void )
 void C_BasePlayer::PreThink( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P0__PreThink.invoke(this);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__PreThink.invoke(this);
+	if (GetSourcemodGlue()->l_SMGlue_P0__PreThink.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 #if !defined( NO_ENTITY_PREDICTION )
 	StartInterpolatingCommand();

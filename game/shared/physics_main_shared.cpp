@@ -2127,7 +2127,11 @@ bool CBaseEntity::PhysicsRunSpecificThink( int nContextIndex, BASEPTR thinkFunc 
 void CBaseEntity::SetGroundEntity( CBaseEntity *ground )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.invoke(this, (void*)ground);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.invoke(this, (void*)ground);
+	if (GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( m_hGroundEntity.Get() == ground )
 		return;

@@ -198,7 +198,11 @@ void CWeaponXM1014::PrimaryAttack()
 bool CWeaponXM1014::Reload()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
+	if (GetSourcemodGlue()->l_SMGlue_P0__Reload.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	CCSPlayer *pPlayer = GetPlayerOwner();
 	if ( !pPlayer )

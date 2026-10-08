@@ -235,7 +235,11 @@ void CEnvEffectsScript::Spawn()
 void CEnvEffectsScript::Think( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+	if (GetSourcemodGlue()->l_SMGlue_P0__Think.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	StudioFrameAdvance();
 	DispatchAnimEvents( this );

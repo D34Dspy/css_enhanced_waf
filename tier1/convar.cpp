@@ -583,7 +583,11 @@ bool ConCommand::IsCommand( void ) const
 void ConCommand::Dispatch( const CCommand &command )
 {
 #if WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.invoke(this, const_cast<CCommand*>(&command));
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.invoke(this, const_cast<CCommand*>(&command));
+	if (GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	this->DispatchOrig(command);
 }

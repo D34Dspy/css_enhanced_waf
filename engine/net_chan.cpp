@@ -433,7 +433,11 @@ void CNetChan::DenyFile(const char *filename, unsigned int transferID)
 bool CNetChan::SendFile(const char *filename, unsigned int transferID)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke(this, filename ,transferID);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke(this, filename ,transferID);
+	if (GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// add file to waiting list
 	if ( remote_address.GetType() == NA_NULL )
@@ -2446,7 +2450,11 @@ and then the netmessages processed
 void CNetChan::ProcessPacket( netpacket_t * packet, bool bHasHeader )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke(this, packet, bHasHeader);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke(this, packet, bHasHeader);
+	if (GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	VPROF( "CNetChan::ProcessPacket" );
 

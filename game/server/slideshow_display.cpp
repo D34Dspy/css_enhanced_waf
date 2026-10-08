@@ -217,7 +217,11 @@ int CSlideshowDisplay::UpdateTransmitState()
 void CSlideshowDisplay::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// Are we already marked for transmission?
 	if ( pInfo->m_pTransmitEdict->Get( entindex() ) )

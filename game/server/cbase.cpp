@@ -254,7 +254,11 @@ CBaseEntityOutput::~CBaseEntityOutput()
 void CBaseEntityOutput::FireOutput(variant_t Value, CBaseEntity *pActivator, CBaseEntity *pCaller, float fDelay)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_COutputEvent__FireOutput.invoke(this, this, pActivator, pCaller, fDelay);
+	auto sm_result = g_SMGlue_COutputEvent__FireOutput.invoke(this, this, pActivator, pCaller, fDelay);
+	if (g_SMGlue_COutputEvent__FireOutput.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	
 	//

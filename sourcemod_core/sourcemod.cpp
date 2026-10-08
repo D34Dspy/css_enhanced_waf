@@ -446,7 +446,11 @@ bool SourceModBase::LevelInit(char const *pMapName, char const *pMapEntities, ch
 
 	// RETURN_META_VALUE_NEWPARAMS(MRES_HANDLED, true, &IServerGameDLL::LevelInit, (pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background));
 	engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
-	engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.invoke(gamedll, pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background);
+	auto sm_result = engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.invoke(gamedll, pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background);
+	if (engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 	return true;
 }
 

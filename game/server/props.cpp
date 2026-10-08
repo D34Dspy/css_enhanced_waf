@@ -2899,7 +2899,11 @@ int CPhysicsProp::ObjectCaps()
 void CPhysicsProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	if ( pPlayer )
@@ -2921,7 +2925,11 @@ void CPhysicsProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 void CPhysicsProp::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	BaseClass::VPhysicsUpdate( pPhysics );
 	m_bAwake = !pPhysics->IsAsleep();
@@ -3883,7 +3891,11 @@ void CBasePropDoor::SetDoorBlocker( CBaseEntity *pBlocker )
 void CBasePropDoor::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( GetMaster() != NULL )
 	{

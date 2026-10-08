@@ -319,7 +319,11 @@ void CMatchmaking::ConnectionStart( INetChannel *chan )
 bool CMatchmaking::ProcessVoiceData( CLC_VoiceData *pVoice )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, pVoice);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, pVoice);
+	if (GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	char chReceived[4096];
 	DWORD dwLength = pVoice->m_nLength;
