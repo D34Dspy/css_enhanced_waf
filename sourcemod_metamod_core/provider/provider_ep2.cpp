@@ -581,11 +581,11 @@ void ClientCommand(edict_t *client)
 	{
 		Command_ClientMeta(client, &cmd);
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
+		gameclients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_IGNORED);
+	gameclients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_IGNORED);
 }
 
 #if SOURCE_ENGINE == SE_CSGO || SOURCE_ENGINE == SE_DOTA
@@ -614,7 +614,7 @@ void Detour_Error(const tchar *pMsg, ...)
  * exit.
  */
 void CacheUserMessages()
-{
+{ // what the fak?
 	int q, size;
 	char buffer[256];
 	unsigned char *target, *detour;

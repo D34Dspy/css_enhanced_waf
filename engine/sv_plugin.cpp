@@ -6,7 +6,6 @@
 //
 //===========================================================================//
 
-#include "glue.hpp"
 #include "server_pch.h"
 #include "sv_plugin.h"
 #include "filesystem.h"
@@ -30,6 +29,9 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CServerPlugin, IServerPluginHelpers, INTERFAC
 // Ascending value so they have a unique cookie to relate queries to the responses.
 static int g_iQueryCvarCookie = 1;
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
 
 QueryCvarCookie_t SendCvarValueQueryToClient( IClient *client, const char *pCvarName, bool bPluginQuery )
 {
@@ -216,7 +218,17 @@ void CPlugin::Disable( bool state )
 CServerPlugin::CServerPlugin()
 {
 	m_PluginHelperCheck = NULL;
+#ifdef WAF_USE_SOURCEMOD == 1
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
 }
+
+#ifdef WAF_USE_SOURCEMOD == 1
+CSourcemodGlueInterface* CServerPlugin::GetSourcemodGlue() 
+{
+	return m_pSourcemodGlue;
+}
+#endif
 
 CServerPlugin::~CServerPlugin()
 {
@@ -614,7 +626,7 @@ void CServerPlugin::OnEdictFreed( const edict_t *edict )
 void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValues *data, IServerPluginCallbacks *plugin )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerPluginHelpers__CreateMessage.invoke(this, pEntity, type, data, plugin);
+	GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke(this, pEntity, type, data, plugin);
 #endif
 	if ( !pEntity )
 	{

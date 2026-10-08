@@ -296,7 +296,7 @@ void CWeaponM4A1::DoFireEffects()
 bool CWeaponM4A1::Reload()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Reload.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
 #endif
 	CCSPlayer *pPlayer = GetPlayerOwner();
 	if ( !pPlayer )

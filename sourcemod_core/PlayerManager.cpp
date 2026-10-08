@@ -31,6 +31,7 @@
 
 #include "PlayerManager.h"
 #include "sourcehook.h"
+#include "sourcemm_api.h"
 #include "sourcemod.h"
 #include "IAdminSystem.h"
 #include "ConCmdManager.h"
@@ -548,7 +549,7 @@ bool PlayerManager::OnClientConnect(edict_t *pEntity, const char *pszName, const
 		if (!pListener->InterceptClientConnect(client, reject, maxrejectlen))
 		{
 			// RETURN_META_VALUE(MRES_SUPERCEDE, false);
-			g_SMGlue_IServerGameClients__ClientConnect.create_return(MRES_SUPERCEDE, {false});
+			serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientConnect.create_return(MRES_SUPERCEDE, {false});
 			return false;
 		}
 	}
@@ -574,7 +575,7 @@ bool PlayerManager::OnClientConnect(edict_t *pEntity, const char *pszName, const
 		if (!pPlayer->IsFakeClient())
 		{
 			// RETURN_META_VALUE(MRES_SUPERCEDE, false);
-			g_SMGlue_IServerGameClients__ClientConnect.create_return(MRES_SUPERCEDE, {false});
+			serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientConnect.create_return(MRES_SUPERCEDE, {false});
 		}
 	}
 
@@ -888,7 +889,7 @@ void PlayerManager::OnClientPrintf(edict_t *pEdict, const char *szMsg)
 	if (!player.IsConnected())
 	{
 		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_IVEngineServer__ClientPrintf.create_return(MRES_IGNORED);
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.create_return(MRES_IGNORED);
 		return;
 	}
 
@@ -896,7 +897,7 @@ void PlayerManager::OnClientPrintf(edict_t *pEdict, const char *szMsg)
 	if (pNetChan == NULL)
 	{
 		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_IVEngineServer__ClientPrintf.create_return(MRES_IGNORED);
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.create_return(MRES_IGNORED);
 		return;
 	}
 
@@ -911,12 +912,12 @@ void PlayerManager::OnClientPrintf(edict_t *pEdict, const char *szMsg)
 	if (nMsgLen + 1 >= SVC_Print_BufferSize) // +1 for NETMSG_TYPE_BITS
 	{
 		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_IVEngineServer__ClientPrintf.create_return(MRES_IGNORED);
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.create_return(MRES_IGNORED);
 		return;
 	}
 
 	// enqueue msgs if we'd overflow the SVC_Print buffer (+7 as ceil)
-	if (!player.m_PrintfBuffer.empty() || (nNumBitsWritten + NETMSG_TYPE_BITS + 7) / 8 + nMsgLen >= SVC_Print_BufferSize)
+	if (!player.m_PrintfBuffer.empty() || (nNumBitsWritten + NETMSG_TYPE_BITS_ + 7) / 8 + nMsgLen >= SVC_Print_BufferSize)
 	{
 		// Don't send any more messages for this player until the buffer is empty.
 		// Queue up a gameframe hook to empty the buffer (if we haven't already)
@@ -926,12 +927,12 @@ void PlayerManager::OnClientPrintf(edict_t *pEdict, const char *szMsg)
 		player.m_PrintfBuffer.push_back(szMsg);
 
 		// RETURN_META(SUPERCEDE);
-		g_SMGlue_IVEngineServer__ClientPrintf.create_return(MRES_SUPERCEDE);
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.create_return(MRES_SUPERCEDE);
 		return;
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_IVEngineServer__ClientPrintf.create_return(MRES_IGNORED);
+	engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.create_return(MRES_IGNORED);
 }
 
 void PlayerManager::OnPrintfFrameAction(unsigned int serial)
@@ -962,7 +963,7 @@ void PlayerManager::OnPrintfFrameAction(unsigned int serial)
 		std::string &string = player.m_PrintfBuffer.front();
 
 		// stop if we'd overflow the SVC_Print buffer  (+7 as ceil)
-		if ((nNumBitsWritten + NETMSG_TYPE_BITS + 7) / 8 + string.length() >= SVC_Print_BufferSize)
+		if ((nNumBitsWritten + NETMSG_TYPE_BITS_ + 7) / 8 + string.length() >= SVC_Print_BufferSize)
 			break;
 
 		SH_CALL(engine, &IVEngineServer::ClientPrintf)(player.m_pEdict, string.c_str());
@@ -1122,14 +1123,14 @@ void PlayerManager::OnClientCommand(edict_t *pEntity)
 		{
 			ListPluginsToClient(pPlayer, args);
 			// RETURN_META(MRES_SUPERCEDE);
-			g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
+			serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
 			return;
 		}
 		else if (args.ArgC() > 1 && strcmp(args.Arg(1), "exts") == 0)
 		{
 			ListExtensionsToClient(pPlayer, args);
 			// RETURN_META(MRES_SUPERCEDE);
-			g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
+			engine->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
 			return;
 		}
 		else if (args.ArgC() > 1 && strcmp(args.Arg(1), "credits") == 0)
@@ -1151,7 +1152,7 @@ void PlayerManager::OnClientCommand(edict_t *pEntity)
 			ClientConsolePrint(pEntity,
 				"SourceMod is open source under the GNU General Public License.");
 			// RETURN_META(MRES_SUPERCEDE);
-			g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
+			engine->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
 			return;
 		}
 
@@ -1164,7 +1165,7 @@ void PlayerManager::OnClientCommand(edict_t *pEntity)
 		ClientConsolePrint(pEntity,
 			"Visit https://www.sourcemod.net/");
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
+		serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
 		return;
 	}
 
@@ -1192,7 +1193,7 @@ void PlayerManager::OnClientCommand(edict_t *pEntity)
 		if (res2 >= Pl_Handled)
 		{
 			// RETURN_META(MRES_SUPERCEDE);
-			g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
+			serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
 			return;
 		}
 		else if (res2 > res)
@@ -1217,7 +1218,7 @@ void PlayerManager::OnClientCommand(edict_t *pEntity)
 	if (res >= Pl_Stop)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
+		serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
 		return;
 	}
 
@@ -1226,7 +1227,7 @@ void PlayerManager::OnClientCommand(edict_t *pEntity)
 	if (res >= Pl_Handled)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
+		serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_SUPERCEDE);
 		return;
 	}
 }
@@ -1244,7 +1245,7 @@ void PlayerManager::OnClientCommandKeyValues(edict_t *pEntity, KeyValues *pComma
 	if (!pPlayer->IsInGame())
 	{
 		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_IServerGameClients__ClientCommandKeyValues.create_return(MRES_IGNORED);
+		serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommandKeyValues.create_return(MRES_IGNORED);
 		return;
 	}
 
@@ -1270,14 +1271,14 @@ void PlayerManager::OnClientCommandKeyValues(edict_t *pEntity, KeyValues *pComma
 	{
 		s_LastCCKVAllowed = false;
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_IServerGameClients__ClientCommandKeyValues.create_return(MRES_SUPERCEDE);
+		serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommandKeyValues.create_return(MRES_SUPERCEDE);
 		return;
 	}
 
 	s_LastCCKVAllowed = true;
 
 	// RETURN_MEĵTA(MRES_IGNORED);
-	g_SMGlue_IServerGameClients__ClientCommandKeyValues.create_return(MRES_IGNORED);
+	serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommandKeyValues.create_return(MRES_IGNORED);
 	return;
 }
 
@@ -1348,7 +1349,7 @@ void PlayerManager::OnClientSettingsChanged(edict_t *pEntity)
 					logicore.CoreTranslate(kickMsg, sizeof(kickMsg), "%T", 2, NULL, "Name Reserved", &client);
 					pPlayer->Kick(kickMsg);
 					// RETURN_META(MRES_IGNORED);
-					g_SMGlue_IServerGameClients__ClientSettingsChanged.create_return(MRES_IGNORED);
+					serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientSettingsChanged.create_return(MRES_IGNORED);
 					return;
 				}
 			}

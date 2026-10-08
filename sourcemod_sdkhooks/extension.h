@@ -181,6 +181,69 @@ public:
 #endif
 };
 
+class SDKHooks;
+
+class SDKHooksHookRecord {
+public:
+	bool Hook_CanBeAutobalanced();
+	void Hook_EndTouch(CBaseEntity *pOther);
+	void Hook_EndTouchPost(CBaseEntity *pOther);
+	void Hook_FireBulletsPost(FireBulletsInfo_t *info);
+#ifdef GETMAXHEALTH_IS_VIRTUAL
+	int Hook_GetMaxHealth();
+#endif
+	void Hook_GroundEntChangedPost(void *pVar);
+	int Hook_OnTakeDamage(CTakeDamageInfo *info);
+	int Hook_OnTakeDamagePost(CTakeDamageInfo *info);
+	int Hook_OnTakeDamage_Alive(CTakeDamageInfo *info);
+	int Hook_OnTakeDamage_AlivePost(CTakeDamageInfo *info);
+	void Hook_PreThink();
+	void Hook_PreThinkPost();
+	void Hook_PostThink();
+	void Hook_PostThinkPost();
+	bool Hook_Reload();
+	bool Hook_ReloadPost();
+	void Hook_SetTransmit(CCheckTransmitInfo *pInfo, bool bAlways);
+	bool Hook_ShouldCollide(int collisonGroup, int contentsMask);
+	void Hook_Spawn();
+	void Hook_SpawnPost();
+	void Hook_StartTouch(CBaseEntity *pOther);
+	void Hook_StartTouchPost(CBaseEntity *pOther);
+	void Hook_Think();
+	void Hook_ThinkPost();
+	void Hook_Touch(CBaseEntity *pOther);
+	void Hook_TouchPost(CBaseEntity *pOther);
+#if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
+	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_PVKII
+	void Hook_TraceAttack(CTakeDamageInfo *info, Vector *vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
+	void Hook_TraceAttackPost(CTakeDamageInfo *info, Vector *vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
+#else
+	void Hook_TraceAttack(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr);
+	void Hook_TraceAttackPost(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr);
+#endif
+	void Hook_Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
+	void Hook_UsePost(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
+	void Hook_VPhysicsUpdate(IPhysicsObject *pPhysics);
+	void Hook_VPhysicsUpdatePost(IPhysicsObject *pPhysics);
+	void Hook_Blocked(CBaseEntity *pOther);
+	void Hook_BlockedPost(CBaseEntity *pOther);
+	bool Hook_WeaponCanSwitchTo(CBaseCombatWeapon *pWeapon);
+	bool Hook_WeaponCanSwitchToPost(CBaseCombatWeapon *pWeapon);
+	bool Hook_WeaponCanUse(CBaseCombatWeapon *pWeapon);
+	bool Hook_WeaponCanUsePost(CBaseCombatWeapon *pWeapon);
+	void Hook_WeaponDrop(CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity);
+	void Hook_WeaponDropPost(CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity);
+	void Hook_WeaponEquip(CBaseCombatWeapon *pWeapon);
+	void Hook_WeaponEquipPost(CBaseCombatWeapon *pWeapon);
+	bool Hook_WeaponSwitch(CBaseCombatWeapon *pWeapon, int viewmodelindex);
+	bool Hook_WeaponSwitchPost(CBaseCombatWeapon *pWeapon, int viewmodelindex);
+
+	CBaseEntity* pEntity;
+	SDKHooks* pParent;
+	int hookId;
+	std::vector<HookList> hooks;
+};
+
 class SDKHooks :
 	public SDKExtension,
 	public IConCommandBaseAccessor,
@@ -191,6 +254,7 @@ class SDKHooks :
 	public IClientListener,
 	public ISDKHooks
 {
+	friend SDKHooksHookRecord;
 public:
 	/**
 	 * @brief This is called after the initial loading sequence has been processed.
@@ -316,61 +380,6 @@ public:
 #endif
 	bool Hook_LevelInit(char const *pMapName, char const *pMapEntities, char const *pOldLevel, char const *pLandmarkName, bool loadGame, bool background);
 
-	/**
-	 * CBaseEntity Hook Handlers
-	 */
-	bool Hook_CanBeAutobalanced();
-	void Hook_EndTouch(CBaseEntity *pOther);
-	void Hook_EndTouchPost(CBaseEntity *pOther);
-	void Hook_FireBulletsPost(FireBulletsInfo_t *info);
-#ifdef GETMAXHEALTH_IS_VIRTUAL
-	int Hook_GetMaxHealth();
-#endif
-	void Hook_GroundEntChangedPost(void *pVar);
-	int Hook_OnTakeDamage(CTakeDamageInfo *info);
-	int Hook_OnTakeDamagePost(CTakeDamageInfo *info);
-	int Hook_OnTakeDamage_Alive(CTakeDamageInfo *info);
-	int Hook_OnTakeDamage_AlivePost(CTakeDamageInfo *info);
-	void Hook_PreThink();
-	void Hook_PreThinkPost();
-	void Hook_PostThink();
-	void Hook_PostThinkPost();
-	bool Hook_Reload();
-	bool Hook_ReloadPost();
-	void Hook_SetTransmit(CCheckTransmitInfo *pInfo, bool bAlways);
-	bool Hook_ShouldCollide(int collisonGroup, int contentsMask);
-	void Hook_Spawn();
-	void Hook_SpawnPost();
-	void Hook_StartTouch(CBaseEntity *pOther);
-	void Hook_StartTouchPost(CBaseEntity *pOther);
-	void Hook_Think();
-	void Hook_ThinkPost();
-	void Hook_Touch(CBaseEntity *pOther);
-	void Hook_TouchPost(CBaseEntity *pOther);
-#if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
-	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_PVKII
-	void Hook_TraceAttack(CTakeDamageInfo *info, Vector *vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
-	void Hook_TraceAttackPost(CTakeDamageInfo *info, Vector *vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
-#else
-	void Hook_TraceAttack(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr);
-	void Hook_TraceAttackPost(CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr);
-#endif
-	void Hook_Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
-	void Hook_UsePost(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
-	void Hook_VPhysicsUpdate(IPhysicsObject *pPhysics);
-	void Hook_VPhysicsUpdatePost(IPhysicsObject *pPhysics);
-	void Hook_Blocked(CBaseEntity *pOther);
-	void Hook_BlockedPost(CBaseEntity *pOther);
-	bool Hook_WeaponCanSwitchTo(CBaseCombatWeapon *pWeapon);
-	bool Hook_WeaponCanSwitchToPost(CBaseCombatWeapon *pWeapon);
-	bool Hook_WeaponCanUse(CBaseCombatWeapon *pWeapon);
-	bool Hook_WeaponCanUsePost(CBaseCombatWeapon *pWeapon);
-	void Hook_WeaponDrop(CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity);
-	void Hook_WeaponDropPost(CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity);
-	void Hook_WeaponEquip(CBaseCombatWeapon *pWeapon);
-	void Hook_WeaponEquipPost(CBaseCombatWeapon *pWeapon);
-	bool Hook_WeaponSwitch(CBaseCombatWeapon *pWeapon, int viewmodelindex);
-	bool Hook_WeaponSwitchPost(CBaseCombatWeapon *pWeapon, int viewmodelindex);
 	
 private:
 	void HandleEntityCreated(CBaseEntity *pEntity, int index, cell_t ref);
@@ -388,7 +397,7 @@ private:
 };
 
 extern CGlobalVars *gpGlobals;
-extern std::vector<CVTableList *> g_HookList[SDKHook_MAXHOOKS];
+extern std::vector<SDKHooksHookRecord *> g_HookList[SDKHook_MAXHOOKS];
 
 extern ICvar *icvar;
 

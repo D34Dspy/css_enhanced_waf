@@ -277,7 +277,7 @@ private:
 	int m_ReplayUserId;
 	bool m_bInCCKVHook;
 private:
-	static const int NETMSG_TYPE_BITS = 5; // SVC_Print overhead for netmsg type
+	static const int NETMSG_TYPE_BITS_ = 5; // SVC_Print overhead for netmsg type
 	static const int SVC_Print_BufferSize = 2048 - 1; // -1 for terminating \0
 };
 

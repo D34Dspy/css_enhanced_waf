@@ -433,7 +433,7 @@ void CNetChan::DenyFile(const char *filename, unsigned int transferID)
 bool CNetChan::SendFile(const char *filename, unsigned int transferID)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_INetChannel__SendFile.invoke(this, filename ,transferID);
+	GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke(this, filename ,transferID);
 #endif
 	// add file to waiting list
 	if ( remote_address.GetType() == NA_NULL )
@@ -516,57 +516,6 @@ void CNetChan::Shutdown(const char *pReason)
 	{
 		NET_RemoveNetChannel( this, true );
 	}
-}
-
-CNetChan::CNetChan()
-{
-	m_nSplitPacketSequence = 1;
-	m_nMaxRoutablePayloadSize = MAX_ROUTABLE_PAYLOAD;
-	m_bProcessingMessages = false;
-	m_bShouldDelete = false;
-	m_bClearedDuringProcessing = false;
-	m_bStreamContainsChallenge = false;
-	m_Socket = -1; // invalid
-	remote_address.Clear();
-	last_received = 0;
-	connect_time = 0;
-	m_nProtocolVersion = -1;	// invalid
-	
-	Q_strncpy( m_Name, "", sizeof(m_Name) ); 
-
-	m_MessageHandler = NULL;
-	m_DemoRecorder = NULL;
-
-	m_StreamUnreliable.SetDebugName( "netchan_t::unreliabledata" );
-	m_StreamReliable.SetDebugName( "netchan_t::reliabledata" );
-
-	m_Rate		= DEFAULT_RATE;
-	m_Timeout	= SIGNON_TIME_OUT;
-
-	// Prevent the first message from getting dropped after connection is set up.
-
-	m_nOutSequenceNr = 1;	// otherwise it looks like a 	
-	m_nInSequenceNr = 0;
-	m_nOutSequenceNrAck = 0;
-	m_nOutReliableState = 0; // our current reliable state
-	m_nInReliableState = 0;	// last remote reliable state
-	// m_nLostPackets = 0;
-
-	m_ChallengeNr = 0;
-	m_StreamSocket = 0;
-	m_TCPQueue = {};
-
-	m_MaxReliablePayloadSize = 	NET_MAX_PAYLOAD;
-
-	m_FileRequestCounter = 0;
-	m_bFileBackgroundTranmission = true;
-	m_bUseCompression = false;
-	m_nQueuedPackets = 0;
-
-	m_flRemoteFrameTime = 0;
-	m_flRemoteFrameTimeStdDeviation = 0;
-
-	FlowReset();
 }
 
 CNetChan::~CNetChan()
@@ -2497,7 +2446,7 @@ and then the netmessages processed
 void CNetChan::ProcessPacket( netpacket_t * packet, bool bHasHeader )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_INetChannel__ProcessPacket.invoke(this, packet, bHasHeader);
+	GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke(this, packet, bHasHeader);
 #endif
 	VPROF( "CNetChan::ProcessPacket" );
 
@@ -3356,3 +3305,58 @@ bool CNetChan::IsValidFileForTransfer( const char *pszFilename )
 	return true;
 }
 
+
+#include "glue.hpp"
+CNetChan::CNetChan()
+{
+#ifdef WAF_USE_SOURCEMOD == 1
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
+	m_nSplitPacketSequence = 1;
+	m_nMaxRoutablePayloadSize = MAX_ROUTABLE_PAYLOAD;
+	m_bProcessingMessages = false;
+	m_bShouldDelete = false;
+	m_bClearedDuringProcessing = false;
+	m_bStreamContainsChallenge = false;
+	m_Socket = -1; // invalid
+	remote_address.Clear();
+	last_received = 0;
+	connect_time = 0;
+	m_nProtocolVersion = -1;	// invalid
+	
+	Q_strncpy( m_Name, "", sizeof(m_Name) ); 
+
+	m_MessageHandler = NULL;
+	m_DemoRecorder = NULL;
+
+	m_StreamUnreliable.SetDebugName( "netchan_t::unreliabledata" );
+	m_StreamReliable.SetDebugName( "netchan_t::reliabledata" );
+
+	m_Rate		= DEFAULT_RATE;
+	m_Timeout	= SIGNON_TIME_OUT;
+
+	// Prevent the first message from getting dropped after connection is set up.
+
+	m_nOutSequenceNr = 1;	// otherwise it looks like a 	
+	m_nInSequenceNr = 0;
+	m_nOutSequenceNrAck = 0;
+	m_nOutReliableState = 0; // our current reliable state
+	m_nInReliableState = 0;	// last remote reliable state
+	// m_nLostPackets = 0;
+
+	m_ChallengeNr = 0;
+	m_StreamSocket = 0;
+	m_TCPQueue = {};
+
+	m_MaxReliablePayloadSize = 	NET_MAX_PAYLOAD;
+
+	m_FileRequestCounter = 0;
+	m_bFileBackgroundTranmission = true;
+	m_bUseCompression = false;
+	m_nQueuedPackets = 0;
+
+	m_flRemoteFrameTime = 0;
+	m_flRemoteFrameTimeStdDeviation = 0;
+
+	FlowReset();
+}

@@ -67,7 +67,7 @@ void CShower::Spawn( void )
 void CShower::Think( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 	g_pEffects->Sparks( GetAbsOrigin() );
 
@@ -83,7 +83,7 @@ void CShower::Think( void )
 void CShower::Touch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__Touch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
 #endif
 	Vector vecNewVelocity = GetAbsVelocity();
 

@@ -284,7 +284,7 @@ int CBoneFollower::UpdateTransmitState()
 void CBoneFollower::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
 #endif
 	Vector origin;
 	QAngle angles;
@@ -421,7 +421,7 @@ int CBoneFollower::ObjectCaps()
 void CBoneFollower::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	CBaseEntity *pOwner = GetOwnerEntity();
 	if ( pOwner )
@@ -443,7 +443,7 @@ void CBoneFollower::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 void CBoneFollower::Touch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__Touch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
 #endif
 	CBaseEntity *pOwner = GetOwnerEntity();
 	if ( pOwner )
@@ -466,7 +466,7 @@ void CBoneFollower::Touch( CBaseEntity *pOther )
 void CBoneFollower::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 #endif
 	CBaseEntity *pOwner = GetOwnerEntity();
 	if ( pOwner )

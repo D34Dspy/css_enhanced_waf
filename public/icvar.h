@@ -48,6 +48,7 @@ public:
 	virtual bool AreConVarsLinkable( const ConVar *child, const ConVar *parent ) = 0;
 };
 
+class CSourcemodGlueInterface;
 
 //-----------------------------------------------------------------------------
 // Purpose: DLL interface to ConVars/ConCommands
@@ -55,6 +56,8 @@ public:
 abstract_class ICvar : public IAppSystem
 {
 public:
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+
 	// Allocate a unique DLL identifier
 	virtual CVarDLLIdentifier_t AllocateDLLIdentifier() = 0;
 

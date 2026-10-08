@@ -168,8 +168,10 @@ bool SDKTools::SDK_OnLoad(char *error, size_t maxlength, bool late)
 	g_CallHandle = handlesys->CreateType("ValveCall", this, 0, NULL, NULL, myself->GetIdentity(), &err);
 	if (g_CallHandle == 0)
 	{
-		ke::SafeSprintf(error, maxlength, "Could not create call handle type (err: %d)", err);	
-		return false;
+		ke::SafeSprintf(error, maxlength, "Could not create call handle type (err: %d), trying again ...", err);	
+		g_CallHandle = handlesys->CreateType("ValveCall", this, 0, NULL, NULL, myself->GetIdentity(), &err);
+		if (g_CallHandle == 0)
+			return false;
 	}
 
 	TypeAccess TraceAccess;
@@ -191,8 +193,8 @@ bool SDKTools::SDK_OnLoad(char *error, size_t maxlength, bool late)
 #endif
 	CONVAR_REGISTER(this);
 
-	// SH_ADD_HOOK(IServerGameDLL, LevelInit, gamedll, SH_MEMBER(this, &SDKTools::LevelInit), true);
-	// SH_ADD_HOOK(IServerGameDLL, LevelShutdown, gamedll, SH_MEMBER(this, &SDKTools::LevelShutdown), true);
+	SH_ADD_HOOK(IServerGameDLL, LevelInit, gamedll, SH_MEMBER(this, &SDKTools::LevelInit), true);
+	SH_ADD_HOOK(IServerGameDLL, LevelShutdown, gamedll, SH_MEMBER(this, &SDKTools::LevelShutdown), true);
 
 	playerhelpers->RegisterCommandTargetProcessor(this);
 
@@ -450,7 +452,7 @@ bool SDKTools::LevelInit(char const *pMapName, char const *pMapEntities, char co
 	if (!(name=g_pGameConf->GetKeyValue("SlapSoundCount")))
 	{
 		// RETURN_META_VALUE(MRES_IGNORED, true);
-		g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+		gamedll->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
 		return true;
 	}
 
@@ -467,7 +469,7 @@ bool SDKTools::LevelInit(char const *pMapName, char const *pMapEntities, char co
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+	gamedll->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
 	return true;
 }
 
@@ -582,12 +584,12 @@ void SDKTools::OnSendClientCommand(edict_t *pPlayer, const char *szFormat)
 	if (!strncmp(szFormat, "name ", 5))
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_IVEngineServer__ClientCommand.create_return(MRES_SUPERCEDE);
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.create_return(MRES_SUPERCEDE);
 		return;
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_IVEngineServer__ClientCommand.create_return(MRES_IGNORED);
+	engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.create_return(MRES_IGNORED);
 	return;
 }
 #endif

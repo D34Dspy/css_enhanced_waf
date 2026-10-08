@@ -65,7 +65,6 @@
 #if SH_SYS == SH_SYS_APPLE
 #include <sys/syslimits.h>
 #endif
-typedef void *	HMODULE;
 #define PLATFORM_MAX_PATH	PATH_MAX
 #define	PATH_SEP_STR		"/"
 #define PATH_SEP_CHAR		'/'

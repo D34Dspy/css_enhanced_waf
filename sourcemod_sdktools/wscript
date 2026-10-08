@@ -41,6 +41,7 @@ def build(bld):
 		'vsound.cpp',
 		'clientnatives.cpp',
 		'hooks.cpp',
+		'hook_record.cpp',
 		'gamerulesnatives.cpp',
 		'vstringtable.cpp',
 		'../sourcemod_CDetour/detours.cpp', 

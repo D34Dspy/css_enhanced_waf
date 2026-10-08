@@ -166,7 +166,7 @@ float CWeaponSG552::GetMaxSpeed() const
 bool CWeaponSG552::Reload()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Reload.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
 #endif
 	m_weaponMode = Primary_Mode;
 	return BaseClass::Reload();

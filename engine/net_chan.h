@@ -39,6 +39,8 @@
 #define SUBCHANNEL_WAITING	2   // sbuchannel sent data, waiting for ACK
 #define SUBCHANNEL_DIRTY	3	// subchannel is marked as dirty during changelevel
 
+class CSourcemodGlueInterface;
+
 struct CTCPQueue
 {
 	template < size_t nReservedReceiveSize = NET_MAX_PAYLOAD * 3 >
@@ -139,9 +141,16 @@ private: // netchan structurs
 		netframe_t	*currentframe;	// current frame
 	} netflow_t;
 
+#ifdef WAF_USE_SOURCEMOD == 1
+	CSourcemodGlueInterface* m_pSourcemodGlue;
+#endif
 public: 
 	CNetChan();
 	~CNetChan();
+
+#ifdef WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() { return m_pSourcemodGlue; }
+#endif
 
 public:	// INetChannelInfo interface
 	

@@ -3751,7 +3751,7 @@ void CBaseFileSystem::FileTimeToString( char *pString, int maxCharsIncludingTerm
 bool CBaseFileSystem::FileExists( const char *pFileName, const char *pPathID )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IBaseFileSystem__FileExists.invoke(this, pFileName, pPathID);
+	GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.invoke(this, pFileName, pPathID);
 #endif
 	VPROF_BUDGET( "CBaseFileSystem::FileExists", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 

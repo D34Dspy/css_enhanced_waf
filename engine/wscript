@@ -353,6 +353,7 @@ def build(bld):
 		'audio',
 		'../public/engine/audio/',
 		'../public/engine',
+		'../sourcemod_glue',
 		'audio/'
 	]
 

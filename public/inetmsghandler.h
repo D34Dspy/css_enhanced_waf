@@ -104,10 +104,16 @@ class CLC_FileMD5Check;
 class CLC_SaveReplay;
 class CLC_CmdKeyValues;
 
+class CSourcemodGlueInterface;
+
 class IClientMessageHandler : public INetMessageHandler
 {
 public:
 	virtual ~IClientMessageHandler( void ) {};
+
+#ifdef WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+#endif
 
 	PROCESS_CLC_MESSAGE( ClientInfo ) = 0;
 	PROCESS_CLC_MESSAGE( Move ) = 0;

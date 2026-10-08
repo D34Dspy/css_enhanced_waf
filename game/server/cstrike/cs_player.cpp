@@ -568,7 +568,7 @@ ConVar sv_runcmds( "sv_runcmds", "1" );
 void CCSPlayer::PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P2__PlayerRunCmdHook2.invoke(this, ucmd, moveHelper);
+	GetSourcemodGlue()->l_SMGlue_P2__PlayerRunCmdHook2.invoke(this, ucmd, moveHelper);
 #endif
 
 	VPROF( "CCSPlayer::PlayerRunCommand" );
@@ -1638,7 +1638,7 @@ void CCSPlayer::PushawayThink()
 bool CCSPlayer::Weapon_CanSwitchTo( CBaseCombatWeapon *pWeapon )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
+	GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
 #endif
 	if ( !pWeapon->CanDeploy() )
 		return false;
@@ -2124,7 +2124,7 @@ bool CCSPlayer::IsHittingShield( const Vector &vecDirection, trace_t *ptr )
 void CCSPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 #endif
 	bool bShouldBleed = true;
 	bool bShouldSpark = false;
@@ -2838,6 +2838,9 @@ void CCSPlayer::SetShieldDrawnState( bool bState )
 
 bool CCSPlayer::CSWeaponDrop( CBaseCombatWeapon *pWeapon, bool bDropShield, bool bThrowForward )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_CCSPlayer__CSWeaponDrop.invoke(this, this, pWeapon, bDropShield, bThrowForward);
+#endif
 	bool bSuccess = false;
 
 	if ( HasShield() && bDropShield == true )
@@ -3388,11 +3391,17 @@ BuyResult_e CCSPlayer::HandleCommand_Buy( const char *item )
 	return result;
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include "glue.hpp"
+#endif
 BuyResult_e CCSPlayer::HandleCommand_Buy_Internal( const char* wpnName ) 
 //=============================================================================
 // HPE_END
 //=============================================================================
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.invoke(this, this, wpnName);
+#endif
 	BuyResult_e result = CanPlayerBuy( false ) ? BUY_PLAYER_CANT_BUY : BUY_INVALID_ITEM; // set some defaults
 
 	// translate the new weapon names to the old ones that are actually being used.
@@ -5518,7 +5527,7 @@ void CCSPlayer::State_PreThink_ACTIVE()
 void CCSPlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+	GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
 #endif
 	CWeaponCSBase *pCSWeapon = dynamic_cast< CWeaponCSBase* >( pWeapon );
 	if ( pCSWeapon )
@@ -5555,7 +5564,7 @@ void CCSPlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 bool CCSPlayer::Weapon_CanUse( CBaseCombatWeapon *pBaseWeapon )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__Weapon_CanUse.invoke(this, pBaseWeapon);
+	GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke(this, pBaseWeapon);
 #endif
 	CWeaponCSBase *pWeapon = dynamic_cast< CWeaponCSBase* >( pBaseWeapon );
 

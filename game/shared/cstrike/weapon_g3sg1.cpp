@@ -192,7 +192,7 @@ void CWeaponG3SG1::PrimaryAttack()
 bool CWeaponG3SG1::Reload()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Reload.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
 #endif
 	bool ret = BaseClass::Reload();
 	

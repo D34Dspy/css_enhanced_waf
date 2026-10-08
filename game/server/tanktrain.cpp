@@ -143,7 +143,7 @@ void CTankTargetChange::Precache( void )
 void CTankTargetChange::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	CBaseEntity *pTarget = gEntList.FindEntityByName( NULL, m_target.Get(), NULL, pActivator, pCaller );
 

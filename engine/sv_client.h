@@ -40,15 +40,21 @@ class	CReplayServer;
 class	CPerClientLogoInfo;
 class	CCommand;
 
-
 //-----------------------------------------------------------------------------
 // CGameClient: represents a player client in a game server
 //-----------------------------------------------------------------------------
 class CGameClient : public CBaseClient, public CClientFrameManager
 {
+#ifdef WAF_USE_SOURCEMOD
+	CSourcemodGlueInterface* m_pSourcemodGlue;
+#endif
 public:
 	CGameClient(int slot, CBaseServer *pServer);
 	~CGameClient();
+
+#ifdef WAF_USE_SOURCEMOD
+	virtual CSourcemodGlueInterface* GetSourcemodGlue();
+#endif
 
 	// INetMsgHandler interface
 	void ConnectionClosing( const char *reason );

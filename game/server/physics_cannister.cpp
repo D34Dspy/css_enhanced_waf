@@ -200,7 +200,7 @@ int CPhysicsCannister::OnTakeDamage( const CTakeDamageInfo &info )
 void CPhysicsCannister::TraceAttack( const CTakeDamageInfo &info, const Vector &dir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
 #endif
 
 	if ( !m_active && ptr->hitgroup != 0 )
@@ -481,7 +481,7 @@ CBasePlayer *CPhysicsCannister::HasPhysicsAttacker( float dt )
 void CPhysicsCannister::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
 #endif
 	BaseClass::VPhysicsUpdate( pPhysics );
 

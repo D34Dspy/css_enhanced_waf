@@ -1,27 +1,16 @@
 #include "extension.h"
 #include "forwards.h"
+#include "sourcehook.h"
 #include "util_cstrike.h"
 
-bool g_pTerminateRoundDetoured = false;
-bool g_pCSWeaponDropDetoured = false;
-bool g_pIgnoreTerminateDetour = false;
-bool g_pIgnoreCSWeaponDropDetour = false;
-bool g_PriceDetoured = false;
-bool g_HandleBuyDetoured = false;
-#if SOURCE_ENGINE != SE_CSGO
-int lastclient = -1;
-#endif
+#include "cbase.h"
+#include "game/server/baseentity.h"
+#include "cstrike/cs_gamerules.h"
+#include "cstrike/cs_weapon_parse.h"
 
-IForward *g_pHandleBuyForward = NULL;
-IForward *g_pPriceForward = NULL;
-IForward *g_pTerminateRoundForward = NULL;
-IForward *g_pCSWeaponDropForward = NULL;
-CDetour *DHandleBuy = NULL;
-CDetour *DWeaponPrice = NULL;
-CDetour *DTerminateRound = NULL;
-CDetour *DCSWeaponDrop = NULL;
+#include "glue.hpp"
 
-int weaponNameOffset = -1;
+extern int lastclient;
 
 #if SOURCE_ENGINE == SE_CSGO
 DETOUR_DECL_MEMBER4(DetourHandleBuy, int, int, iLoadoutSlot, void *, pWpnDataRef, bool, bRebuy, bool, bDrop)
@@ -87,9 +76,9 @@ DETOUR_DECL_MEMBER4(DetourHandleBuy, int, int, iLoadoutSlot, void *, pWpnDataRef
 	return ret;
 }
 #else
-DETOUR_DECL_MEMBER1(DetourHandleBuy, int, const char *, weapon)
+void DetourHandleBuy(CCSPlayer* pEntity, const char * weapon)
 {
-	int client = gamehelpers->EntityToBCompatRef(reinterpret_cast<CBaseEntity *>(this));
+	int client = gamehelpers->EntityToBCompatRef(pEntity);
 
 	lastclient = client;
 
@@ -102,37 +91,44 @@ DETOUR_DECL_MEMBER1(DetourHandleBuy, int, const char *, weapon)
 	if (result != Pl_Continue)
 	{
 		lastclient = -1;
-		return 0;
+		g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.create_return(MRES_SUPERCEDE);
+		return;
 	}
 
-	int val = DETOUR_MEMBER_CALL(DetourHandleBuy)(weapon);
-
 	lastclient = -1;
-	return val;
+	g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.create_return(MRES_HANDLED);
 }
 #endif
 
 #if SOURCE_ENGINE != SE_CSGO
-DETOUR_DECL_MEMBER0(DetourWeaponPrice, int)
+int DetourWeaponPrice(CCSWeaponInfo* pWeaponInfo)
 {
-	int price = DETOUR_MEMBER_CALL(DetourWeaponPrice)();
+	// int price = pWeaponInfo->GetWeaponPriceOriginal(); // Prevent recursion by creating thunk forwards functions
+	int price = g_pGameDLL->GetSourcemodBridge()->CCSWeaponInfo__GetWeaponPriceOriginal(pWeaponInfo);
 	
 	if (lastclient == -1)
+	{
+		g_SMGlue_CCSWeaponInfo__GetWeaponPrice.create_return(MRES_SUPERCEDE, {price});
 		return price;
+	}
 
-	const char *weapon_name = reinterpret_cast<char *>(this+weaponNameOffset);
+	const char *weapon_name = pWeaponInfo->szClassName;
 
-	return CallPriceForward(lastclient, weapon_name, price);
+	int finalPrice = CallPriceForward(lastclient, weapon_name, price);
+	g_SMGlue_CCSWeaponInfo__GetWeaponPrice.create_return(MRES_SUPERCEDE, {finalPrice});
+	return 0;
 }
 #endif
 
 #if SOURCE_ENGINE == SE_CSS
-DETOUR_DECL_MEMBER2(DetourTerminateRound, void, float, delay, int, reason)
+// DETOUR_DECL_MEMBER2(DetourTerminateRound, void, float, delay, int, reason)
+void DetourTerminateRound(CCSGameRules* pGameRules, float delay, int reason)
 {
 	if (g_pIgnoreTerminateDetour)
 	{
 		g_pIgnoreTerminateDetour = false;
-		DETOUR_MEMBER_CALL(DetourTerminateRound)(delay, reason);
+		// pGameRules->TerminateRoundOriginal(delay, reason);
+		g_SMGlue_CCSGameRules__TerminateRound.create_return(MRES_HANDLED);
 		return;
 	}
 #elif SOURCE_ENGINE == SE_CSGO && !defined(WIN32)
@@ -183,7 +179,9 @@ DETOUR_DECL_MEMBER3(DetourTerminateRound, void, int, reason, int, unknown, int, 
 	g_pTerminateRoundForward->Execute(&result);
 
 	if (result >= Pl_Handled)
+    {
 		return;
+    }
 
 #if SOURCE_ENGINE == SE_CSGO
 	reason++;
@@ -191,9 +189,14 @@ DETOUR_DECL_MEMBER3(DetourTerminateRound, void, int, reason, int, unknown, int, 
 	
 #if SOURCE_ENGINE == SE_CSS
 	if (result == Pl_Changed)
-		return DETOUR_MEMBER_CALL(DetourTerminateRound)(delay, reason);
+	{
+		g_SMGlue_CCSGameRules__TerminateRound.create_return(MRES_SUPERCEDE);
+        return g_pGameDLL->GetSourcemodBridge()->CCSGameRules__TerminateRoundOriginal(pGameRules, delay, reason);
+	}
 
-	return DETOUR_MEMBER_CALL(DetourTerminateRound)(orgdelay, orgreason);
+    g_SMGlue_CCSGameRules__TerminateRound.create_return(MRES_IGNORED);
+	return g_pGameDLL->GetSourcemodBridge()->CCSGameRules__TerminateRoundOriginal(pGameRules, orgdelay, orgreason);
+
 #elif SOURCE_ENGINE == SE_CSGO && !defined(WIN32)
 	if (result == Pl_Changed)
 		return DETOUR_MEMBER_CALL(DetourTerminateRound)(delay, reason, unknown, unknown2);
@@ -219,7 +222,7 @@ DETOUR_DECL_MEMBER3(DetourTerminateRound, void, int, reason, int, unknown, int, 
 #if SOURCE_ENGINE == SE_CSGO
 DETOUR_DECL_MEMBER3(DetourCSWeaponDrop, void, CBaseEntity *, weapon, bool, bThrowForward, bool, bDonated)
 #else
-DETOUR_DECL_MEMBER3(DetourCSWeaponDrop, void, CBaseEntity *, weapon, bool, bDropShield, bool, bThrowForward)
+void DetourCSWeaponDrop(CCSPlayer* pOwner, CBaseCombatWeapon * weapon, bool bDropShield, bool bThrowForward)
 #endif
 {
 	if (g_pIgnoreCSWeaponDropDetour)
@@ -228,12 +231,15 @@ DETOUR_DECL_MEMBER3(DetourCSWeaponDrop, void, CBaseEntity *, weapon, bool, bDrop
 #if SOURCE_ENGINE == SE_CSGO
 		DETOUR_MEMBER_CALL(DetourCSWeaponDrop)(weapon, bThrowForward, bDonated);
 #else
-		DETOUR_MEMBER_CALL(DetourCSWeaponDrop)(weapon, bDropShield, bThrowForward);
+
+		// DETOUR_MEMBER_CALL(DetourCSWeaponDrop)(weapon, bDropShield, bThrowForward);
+        g_SMGlue_CCSPlayer__CSWeaponDrop.create_return(MRES_IGNORED);
+        
 #endif
 		return;
 	}
 
-	int client = gamehelpers->EntityToBCompatRef(reinterpret_cast<CBaseEntity *>(this));
+	int client = gamehelpers->EntityToBCompatRef(pOwner);
 	int weaponIndex = gamehelpers->EntityToBCompatRef(weapon);
 
 	cell_t result = Pl_Continue;
@@ -252,12 +258,44 @@ DETOUR_DECL_MEMBER3(DetourCSWeaponDrop, void, CBaseEntity *, weapon, bool, bDrop
 #if SOURCE_ENGINE == SE_CSGO
 		DETOUR_MEMBER_CALL(DetourCSWeaponDrop)(weapon, bThrowForward, bDonated);
 #else
-		DETOUR_MEMBER_CALL(DetourCSWeaponDrop)(weapon, bDropShield, bThrowForward);
+		// DETOUR_MEMBER_CALL(DetourCSWeaponDrop)(weapon, bDropShield, bThrowForward);
+        g_SMGlue_CCSPlayer__CSWeaponDrop.create_return(MRES_OVERRIDE);
+        return;
 #endif
 	}
 
+    g_SMGlue_CCSPlayer__CSWeaponDrop.create_return(MRES_SUPERCEDE);
 	return;
 }
+
+bool g_pTerminateRoundDetoured = false;
+bool g_pCSWeaponDropDetoured = false;
+bool g_pIgnoreTerminateDetour = false;
+bool g_pIgnoreCSWeaponDropDetour = false;
+bool g_PriceDetoured = false;
+bool g_HandleBuyDetoured = false;
+#if SOURCE_ENGINE != SE_CSGO
+int lastclient = -1;
+#endif
+
+IForward *g_pHandleBuyForward = NULL;
+IForward *g_pPriceForward = NULL;
+IForward *g_pTerminateRoundForward = NULL;
+IForward *g_pCSWeaponDropForward = NULL;
+
+int DHandleBuyHook = -1;
+bool DHandleBuyEnable = false;
+
+int DWeaponPriceHook = -1;
+bool DWeaponPriceEnable = false;
+
+int DTerminateRoundHook = -1;
+bool DTerminateRoundEnable = false;
+
+int DCSWeaponDropHook = -1;
+bool DCSWeaponDropEnable = false;
+
+int weaponNameOffset = -1;
 
 bool CreateWeaponPriceDetour()
 {
@@ -267,19 +305,20 @@ bool CreateWeaponPriceDetour()
 		if (!g_pGameConf->GetOffset("WeaponName", &weaponNameOffset))
 		{
 			smutils->LogError(myself, "Could not find WeaponName offset - Disabled OnGetWeaponPrice forward");
-			return false;
+			// return false; no cause we can use real structs
 		}
 	}
 
-	DWeaponPrice = DETOUR_CREATE_MEMBER(DetourWeaponPrice, "GetWeaponPrice");
-	if (DWeaponPrice != NULL)
+	// DWeaponPrice = DETOUR_CREATE_MEMBER(DetourWeaponPrice, "GetWeaponPrice");
+	DWeaponPriceHook = g_SMGlue_CCSWeaponInfo__GetWeaponPrice.add(SH_STATIC(DetourWeaponPrice), nullptr);
+	if (DWeaponPriceHook != -1)
 	{
 		if (!CreateHandleBuyDetour())
 		{
 			g_pSM->LogError(myself, "GetWeaponPrice detour could not be initialized - HandleCommand_Buy_Internal failed to detour, disabled OnGetWeaponPrice forward.");
 			return false;
 		}
-		DWeaponPrice->EnableDetour();
+		DWeaponPriceEnable = true;
 		g_PriceDetoured = true;
 		return true;
 	}
@@ -311,11 +350,12 @@ bool CreateWeaponPriceDetour()
 
 bool CreateTerminateRoundDetour()
 {
-	DTerminateRound = DETOUR_CREATE_MEMBER(DetourTerminateRound, "TerminateRound");
+	// DTerminateRound = DETOUR_CREATE_MEMBER(DetourTerminateRound, "TerminateRound");
+	DTerminateRoundHook = g_SMGlue_CCSGameRules__TerminateRound.add(SH_STATIC(DetourTerminateRound), nullptr);
 
-	if (DTerminateRound != NULL)
+	if (DTerminateRoundHook != -1)
 	{
-		DTerminateRound->EnableDetour();
+		DTerminateRoundEnable = true;
 		g_pTerminateRoundDetoured = true;
 		return true;
 	}
@@ -338,11 +378,12 @@ bool CreateHandleBuyDetour()
 		}
 	}
 #endif
-	DHandleBuy = DETOUR_CREATE_MEMBER(DetourHandleBuy, "HandleCommand_Buy_Internal");
+	// DHandleBuy = DETOUR_CREATE_MEMBER(DetourHandleBuy, "HandleCommand_Buy_Internal");
+	DHandleBuyHook = g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.add(SH_STATIC(DetourHandleBuy), nullptr);
 
-	if (DHandleBuy != NULL)
+	if (DHandleBuyHook != -1)
 	{
-		DHandleBuy->EnableDetour();
+		DHandleBuyEnable = true;
 		g_HandleBuyDetoured = true;
 		return true;
 	}
@@ -352,11 +393,12 @@ bool CreateHandleBuyDetour()
 
 bool CreateCSWeaponDropDetour()
 {
-	DCSWeaponDrop = DETOUR_CREATE_MEMBER(DetourCSWeaponDrop, WEAPONDROP_GAMEDATA_NAME);
+	// DCSWeaponDrop = DETOUR_CREATE_MEMBER(DetourCSWeaponDrop, WEAPONDROP_GAMEDATA_NAME);
+	DCSWeaponDropHook = g_SMGlue_CCSPlayer__CSWeaponDrop.add(SH_STATIC(DetourCSWeaponDrop), nullptr);
 
-	if (DCSWeaponDrop != NULL)
+	if (DCSWeaponDropHook != -1)
 	{
-		DCSWeaponDrop->EnableDetour();
+		DCSWeaponDropEnable= true;
 		g_pCSWeaponDropDetoured = true;
 		return true;
 	}
@@ -367,10 +409,10 @@ bool CreateCSWeaponDropDetour()
 
 void RemoveWeaponPriceDetour()	
 {
-	if (DWeaponPrice != NULL)
+	if (DWeaponPriceHook != -1)
 	{
-		DWeaponPrice->Destroy();
-		DWeaponPrice = NULL;
+		g_SMGlue_CCSWeaponInfo__GetWeaponPrice.remove(DCSWeaponDropHook, nullptr);
+		DWeaponPriceEnable = false;
 	}
 	g_PriceDetoured = false;
 }
@@ -380,30 +422,30 @@ void RemoveHandleBuyDetour()
 	if (g_PriceDetoured)
 		return;
 
-	if (DHandleBuy != NULL)
+	if (DHandleBuyHook != -1)
 	{
-		DHandleBuy->Destroy();
-		DHandleBuy = NULL;
+		g_SMGlue_CCSWeaponInfo__GetWeaponPrice.remove(DHandleBuyHook, nullptr);
+		DWeaponPriceEnable = false;
 	}
 	g_HandleBuyDetoured = false;
 }
 
 void RemoveTerminateRoundDetour()	
 {
-	if (DTerminateRound != NULL)
+	if (DTerminateRoundHook != -1)
 	{
-		DTerminateRound->Destroy();
-		DTerminateRound = NULL;
+		g_SMGlue_CCSGameRules__TerminateRound.remove(DTerminateRoundHook, nullptr);
+		DTerminateRoundEnable = NULL;
 	}
 	g_pTerminateRoundDetoured = false;
 }
 
 void RemoveCSWeaponDropDetour()	
 {
-	if (DCSWeaponDrop != NULL)
+	if (DCSWeaponDropHook != -1)
 	{
-		DCSWeaponDrop->Destroy();
-		DCSWeaponDrop = NULL;
+		g_SMGlue_CCSPlayer__CSWeaponDrop.remove(DCSWeaponDropHook, nullptr);
+		DCSWeaponDropEnable = false;
 	}
 	g_pCSWeaponDropDetoured = false;
 }

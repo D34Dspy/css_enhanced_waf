@@ -2899,7 +2899,7 @@ int CPhysicsProp::ObjectCaps()
 void CPhysicsProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	if ( pPlayer )
@@ -2921,7 +2921,7 @@ void CPhysicsProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 void CPhysicsProp::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
 #endif
 	BaseClass::VPhysicsUpdate( pPhysics );
 	m_bAwake = !pPhysics->IsAsleep();
@@ -3883,7 +3883,7 @@ void CBasePropDoor::SetDoorBlocker( CBaseEntity *pBlocker )
 void CBasePropDoor::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	if ( GetMaster() != NULL )
 	{

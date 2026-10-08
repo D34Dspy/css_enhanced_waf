@@ -24,6 +24,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef WAF_USE_SOURCEMOD
+#include "glue.hpp"
+#endif
+
 //-----------------------------------------------------------------------------
 //
 // Server-side implementation of the engine sound interface
@@ -31,10 +35,17 @@
 //-----------------------------------------------------------------------------
 class CEngineSoundServer : public IEngineSound
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	CSourcemodGlueInterface* m_pSourcemodGlue;
+#endif
 public:
 	// constructor, destructor
 	CEngineSoundServer();
 	virtual ~CEngineSoundServer();
+
+#ifdef WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue();
+#endif
 
 	virtual bool PrecacheSound( const char *pSample, bool bPreload, bool bIsUISound );
 	virtual bool IsSoundPrecached( const char *pSample );
@@ -139,7 +150,17 @@ IEngineSound *EngineSoundServer()
 //-----------------------------------------------------------------------------
 CEngineSoundServer::CEngineSoundServer()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
 }
+
+#ifdef WAF_USE_SOURCEMOD == 1
+CSourcemodGlueInterface* CEngineSoundServer::GetSourcemodGlue() 
+{
+	return m_pSourcemodGlue;
+}
+#endif
 
 CEngineSoundServer::~CEngineSoundServer()
 {
@@ -277,7 +298,7 @@ void CEngineSoundServer::EmitSound( IRecipientFilter& filter, int iEntIndex, int
 	const Vector *pOrigin, const Vector *pDirection, CUtlVector< Vector >* pUtlVecOrigins, bool bUpdatePositions, float soundtime /*= 0.0f*/, int speakerentity /*= -1*/ )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IEngineSound__EmitSound2.invoke(this, &filter, iEntIndex, iChannel, pSample, flVolume, flAttenuation, iFlags, iPitch, iSpecialDSP, const_cast<Vector*>(pOrigin), const_cast<Vector*>(pDirection), pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
+	GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound2.invoke(this, &filter, iEntIndex, iChannel, pSample, flVolume, flAttenuation, iFlags, iPitch, iSpecialDSP, const_cast<Vector*>(pOrigin), const_cast<Vector*>(pDirection), pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
 #endif
 	VPROF( "CEngineSoundServer::EmitSound" );
 	EmitSound( filter, iEntIndex, iChannel, pSample, flVolume, ATTN_TO_SNDLVL( flAttenuation ), iFlags, 
@@ -290,7 +311,7 @@ void CEngineSoundServer::EmitSound( IRecipientFilter& filter, int iEntIndex, int
 	const Vector *pOrigin, const Vector *pDirection, CUtlVector< Vector >* pUtlVecOrigins, bool bUpdatePositions, float soundtime /*= 0.0f*/, int speakerentity /*= -1*/ )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IEngineSound__EmitSound.invoke(this, &filter, iEntIndex, iChannel, pSample, flVolume, iSoundLevel, iFlags, iPitch, iSpecialDSP, const_cast<Vector*>(pOrigin), const_cast<Vector*>(pDirection), pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
+	GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound.invoke(this, &filter, iEntIndex, iChannel, pSample, flVolume, iSoundLevel, iFlags, iPitch, iSpecialDSP, const_cast<Vector*>(pOrigin), const_cast<Vector*>(pDirection), pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
 #endif
 	VPROF( "CEngineSoundServer::EmitSound" );
 	if ( pSample && TestSoundChar(pSample, CHAR_SENTENCE) )

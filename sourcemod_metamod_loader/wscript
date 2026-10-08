@@ -26,11 +26,12 @@ def build(bld):
 		'loader.cpp',
 		'gamedll.cpp',
 		'serverplugin.cpp',
+		'serverplugin_glue.cpp',
 		'utility.cpp',
 
 	]
 
-	includes, defines, libs = [], [], []
+	includes, defines, libs = ['../sourcemod_glue'], [], ['sourcemodglue']
 	build_vars(bld, includes, defines, libs, PROJECT_NAME) # Todo specify Windows
 
 	install_path = None if bld.env.BUILD_SDK else bld.env.LIBDIR

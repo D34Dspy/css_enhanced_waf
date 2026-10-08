@@ -13,6 +13,7 @@
 #include "baseclient.h"
 
 class CHLTVServer;
+class CSourcemodGlueInterface;
 
 class CHLTVClient : public CBaseClient
 {
@@ -60,6 +61,10 @@ public: // IClientMessageHandlers
 public:
 	CClientFrame *GetDeltaFrame( int nTick );
 	
+#ifdef WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue();
+#endif
+
 public:
 	int		m_nLastSendTick;	// last send tick, don't send ticks twice
 	double	m_fLastSendTime;	// last net time we send a packet
@@ -68,6 +73,9 @@ public:
 	bool	m_bNoChat;			// if true don't send chat message to this client
 	char	m_szChatGroup[64];	// client password
 	CHLTVServer *m_pHLTV;
+#ifdef WAF_USE_SOURCEMOD == 1
+	CSourcemodGlueInterface* m_pSourcemodGlue;
+#endif
 };
 
 

@@ -224,7 +224,7 @@ int	CBaseMultiplayerPlayer::CalculateTeamBalanceScore( void )
 }
 bool CBaseMultiplayerPlayer::CanBeAutobalanced( void ) {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__CanBeAutobalanced.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.invoke(this);
 #endif
 	return CanBeAutobalancedOrig();
 }

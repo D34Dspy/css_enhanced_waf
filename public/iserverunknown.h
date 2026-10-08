@@ -18,7 +18,7 @@
 class ICollideable;
 class IServerNetworkable;
 class CBaseEntity;
-
+class CSourcemodGlueInterface;
 
 // This is the server's version of IUnknown. We may want to use a QueryInterface-like
 // mechanism if this gets big.
@@ -29,6 +29,7 @@ public:
 	virtual ICollideable*		GetCollideable() = 0;
 	virtual IServerNetworkable*	GetNetworkable() = 0;
 	virtual CBaseEntity*		GetBaseEntity() = 0;
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0; // Enforce Sourcemod Binding
 };
 
 

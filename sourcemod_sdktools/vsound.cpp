@@ -258,7 +258,7 @@ void SoundHooks::OnEmitAmbientSound(int entindex, Vector *pos_, const char *samp
 		case Pl_Stop:
 			{
 				// RETURN_META(MRES_SUPERCEDE);
-				g_SMGlue_IVEngineServer__EmitAmbientSound.create_return(MRES_SUPERCEDE);
+				engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.create_return(MRES_SUPERCEDE);
 				return;
 			}
 		case Pl_Changed:
@@ -269,8 +269,8 @@ void SoundHooks::OnEmitAmbientSound(int entindex, Vector *pos_, const char *samp
 				vec2.z = sp_ctof(vec[2]);
 				// RETURN_META_NEWPARAMS(MRES_IGNORED, &IVEngineServer::EmitAmbientSound,
 										// (entindex, vec2, buffer, vol, soundlevel, fFlags, pitch, delay));
-				g_SMGlue_IVEngineServer__EmitAmbientSound.create_return(MRES_SUPERCEDE);
-				g_SMGlue_IVEngineServer__EmitAmbientSound.invoke(g_SMGlue_IVEngineServer__EmitAmbientSound.candidate(), entindex, &vec2, (const char*)buffer, vol, soundlevel, fFlags, pitch, delay);
+				engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.create_return(MRES_SUPERCEDE);
+				engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.invoke(engine, entindex, &vec2, (const char*)buffer, vol, soundlevel, fFlags, pitch, delay);
 				return;
 			}
 		}
@@ -397,7 +397,7 @@ void SoundHooks::OnEmitSound(IRecipientFilter &filter, int iEntIndex, int iChann
 				RETURN_META_VALUE(MRES_SUPERCEDE, -1);
 #else
 				// RETURN_META(MRES_SUPERCEDE);
-				g_SMGlue_IEngineSound__EmitSound.create_return(MRES_SUPERCEDE);
+				engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound.create_return(MRES_SUPERCEDE);
 				return;
 #endif
 			}
@@ -476,8 +476,8 @@ void SoundHooks::OnEmitSound(IRecipientFilter &filter, int iEntIndex, int iChann
 					// (crf, iEntIndex, iChannel, buffer, flVolume, iSoundlevel, iFlags, iPitch, iSpecialDSP, pOrigin, 
 					// pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity)
 					// );
-				g_SMGlue_IEngineSound__EmitSound.create_return(MRES_IGNORED);
-				g_SMGlue_IEngineSound__EmitSound.invoke(g_SMGlue_IEngineSound__EmitSound.candidate(), 
+				engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound.create_return(MRES_IGNORED);
+				engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound.invoke(engsound, 
 					(IRecipientFilter*)&crf, iEntIndex, iChannel, (const char*)buffer, flVolume, iSoundlevel, iFlags, iPitch, iSpecialDSP, pOrigin, 
 					pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
 				return;
@@ -569,7 +569,7 @@ void SoundHooks::OnEmitSound2(IRecipientFilter &filter, int iEntIndex, int iChan
 				RETURN_META_VALUE(MRES_SUPERCEDE, -1);
 #else
 				// RETURN_META(MRES_SUPERCEDE);
-				g_SMGlue_IEngineSound__EmitSound2.create_return(MRES_SUPERCEDE);
+				engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound2.create_return(MRES_SUPERCEDE);
 				return;
 #endif
 			}
@@ -648,9 +648,9 @@ void SoundHooks::OnEmitSound2(IRecipientFilter &filter, int iEntIndex, int iChan
 					// (crf, iEntIndex, iChannel, buffer, flVolume, SNDLVL_TO_ATTN(static_cast<soundlevel_t>(sndlevel)), 
 					// iFlags, iPitch, iSpecialDSP, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity)
 					// );
-					g_SMGlue_IEngineSound__EmitSound2.create_return(MRES_SUPERCEDE);
+					engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound2.create_return(MRES_SUPERCEDE);
 					float vol = SNDLVL_TO_ATTN(static_cast<soundlevel_t>(sndlevel));
-					g_SMGlue_IEngineSound__EmitSound2.invoke(g_SMGlue_IEngineSound__EmitSound2.candidate(), 
+					engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound2.invoke(engsound, 
 						(IRecipientFilter*)&crf, iEntIndex, iChannel, (const char*)buffer, flVolume, vol, iFlags, 
 						iPitch, iSpecialDSP, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
 					return;

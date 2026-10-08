@@ -201,7 +201,7 @@ void CGameScore::InputApplyScore( inputdata_t &inputdata )
 void CGameScore::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	if ( !CanFireForActivator( pActivator ) )
 		return;
@@ -253,7 +253,7 @@ void CGameEnd::InputGameEnd( inputdata_t &inputdata )
 void CGameEnd::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	if ( !CanFireForActivator( pActivator ) )
 		return;
@@ -650,7 +650,7 @@ bool CGamePlayerEquip::KeyValue( const char *szKeyName, const char *szValue )
 void CGamePlayerEquip::Touch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__Touch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
 #endif
 	if ( !CanFireForActivator( pOther ) )
 		return;
@@ -683,7 +683,7 @@ void CGamePlayerEquip::EquipPlayer( CBaseEntity *pEntity )
 void CGamePlayerEquip::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	EquipPlayer( pActivator );
 }
@@ -735,7 +735,7 @@ const char *CGamePlayerTeam::TargetTeamName( const char *pszTargetName, CBaseEnt
 void CGamePlayerTeam::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	if ( !CanFireForActivator( pActivator ) )
 		return;

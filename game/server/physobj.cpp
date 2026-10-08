@@ -574,7 +574,7 @@ int CPhysBox::ObjectCaps()
 void CPhysBox::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	if ( pPlayer )
@@ -721,7 +721,7 @@ void CPhysBox::Move( const Vector &direction )
 void CPhysBox::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
 #endif
 	BaseClass::VPhysicsUpdate( pPhysics );
 
@@ -1626,7 +1626,7 @@ void CPhysMagnet::Precache( void )
 void CPhysMagnet::Touch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__Touch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
 #endif
 }
 

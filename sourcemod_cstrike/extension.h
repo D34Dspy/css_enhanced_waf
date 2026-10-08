@@ -54,11 +54,6 @@ int CallPriceForward(int client, const char *weapon_name, int price);
 #define WEAPON_DEFUSER 53
 #define WEAPON_M4 16
 #else
-#define WEAPON_C4 6
-#define WEAPON_KNIFE 28
-#define WEAPON_SHIELD 30
-#define WEAPON_KEVLAR 31
-#define WEAPON_ASSAULTSUIT 32
 #define WEAPON_NIGHTVISION 33
 #endif
 
@@ -160,6 +155,7 @@ private:
 	bool m_TerminateRoundDetourEnabled;
 	bool m_HandleBuyDetourEnabled;
 	bool m_CSWeaponDetourEnabled;
+	IServerGameDLL* m_pGameDLL;
 };
 
 /* Interfaces from SourceMod */
@@ -167,6 +163,7 @@ extern IBinTools *g_pBinTools;
 extern IGameConfig *g_pGameConf;
 extern ISDKTools *g_pSDKTools;
 extern CGlobalVars *gpGlobals;
+extern IServerGameDLL* g_pGameDLL;
 extern int g_msgHintText;
 extern bool g_pIgnoreTerminateDetour;
 extern bool g_pIgnoreCSWeaponDropDetour;

@@ -123,7 +123,9 @@ private:
 			return *this;
 		}
 	};
-	HookList hooks_;
+	HookList hk_query_cvar_val_finished_;
+	HookList hk_set_command_client_;
+	HookList hk_call_global_change_cb_;
 
 	ClientCvarQueryMode client_cvar_query_mode_;
 	int last_command_client_;

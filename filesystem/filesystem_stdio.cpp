@@ -43,9 +43,16 @@ ASSERT_INVARIANT( SEEK_END == FILESYSTEM_SEEK_TAIL );
 
 class CFileSystem_Stdio : public CBaseFileSystem
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	CSourcemodGlueInterface* m_pSourcemodGlue;
+#endif
 public:
 	CFileSystem_Stdio();
 	~CFileSystem_Stdio();
+
+#ifdef WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() { return m_pSourcemodGlue; }
+#endif
 
 	// Used to get at older versions
 	void *QueryInterface( const char *pInterfaceName );
@@ -244,17 +251,6 @@ ConVar filesystem_native( "filesystem_native", "1", 0, "Use native FS or STDIO" 
 ConVar filesystem_max_stdio_read( "filesystem_max_stdio_read", IsX360() ? "64" : "16", 0, "" );
 ConVar filesystem_report_buffered_io( "filesystem_report_buffered_io", "0" );
 
-//-----------------------------------------------------------------------------
-// constructor
-//-----------------------------------------------------------------------------
-CFileSystem_Stdio::CFileSystem_Stdio()
-{
-	m_bMounted = false;
-	m_bCanAsync = true;
-#ifdef POSIX
-	SetDefLessFunc( CStdioFile::m_LockedFDMap );
-#endif
-}
 
 
 //-----------------------------------------------------------------------------
@@ -1610,3 +1606,17 @@ char *CWin32ReadOnlyFile::FS_fgets( char *dest, int destSize )
 
 
 #endif // _WIN32
+
+#include "glue.hpp"
+//-----------------------------------------------------------------------------
+// constructor
+//-----------------------------------------------------------------------------
+CFileSystem_Stdio::CFileSystem_Stdio()
+{
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
+	m_bMounted = false;
+	m_bCanAsync = true;
+#ifdef POSIX
+	SetDefLessFunc( CStdioFile::m_LockedFDMap );
+#endif
+}

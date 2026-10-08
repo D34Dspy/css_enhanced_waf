@@ -16,11 +16,16 @@
 
 #define INTERFACEVERSION_VOICESERVER	"VoiceServer002"
 
+class CSourcemodGlueInterface;
 
 abstract_class IVoiceServer
 {
 public:
 	virtual			~IVoiceServer()	{}
+
+#ifdef WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+#endif
 
 	// Use these to setup who can hear whose voice.
 	// Pass in client indices (which are their ent indices - 1).

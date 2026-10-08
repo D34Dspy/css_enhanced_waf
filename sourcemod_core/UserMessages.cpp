@@ -590,8 +590,8 @@ bf_write *UserMessages::OnStartMessage_Pre(IRecipientFilter *filter, int msg_typ
 	{
 		m_InHook = false;
 		// UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
-		g_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullptr});
-		decltype(g_SMGlue_IVEngineServer__UserMessageBegin)::RetStore a;
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullptr});
+		decltype(CSourcemodGlueInterface::l_SMGlue_IVEngineServer__UserMessageBegin)::RetStore a;
 		return nullptr;
 	}
 
@@ -611,13 +611,13 @@ bf_write *UserMessages::OnStartMessage_Pre(IRecipientFilter *filter, int msg_typ
 #else
 		m_InterceptBuffer.Reset();
 		// UM_RETURN_META_VALUE(MRES_SUPERCEDE, &m_InterceptBuffer);
-		g_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_SUPERCEDE, {&m_InterceptBuffer});
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_SUPERCEDE, {&m_InterceptBuffer});
 		return &m_InterceptBuffer;
 #endif
 	}
 
 	// UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
-	g_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullptr});
+	engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullptr});
 	return nullptr;
 }
 
@@ -632,7 +632,7 @@ bf_write *UserMessages::OnStartMessage_Post(IRecipientFilter *filter, int msg_ty
 	if (!m_InHook)
 	{
 		// UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
-		g_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullptr});
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullptr});
 		return nullptr;
 	}
 
@@ -647,7 +647,7 @@ bf_write *UserMessages::OnStartMessage_Post(IRecipientFilter *filter, int msg_ty
 
 	// UM_RETURN_META_VALUE(MRES_IGNORED, NULL);
 	bf_write* nullbfw = nullptr;
-	g_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullbfw});
+	engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.create_return(MRES_IGNORED,  {nullbfw});
 	return nullptr;
 }
 
@@ -656,7 +656,7 @@ void UserMessages::OnMessageEnd_Post()
 	if (!m_InHook)
 	{
 		// UM_RETURN_META(MRES_IGNORED);
-		g_SMGlue_IVEngineServer__MessageEnd.create_return(MRES_IGNORED);
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.create_return(MRES_IGNORED);
 		return;
 	}
 
@@ -726,7 +726,7 @@ void UserMessages::OnMessageEnd_Pre()
 	if (!m_InHook)
 	{
 		// UM_RETURN_META(MRES_IGNORED);
-		g_SMGlue_IVEngineServer__MessageEnd.create_return(MRES_IGNORED);
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.create_return(MRES_IGNORED);
 		return;
 	}
 
@@ -847,11 +847,11 @@ void UserMessages::OnMessageEnd_Pre()
 	}
 
 	// UM_RETURN_META((intercepted) ? MRES_SUPERCEDE : MRES_IGNORED);
-	g_SMGlue_IVEngineServer__MessageEnd.create_return((intercepted) ? MRES_SUPERCEDE : MRES_IGNORED);
+	engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.create_return((intercepted) ? MRES_SUPERCEDE : MRES_IGNORED);
 	return;
 supercede:
 	m_BlockEndPost = true;
 	// UM_RETURN_META(MRES_SUPERCEDE);
-	g_SMGlue_IVEngineServer__MessageEnd.create_return(MRES_SUPERCEDE);
+	engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.create_return(MRES_SUPERCEDE);
 	return;
 }

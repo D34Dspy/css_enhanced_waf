@@ -39,6 +39,7 @@
  * loading commands to remove stale hooks from SH.
  */
 
+#include "smsdk_ext.h"
 #include "sourcehook.h"
 #include "sourcemod.h"
 #include "sourcemm_api.h"
@@ -80,8 +81,27 @@ class GenericCommandHooker : public IConCommandLinkListener
 		int hook;
 		unsigned int refcount;
 		ConCommandBase* thisptr;
+
+#if SOURCE_ENGINE >= SE_ORANGEBOX
+		void Dispatch(CCommand* args)
+#else
+		void Dispatch()
+#endif
+		{
+			cell_t res = ConsoleDetours::Dispatch(META_IFACEPTR(ConCommand)
+#if SOURCE_ENGINE >= SE_ORANGEBOX
+				, *args
+#endif
+				);
+			if (res >= Pl_Handled)
+			{
+				// RETURN_META(MRES_SUPERCEDE);
+				thisptr->GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.create_return(MRES_SUPERCEDE);
+			}
+		} // END OF FUNCTION
+
 	};
-	CVector<HackInfo> vtables;
+	CVector<HackInfo*> vtables;
 	bool enabled;
 	SourceHook::MemFuncInfo dispatch;
 
@@ -96,7 +116,7 @@ class GenericCommandHooker : public IConCommandLinkListener
 	{
 		for (size_t i = 0; i < vtables.size(); i++)
 		{
-			if (vtables[i].vtable == ptr)
+			if (vtables[i]->vtable == ptr)
 			{
 				index = i;
 				return true;
@@ -116,47 +136,29 @@ class GenericCommandHooker : public IConCommandLinkListener
 		size_t index;
 		if (!FindVtable(vtable, index))
 		{
-			HackInfo hack;
-			hack.vtable = vtable;
-			hack.hook = SH_ADD_VPHOOK(ConCommand, Dispatch, cmd, SH_MEMBER(this, &GenericCommandHooker::Dispatch), false);
-			hack.refcount = 1;
-			hack.thisptr = cmd;
+			HackInfo* hack = new HackInfo;
+			hack->vtable = vtable;
+			hack->hook = SH_ADD_VPHOOK(ConCommand, Dispatch, cmd, SH_MEMBER(hack, &HackInfo::Dispatch), false);
+			hack->refcount = 1;
+			hack->thisptr = cmd;
 			vtables.push_back(hack);
 		}
 		else
 		{
-			vtables[index].refcount++;
+			vtables[index]->refcount++;
 		}
-	}
-
-#if SOURCE_ENGINE >= SE_ORANGEBOX
-	void Dispatch(CCommand* args)
-#else
-	void Dispatch()
-#endif
-	{
-		cell_t res = ConsoleDetours::Dispatch(META_IFACEPTR(ConCommand)
-#if SOURCE_ENGINE >= SE_ORANGEBOX
-			, *args
-#endif
-			);
-		if (res >= Pl_Handled)
-		 {
-			// RETURN_META(MRES_SUPERCEDE);
-			g_SMGlue_ConCommand__Dispatch.create_return(MRES_SUPERCEDE);
-		 }
 	}
 
 	void ReparseCommandList()
 	{
 		for (size_t i = 0; i < vtables.size(); i++)
-			vtables[i].refcount = 0;
+			vtables[i]->refcount = 0;
 		for (ConCommandBaseIterator iter; iter.IsValid(); iter.Next())
 			MakeHookable(iter.Get());
-		CVector<HackInfo>::iterator iter = vtables.begin();
+		CVector<HackInfo*>::iterator iter = vtables.begin();
 		while (iter != vtables.end())
 		{
-			if ((*iter).refcount)
+			if ((*iter)->refcount)
 			{
 				iter++;
 				continue;
@@ -195,12 +197,12 @@ class GenericCommandHooker : public IConCommandLinkListener
 			return;
 		}
 
-		assert(vtables[index].refcount > 0);
-		vtables[index].refcount--;
-		if (vtables[index].refcount == 0)
+		assert(vtables[index]->refcount > 0);
+		vtables[index]->refcount--;
+		if (vtables[index]->refcount == 0)
 		{
 			// SH_REMOVE_HOOK_ID(vtables[index].hook);
-			SMGlue_RmHook4_ConCommand__Dispatch(vtables[index].hook, (ConCommand*)vtables[index].thisptr);
+			SMGlue_RmHook4_ConCommand__Dispatch(vtables[index]->hook, (ConCommand*)vtables[index]->thisptr);
 			vtables.erase(vtables.iterAt(index));
 		}
 	}
@@ -238,7 +240,7 @@ public:
 	{
 		for (size_t i = 0; i < vtables.size(); i++)
 			//SH_REMOVE_HOOK_ID(vtables[i].hook);
-			SMGlue_RmHook4_ConCommand__Dispatch(vtables[i].hook, (ConCommand*)vtables[i].thisptr);
+			SMGlue_RmHook4_ConCommand__Dispatch(vtables[i]->hook, (ConCommand*)vtables[i]->thisptr);
 		vtables.clear();
 	}
 

@@ -172,7 +172,7 @@ mm_InitializeForLoad()
 	// SH_MANUALHOOK_RECONFIGURE(SGD_GameInit, info.vtblindex, info.vtbloffs, info.thisptroffs);
 	// SH_ADD_MANUALHOOK_STATICFUNC(SGD_GameInit, server, Handler_GameInit, false);
 	
-	hk_sgd_gameinit = g_SMGlue_P0__SGD_GameInit.add(SH_STATIC(Handler_GameInit), server);
+	hk_sgd_gameinit = server->GetSourcemodGlue()->l_SMGlue_P0__SGD_GameInit.add(SH_STATIC(Handler_GameInit), server);
 
 	// if (!provider->GetHookInfo(ProvidedHook_LevelInit, &info))
 	// {
@@ -180,7 +180,7 @@ mm_InitializeForLoad()
 	// }
 	// SH_MANUALHOOK_RECONFIGURE(SGD_LevelInit, info.vtblindex, info.vtbloffs, info.thisptroffs);
 	// SH_ADD_MANUALHOOK_STATICFUNC(SGD_LevelInit, server, Handler_LevelInit, true);
-	hk_sgd_levelinit = g_SMGlue_IServerGameDLL__LevelInit.add(SH_STATIC(Handler_LevelInit), server);
+	hk_sgd_levelinit = server->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.add(SH_STATIC(Handler_LevelInit), server);
 
 	// if (!provider->GetHookInfo(ProvidedHook_LevelShutdown, &info))
 	// {
@@ -188,7 +188,7 @@ mm_InitializeForLoad()
 	// }
 	// SH_MANUALHOOK_RECONFIGURE(SGD_LevelShutdown, info.vtblindex, info.vtbloffs, info.thisptroffs);
 	// SH_ADD_MANUALHOOK_STATICFUNC(SGD_LevelShutdown, server, Handler_LevelShutdown, true);
-	hk_sgd_levelshutdown = g_SMGlue_IServerGameDLL__LevelShutdown.add(SH_STATIC(Handler_LevelShutdown), server);
+	hk_sgd_levelshutdown = server->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelShutdown.add(SH_STATIC(Handler_LevelShutdown), server);
 }
 
 bool
@@ -518,7 +518,7 @@ Handler_GameInit()
 	is_game_init = true;
 
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_P0__SGD_GameInit.create_return(MRES_IGNORED, {true});
+	server->GetSourcemodGlue()->l_SMGlue_P0__SGD_GameInit.create_return(MRES_IGNORED, {true});
 	return true;
 }
 
@@ -568,7 +568,7 @@ Handler_LevelShutdown(void)
 	ITER_EVENT(OnLevelShutdown, ());
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_IServerGameDLL__LevelShutdown.create_return(MRES_IGNORED);
+	server->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelShutdown.create_return(MRES_IGNORED);
 	return;
 }
 
@@ -583,7 +583,7 @@ Handler_LevelInit(char const *pMapName,
 	ITER_EVENT(OnLevelInit, (pMapName, pMapEntities, pOldLevel, pLandmarkName, loadGame, background));
 
 	// RETURN_META_VALUE(MRES_IGNORED, false);
-	g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {false});
+	server->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {false});
 	return false;
 }
 

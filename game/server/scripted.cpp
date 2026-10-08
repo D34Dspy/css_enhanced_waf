@@ -476,7 +476,7 @@ void CAI_ScriptedSequence::Blocked( CBaseEntity *pOther )
 void CAI_ScriptedSequence::Touch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__Touch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
 #endif
 /*
 	DevMsg( 2,  "Cine Touch\n" );

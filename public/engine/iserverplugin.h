@@ -51,9 +51,14 @@ typedef int QueryCvarCookie_t;
 //-----------------------------------------------------------------------------
 // Purpose: callbacks the engine exposes to the 3rd party plugins (ala MetaMod)
 //-----------------------------------------------------------------------------
+class IServerPluginCallbacks;
+
 abstract_class IServerPluginCallbacks
 {
 public:
+#if WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+#endif
 	// Initialize the plugin to run
 	// Return false if there is an error during startup.
 	virtual bool			Load(	CreateInterfaceFn interfaceFactory, CreateInterfaceFn gameServerFactory  ) = 0;
@@ -129,6 +134,8 @@ typedef enum
 	DIALOG_ASKCONNECT	// Ask the client to connect to a specified IP address. Only the "time" and "title" keys are used.
 } DIALOG_TYPE;
 
+class CSourcemodGlueInterface;
+
 //-----------------------------------------------------------------------------
 // Purpose: functions that only 3rd party plugins need
 //-----------------------------------------------------------------------------
@@ -147,6 +154,8 @@ public:
 	//  "command" - (string) client command to run if selected
 	//  "msg" - (string) button text for this option
 	//
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+
 	virtual void CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValues *data, IServerPluginCallbacks *plugin ) = 0;
 	virtual void ClientCommand( edict_t *pEntity, const char *cmd ) = 0;
 	

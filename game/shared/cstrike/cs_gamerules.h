@@ -257,6 +257,7 @@ public:
 	// return true if the scenario is over, false if the scenario is still in progress
 	bool CheckWinConditions( void );
 
+	void TerminateRoundOriginal( float tmDelay, int reason );
 	void TerminateRound( float tmDelay, int reason );
 
 	//=============================================================================

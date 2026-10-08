@@ -126,7 +126,8 @@ enum META_RES
 	MRES_IGNORED=0,		// plugin didn't take any action
 	MRES_HANDLED,		// plugin did something, but real function should still be called
 	MRES_OVERRIDE,		// call real function, but use my return value
-	MRES_SUPERCEDE		// skip real function; use my return value
+	MRES_SUPERCEDE,		// skip real function; use my return value
+	MRES_ALTERED, 		// call real function, use altered parameters
 };
 
 

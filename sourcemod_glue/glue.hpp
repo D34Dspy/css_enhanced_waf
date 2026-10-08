@@ -10,26 +10,29 @@
 #include "../sourcemod_metamod_core/sourcehook/FastDelegate.h"
 
 #define PLAYERLOCALDATA_H
-#define NO_ENTITY_PREDICTION
 #define CBASEPLAYER_HIDE_INLINE
 #include "router.hpp"
 #include "igameevents.h"
 #include "ivoiceserver.h"
 #include "eiface.h"
 #include "engine/IEngineSound.h"
-class CBaseEntity;
 
-class CTakeDamageInfo;
 class CBaseCombatWeapon;
+class CBaseEntity;
+class CBaseEntityOutput;
+class CCSGameRules;
+class CCSPlayer;
+class CCSWeaponInfo;
 class CDmgAccumulator;
-class IPhysicsObject;
-class CUserCmd;
-class INetChannel;
 class CLC_VoiceData;
 class CPredictableId;
-class IEntityListener;
-class IEntityListener2;
+class CTakeDamageInfo;
+class CUserCmd;
 class IClientMessageHandler;
+class IEntityListener2;
+class IEntityListener;
+class INetChannel;
+class IPhysicsObject;
 class IServerPluginCallbacks;
 class IServerPluginHelpers;
 
@@ -52,286 +55,162 @@ typedef int USE_TYPE;
   #endif
 #endif
 
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<ConCommandBase *>, ICvar> g_SMGlue_ICvar__UnregisterConCommand;
-inline int SMGlue_MkHook4_ICvar__UnregisterConCommand ( fastdelegate::FastDelegate1<ConCommandBase *> delegate , ICvar * instance, bool post = false ) {return g_SMGlue_ICvar__UnregisterConCommand.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_ICvar__UnregisterConCommand ( int hk, ICvar * instance, bool post = false ) {g_SMGlue_ICvar__UnregisterConCommand.remove(hk, instance, post ? 1 : 0);}
+#include "iface.hpp"
 
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<ConCommandBase *>, ICvar> g_SMGlue_ICvar__RegisterConCommand;
-inline int SMGlue_MkHook4_ICvar__RegisterConCommand ( fastdelegate::FastDelegate1<ConCommandBase *> delegate , ICvar * instance, bool post = false ) {return g_SMGlue_ICvar__RegisterConCommand.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_ICvar__RegisterConCommand ( int hk, ICvar * instance, bool post = false ) {g_SMGlue_ICvar__RegisterConCommand.remove(hk, instance, post ? 1 : 0);}
+extern SourcemodRouter< fastdelegate::FastDelegate4<CBaseEntityOutput*,CBaseEntity*, CBaseEntity*, float>, CBaseEntityOutput > g_SMGlue_COutputEvent__FireOutput;
+template <typename T> inline int SMGlue_MkHook4_FireOutput ( fastdelegate::FastDelegate4<CBaseEntityOutput*,CBaseEntity*, CBaseEntity*, float> delegate , T * instance, bool post = false ) {return g_SMGlue_COutputEvent__FireOutput.add(delegate, instance, post ? 1 : 0);}
+template <typename T> inline void SMGlue_RmHook4_FireOutput ( int hk, T * instance, bool post = false ) {g_SMGlue_COutputEvent__FireOutput.remove(hk,instance,post ? 1 : 0);}
 
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<IGameEvent *, bool, bool>, IGameEventManager2> g_SMGlue_IGameEventManager2__FireEvent;
-inline int SMGlue_MkHook4_IGameEventManager2__FireEvent ( fastdelegate::FastDelegate2<IGameEvent *, bool, bool> delegate , IGameEventManager2 * instance, bool post = false ) {return g_SMGlue_IGameEventManager2__FireEvent.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IGameEventManager2__FireEvent ( int hk, IGameEventManager2 * instance, bool post = false ) {g_SMGlue_IGameEventManager2__FireEvent.remove(hk, instance, post ? 1 : 0);}
+// CCSWeaponInfo::GetWeaponPrice
+extern SourcemodRouter< fastdelegate::FastDelegate1<CCSWeaponInfo*, int>, CCSWeaponInfo > g_SMGlue_CCSWeaponInfo__GetWeaponPrice;
+// CCSPlayer::HandleCommand_Buy_Internal
+extern SourcemodRouter< fastdelegate::FastDelegate2<CCSPlayer*,const char*>, CCSPlayer > g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal;
+// CCSGameRules::TerminateRound
+extern SourcemodRouter< fastdelegate::FastDelegate3<CCSGameRules*, float, int>, CCSGameRules > g_SMGlue_CCSGameRules__TerminateRound;
+// bool CCSPlayer::CSWeaponDrop( CBaseCombatWeapon *pWeapon, bool bDropShield, bool bThrowForward )
+extern SourcemodRouter< fastdelegate::FastDelegate4<CCSPlayer*,CBaseCombatWeapon*,bool,bool>, CCSPlayer > g_SMGlue_CCSPlayer__CSWeaponDrop;
 
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate3<ConVar *, const char *, float>, ICvar> g_SMGlue_ICvar__CallGlobalChangeCallbacks;
-inline int SMGlue_MkHook4_ICvar__CallGlobalChangeCallbacks ( fastdelegate::FastDelegate3<ConVar *, const char *, float> delegate , ICvar * instance, bool post = false ) {return g_SMGlue_ICvar__CallGlobalChangeCallbacks.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_ICvar__CallGlobalChangeCallbacks ( int hk, ICvar * instance, bool post = false ) {g_SMGlue_ICvar__CallGlobalChangeCallbacks.remove(hk, instance, post ? 1 : 0);}
+template <typename T> inline int SMGlue_MkHook4_ConCommand__Dispatch ( fastdelegate::FastDelegate1<CCommand *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_ConCommand__Dispatch(delegate, instance, post);}
+template <typename T> inline int SMGlue_MkHook4_IBaseFileSystem__FileExists ( fastdelegate::FastDelegate2<const char*, const char*, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IBaseFileSystem__FileExists(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IClientMessageHandler__ProcessVoiceData ( fastdelegate::FastDelegate1<CLC_VoiceData*, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IClientMessageHandler__ProcessVoiceData(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_ICvar__CallGlobalChangeCallback ( fastdelegate::FastDelegate2<ConVar *, const char *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_ICvar__CallGlobalChangeCallback(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_ICvar__CallGlobalChangeCallbacks ( fastdelegate::FastDelegate3<ConVar *, const char *, float> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_ICvar__CallGlobalChangeCallbacks(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_ICvar__RegisterConCommand ( fastdelegate::FastDelegate1<ConCommandBase *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_ICvar__RegisterConCommand(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_ICvar__UnregisterConCommand ( fastdelegate::FastDelegate1<ConCommandBase *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_ICvar__UnregisterConCommand(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IEngineSound__EmitSound ( fastdelegate::FastDelegate15<IRecipientFilter *, int, int, const char *, float, soundlevel_t, int, int, int, Vector *, Vector *, CUtlVector<Vector> *, bool, float, int, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IEngineSound__EmitSound(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IEngineSound__EmitSound2 ( fastdelegate::FastDelegate15<IRecipientFilter *, int , int , const char *, float , float , int , int , int , Vector *, Vector *, CUtlVector<Vector> *, bool , float , int> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IEngineSound__EmitSound2(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IGameEventManager2__FireEvent ( fastdelegate::FastDelegate2<IGameEvent *, bool, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IGameEventManager2__FireEvent(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_INetChannel__ProcessPacket ( fastdelegate::FastDelegate2<struct netpacket_s*, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_INetChannel__ProcessPacket(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_INetChannel__SendFile ( fastdelegate::FastDelegate2<const char*, unsigned int, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_INetChannel__SendFile(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameClients__ClientCommand ( fastdelegate::FastDelegate2<edict_t *, CCommand *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameClients__ClientCommand(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameClients__ClientCommandKeyValues ( fastdelegate::FastDelegate2<edict_t *, KeyValues *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameClients__ClientCommandKeyValues(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameClients__ClientConnect ( fastdelegate::FastDelegate5<edict_t *, const char *, const char *, char *, int, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameClients__ClientConnect(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameClients__ClientDisconnect ( fastdelegate::FastDelegate1<edict_t *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameClients__ClientDisconnect(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameClients__ClientPutInServer ( fastdelegate::FastDelegate2<edict_t *, const char *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameClients__ClientPutInServer(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameClients__ClientSettingsChanged ( fastdelegate::FastDelegate1<edict_t *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameClients__ClientSettingsChanged(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameClients__ClientVoice ( fastdelegate::FastDelegate1<edict_t *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameClients__ClientVoice(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameClients__SetCommandClient ( fastdelegate::FastDelegate1<int> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameClients__SetCommandClient(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameDLL__GameFrame ( fastdelegate::FastDelegate2<bool, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameDLL__GameFrame(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameDLL__GameServerSteamAPIActivated ( fastdelegate::FastDelegate0<> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameDLL__GameServerSteamAPIActivated(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameDLL__GetGameDescription ( fastdelegate::FastDelegate0<const char *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameDLL__GetGameDescription(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameDLL__LevelInit ( fastdelegate::FastDelegate6<const char *, const char *, const char *, const char *, bool, bool, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameDLL__LevelInit(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameDLL__LevelShutdown ( fastdelegate::FastDelegate0<> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameDLL__LevelShutdown(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameDLL__OnQueryCvarValueFinished ( fastdelegate::FastDelegate5<QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameDLL__OnQueryCvarValueFinished(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameDLL__ServerActivate ( fastdelegate::FastDelegate3<edict_t *, int, int> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameDLL__ServerActivate(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameDLL__ServerHibernationUpdate ( fastdelegate::FastDelegate1<bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameDLL__ServerHibernationUpdate(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameDLL__SetServerHibernation ( fastdelegate::FastDelegate1<bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameDLL__SetServerHibernation(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerGameDLL__Think ( fastdelegate::FastDelegate1<bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerGameDLL__Think(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerPluginCallbacks__OnQueryCvarValueFinished ( fastdelegate::FastDelegate5<QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerPluginCallbacks__OnQueryCvarValueFinished(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IServerPluginHelpers__CreateMessage ( fastdelegate::FastDelegate4<edict_t *, DIALOG_TYPE, KeyValues *, IServerPluginCallbacks *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IServerPluginHelpers__CreateMessage(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IVEngineServer__ChangeLevel ( fastdelegate::FastDelegate2<const char *, const char *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IVEngineServer__ChangeLevel(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IVEngineServer__ClientCommand ( fastdelegate::FastDelegate2<edict_t *, const char*> delegate, T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IVEngineServer__ClientCommand(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IVEngineServer__ClientPrintf ( fastdelegate::FastDelegate2<edict_t *, const char *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IVEngineServer__ClientPrintf(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IVEngineServer__EmitAmbientSound ( fastdelegate::FastDelegate8<int, Vector *, const char *, float, soundlevel_t, int, int, float> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IVEngineServer__EmitAmbientSound(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IVEngineServer__GetMapEntitiesString ( fastdelegate::FastDelegate0<const char *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IVEngineServer__GetMapEntitiesString(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IVEngineServer__LogPrint ( fastdelegate::FastDelegate1<const char *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IVEngineServer__LogPrint(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IVEngineServer__MessageEnd ( fastdelegate::FastDelegate0<> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IVEngineServer__MessageEnd(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IVEngineServer__PlaybackTempEntity ( fastdelegate::FastDelegate5<IRecipientFilter *, float, const void *, SendTable *, int> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IVEngineServer__PlaybackTempEntity(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IVEngineServer__UserMessageBegin ( fastdelegate::FastDelegate2< IRecipientFilter *, int, bf_write *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IVEngineServer__UserMessageBegin(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_IVoiceServer__SetClientListening ( fastdelegate::FastDelegate3<int, int, bool, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IVoiceServer__SetClientListening(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P0__CanBeAutobalanced ( fastdelegate::FastDelegate0<bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P0__CanBeAutobalanced(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P0__GetMaxHealth ( fastdelegate::FastDelegate0<int> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P0__GetMaxHealth(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P0__PostThink ( fastdelegate::FastDelegate0<void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P0__PostThink(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P0__PreThink ( fastdelegate::FastDelegate0<void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P0__PreThink(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P0__Reload ( fastdelegate::FastDelegate0<bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P0__Reload(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P0__SGD_GameInit ( fastdelegate::FastDelegate0<bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P0__SGD_GameInit(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P0__Spawn ( fastdelegate::FastDelegate0<void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P0__Spawn(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P0__Think ( fastdelegate::FastDelegate0<void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P0__Think(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__Blocked ( fastdelegate::FastDelegate1<CBaseEntity *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__Blocked(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__EndTouch ( fastdelegate::FastDelegate1<CBaseEntity *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__EndTouch(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__FireBullets ( fastdelegate::FastDelegate1<FireBulletsInfo_t *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__FireBullets(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__GroundEntChanged ( fastdelegate::FastDelegate1<void *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__GroundEntChanged(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__OnTakeDamage ( fastdelegate::FastDelegate1<CTakeDamageInfo *, int> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__OnTakeDamage(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__OnTakeDamage_Alive ( fastdelegate::FastDelegate1<CTakeDamageInfo *, int> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__OnTakeDamage_Alive(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__StartTouch ( fastdelegate::FastDelegate1<CBaseEntity *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__StartTouch(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__Touch ( fastdelegate::FastDelegate1<CBaseEntity *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__Touch(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__VPhysicsUpdate ( fastdelegate::FastDelegate1<IPhysicsObject *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__VPhysicsUpdate(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__Weapon_CanSwitchTo ( fastdelegate::FastDelegate1<CBaseCombatWeapon *, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__Weapon_CanSwitchTo(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__Weapon_CanUse ( fastdelegate::FastDelegate1<CBaseCombatWeapon *, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__Weapon_CanUse(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__Weapon_Equip ( fastdelegate::FastDelegate1<CBaseCombatWeapon *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__Weapon_Equip(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P2__PlayerRunCmdHook ( fastdelegate::FastDelegate2<CUserCmd *, IMoveHelper *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P2__PlayerRunCmdHook(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P2__SetTransmit ( fastdelegate::FastDelegate2<CCheckTransmitInfo *, bool, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P2__SetTransmit(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P2__ShouldCollide ( fastdelegate::FastDelegate2<int, int, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P2__ShouldCollide(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P2__Weapon_Switch ( fastdelegate::FastDelegate2<CBaseCombatWeapon *, int, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P2__Weapon_Switch(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P3__TraceAttack ( fastdelegate::FastDelegate3<CTakeDamageInfo *, Vector *, CGameTrace *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P3__TraceAttack(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P3__Weapon_Drop ( fastdelegate::FastDelegate3<CBaseCombatWeapon *, const Vector *, const Vector *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P3__Weapon_Drop(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P4__TraceAttack ( fastdelegate::FastDelegate4<CTakeDamageInfo *, Vector *, CGameTrace *, CDmgAccumulator *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P4__TraceAttack(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P4__Use ( fastdelegate::FastDelegate4<CBaseEntity *, CBaseEntity *, USE_TYPE, float, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P4__Use(delegate,instance,post);}
 
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<ConVar *, const char *>, ICvar> g_SMGlue_ICvar__CallGlobalChangeCallback;
-inline int SMGlue_MkHook4_ICvar__CallGlobalChangeCallback ( fastdelegate::FastDelegate2<ConVar *, const char *> delegate , ICvar * instance, bool post = false ) {return g_SMGlue_ICvar__CallGlobalChangeCallback.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_ICvar__CallGlobalChangeCallback ( int hk, ICvar * instance, bool post = false ) {g_SMGlue_ICvar__CallGlobalChangeCallback.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate5<QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *>, IServerGameDLL> g_SMGlue_IServerGameDLL__OnQueryCvarValueFinished;
-inline int SMGlue_MkHook4_IServerGameDLL__OnQueryCvarValueFinished ( fastdelegate::FastDelegate5<QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_IServerGameDLL__OnQueryCvarValueFinished.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameDLL__OnQueryCvarValueFinished ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_IServerGameDLL__OnQueryCvarValueFinished.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate5<QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *>, IServerPluginCallbacks> g_SMGlue_IServerPluginCallbacks__OnQueryCvarValueFinished;
-inline int SMGlue_MkHook4_IServerPluginCallbacks__OnQueryCvarValueFinished ( fastdelegate::FastDelegate5<QueryCvarCookie_t, edict_t *, EQueryCvarValueStatus, const char *, const char *> delegate , IServerPluginCallbacks * instance, bool post = false ) {return g_SMGlue_IServerPluginCallbacks__OnQueryCvarValueFinished.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerPluginCallbacks__OnQueryCvarValueFinished ( int hk, IServerPluginCallbacks * instance, bool post = false ) {g_SMGlue_IServerPluginCallbacks__OnQueryCvarValueFinished.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CCommand *>, ConCommand> g_SMGlue_ConCommand__Dispatch;
-inline int SMGlue_MkHook4_ConCommand__Dispatch ( fastdelegate::FastDelegate1<CCommand *> delegate , ConCommand * instance, bool post = false ) {return g_SMGlue_ConCommand__Dispatch.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_ConCommand__Dispatch ( int hk, ConCommand * instance, bool post = false ) {g_SMGlue_ConCommand__Dispatch.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<int>, IServerGameClients> g_SMGlue_IServerGameClients__SetCommandClient;
-inline int SMGlue_MkHook4_IServerGameClients__SetCommandClient ( fastdelegate::FastDelegate1<int> delegate , IServerGameClients * instance, bool post = false ) {return g_SMGlue_IServerGameClients__SetCommandClient.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameClients__SetCommandClient ( int hk, IServerGameClients * instance, bool post = false ) {g_SMGlue_IServerGameClients__SetCommandClient.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<const char *>, IVEngineServer> g_SMGlue_IVEngineServer__LogPrint;
-inline int SMGlue_MkHook4_IVEngineServer__LogPrint ( fastdelegate::FastDelegate1<const char *> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__LogPrint.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IVEngineServer__LogPrint ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__LogPrint.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate4<edict_t *, DIALOG_TYPE, KeyValues *, IServerPluginCallbacks *>, IServerPluginHelpers> g_SMGlue_IServerPluginHelpers__CreateMessage;
-inline int SMGlue_MkHook4_IServerPluginHelpers__CreateMessage ( fastdelegate::FastDelegate4<edict_t *, DIALOG_TYPE, KeyValues *, IServerPluginCallbacks *> delegate , IServerPluginHelpers * instance, bool post = false ) {return g_SMGlue_IServerPluginHelpers__CreateMessage.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerPluginHelpers__CreateMessage ( int hk, IServerPluginHelpers * instance, bool post = false ) {g_SMGlue_IServerPluginHelpers__CreateMessage.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<const char *, const char *>, IVEngineServer> g_SMGlue_IVEngineServer__ChangeLevel;
-inline int SMGlue_MkHook4_IVEngineServer__ChangeLevel ( fastdelegate::FastDelegate2<const char *, const char *> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__ChangeLevel.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IVEngineServer__ChangeLevel ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__ChangeLevel.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate5<edict_t *, const char *, const char *, char *, int, bool>, IServerGameClients> g_SMGlue_IServerGameClients__ClientConnect;
-inline int SMGlue_MkHook4_IServerGameClients__ClientConnect ( fastdelegate::FastDelegate5<edict_t *, const char *, const char *, char *, int, bool> delegate , IServerGameClients * instance, bool post = false ) {return g_SMGlue_IServerGameClients__ClientConnect.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameClients__ClientConnect ( int hk, IServerGameClients * instance, bool post = false ) {g_SMGlue_IServerGameClients__ClientConnect.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<edict_t *, const char *>, IServerGameClients> g_SMGlue_IServerGameClients__ClientPutInServer;
-inline int SMGlue_MkHook4_IServerGameClients__ClientPutInServer ( fastdelegate::FastDelegate2<edict_t *, const char *> delegate , IServerGameClients * instance, bool post = false ) {return g_SMGlue_IServerGameClients__ClientPutInServer.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameClients__ClientPutInServer ( int hk, IServerGameClients * instance, bool post = false ) {g_SMGlue_IServerGameClients__ClientPutInServer.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<edict_t *>, IServerGameClients> g_SMGlue_IServerGameClients__ClientDisconnect;
-inline int SMGlue_MkHook4_IServerGameClients__ClientDisconnect ( fastdelegate::FastDelegate1<edict_t *> delegate , IServerGameClients * instance, bool post = false ) {return g_SMGlue_IServerGameClients__ClientDisconnect.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameClients__ClientDisconnect ( int hk, IServerGameClients * instance, bool post = false ) {g_SMGlue_IServerGameClients__ClientDisconnect.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<edict_t *, CCommand *>, IServerGameClients> g_SMGlue_IServerGameClients__ClientCommand;
-inline int SMGlue_MkHook4_IServerGameClients__ClientCommand ( fastdelegate::FastDelegate2<edict_t *, CCommand *> delegate , IServerGameClients * instance, bool post = false ) {return g_SMGlue_IServerGameClients__ClientCommand.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameClients__ClientCommand ( int hk, IServerGameClients * instance, bool post = false ) {g_SMGlue_IServerGameClients__ClientCommand.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<edict_t *, const char*>, IVEngineServer> g_SMGlue_IVEngineServer__ClientCommand;
-inline int SMGlue_MkHook4_IVEngineServer__ClientCommand ( fastdelegate::FastDelegate2<edict_t *, const char*> delegate, IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__ClientCommand.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IVEngineServer__ClientCommand ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__ClientCommand.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<edict_t *>, IServerGameClients> g_SMGlue_IServerGameClients__ClientSettingsChanged;
-inline int SMGlue_MkHook4_IServerGameClients__ClientSettingsChanged ( fastdelegate::FastDelegate1<edict_t *> delegate , IServerGameClients * instance, bool post = false ) {return g_SMGlue_IServerGameClients__ClientSettingsChanged.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameClients__ClientSettingsChanged ( int hk, IServerGameClients * instance, bool post = false ) {g_SMGlue_IServerGameClients__ClientSettingsChanged.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<edict_t *, KeyValues *>, IServerGameClients> g_SMGlue_IServerGameClients__ClientCommandKeyValues;
-inline int SMGlue_MkHook4_IServerGameClients__ClientCommandKeyValues ( fastdelegate::FastDelegate2<edict_t *, KeyValues *> delegate , IServerGameClients * instance, bool post = false ) {return g_SMGlue_IServerGameClients__ClientCommandKeyValues.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameClients__ClientCommandKeyValues ( int hk, IServerGameClients * instance, bool post = false ) {g_SMGlue_IServerGameClients__ClientCommandKeyValues.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate3<edict_t *, int, int>, IServerGameDLL> g_SMGlue_IServerGameDLL__ServerActivate;
-inline int SMGlue_MkHook4_IServerGameDLL__ServerActivate ( fastdelegate::FastDelegate3<edict_t *, int, int> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_IServerGameDLL__ServerActivate.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameDLL__ServerActivate ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_IServerGameDLL__ServerActivate.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<bool>, IServerGameDLL> g_SMGlue_IServerGameDLL__ServerHibernationUpdate;
-inline int SMGlue_MkHook4_IServerGameDLL__ServerHibernationUpdate ( fastdelegate::FastDelegate1<bool> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_IServerGameDLL__ServerHibernationUpdate.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameDLL__ServerHibernationUpdate ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_IServerGameDLL__ServerHibernationUpdate.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<bool>, IServerGameDLL> g_SMGlue_IServerGameDLL__SetServerHibernation;
-inline int SMGlue_MkHook4_IServerGameDLL__SetServerHibernation ( fastdelegate::FastDelegate1<bool> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_IServerGameDLL__SetServerHibernation.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameDLL__SetServerHibernation ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_IServerGameDLL__SetServerHibernation.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<edict_t *, const char *>, IVEngineServer> g_SMGlue_IVEngineServer__ClientPrintf;
-inline int SMGlue_MkHook4_IVEngineServer__ClientPrintf ( fastdelegate::FastDelegate2<edict_t *, const char *> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__ClientPrintf.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IVEngineServer__ClientPrintf ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__ClientPrintf.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate6<const char *, const char *, const char *, const char *, bool, bool, bool>, IServerGameDLL> g_SMGlue_IServerGameDLL__LevelInit;
-inline int SMGlue_MkHook4_IServerGameDLL__LevelInit ( fastdelegate::FastDelegate6<const char *, const char *, const char *, const char *, bool, bool, bool> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_IServerGameDLL__LevelInit.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameDLL__LevelInit ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_IServerGameDLL__LevelInit.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<>, IServerGameDLL> g_SMGlue_IServerGameDLL__LevelShutdown;
-inline int SMGlue_MkHook4_IServerGameDLL__LevelShutdown ( fastdelegate::FastDelegate0<> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_IServerGameDLL__LevelShutdown.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameDLL__LevelShutdown ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_IServerGameDLL__LevelShutdown.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<bool, bool>, IServerGameDLL> g_SMGlue_IServerGameDLL__GameFrame;
-inline int SMGlue_MkHook4_IServerGameDLL__GameFrame ( fastdelegate::FastDelegate2<bool, bool> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_IServerGameDLL__GameFrame.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameDLL__GameFrame ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_IServerGameDLL__GameFrame.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<bool>, IServerGameDLL> g_SMGlue_IServerGameDLL__Think;
-inline int SMGlue_MkHook4_IServerGameDLL__Think ( fastdelegate::FastDelegate1<bool> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_IServerGameDLL__Think.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameDLL__Think ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_IServerGameDLL__Think.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<const char *>, IVEngineServer> g_SMGlue_IVEngineServer__GetMapEntitiesString;
-inline int SMGlue_MkHook4_IVEngineServer__GetMapEntitiesString ( fastdelegate::FastDelegate0<const char *> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__GetMapEntitiesString.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IVEngineServer__GetMapEntitiesString ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__GetMapEntitiesString.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2< IRecipientFilter *, int, bf_write *>, IVEngineServer> g_SMGlue_IVEngineServer__UserMessageBegin;
-inline int SMGlue_MkHook4_IVEngineServer__UserMessageBegin ( fastdelegate::FastDelegate2< IRecipientFilter *, int, bf_write *> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__UserMessageBegin.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IVEngineServer__UserMessageBegin ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__UserMessageBegin.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<>, IVEngineServer> g_SMGlue_IVEngineServer__MessageEnd;
-inline int SMGlue_MkHook4_IVEngineServer__MessageEnd ( fastdelegate::FastDelegate0<> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__MessageEnd.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IVEngineServer__MessageEnd ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__MessageEnd.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<>, IServerGameDLL> g_SMGlue_IServerGameDLL__GameServerSteamAPIActivated;
-inline int SMGlue_MkHook4_IServerGameDLL__GameServerSteamAPIActivated ( fastdelegate::FastDelegate0<> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_IServerGameDLL__GameServerSteamAPIActivated.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameDLL__GameServerSteamAPIActivated ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_IServerGameDLL__GameServerSteamAPIActivated.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<const char *>, IServerGameDLL> g_SMGlue_IServerGameDLL__GetGameDescription;
-inline int SMGlue_MkHook4_IServerGameDLL__GetGameDescription ( fastdelegate::FastDelegate0<const char *> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_IServerGameDLL__GetGameDescription.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameDLL__GetGameDescription ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_IServerGameDLL__GetGameDescription.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<edict_t *>, IServerGameClients> g_SMGlue_IServerGameClients__ClientVoice;
-inline int SMGlue_MkHook4_IServerGameClients__ClientVoice ( fastdelegate::FastDelegate1<edict_t *> delegate , IServerGameClients * instance, bool post = false ) {return g_SMGlue_IServerGameClients__ClientVoice.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IServerGameClients__ClientVoice ( int hk, IServerGameClients * instance, bool post = false ) {g_SMGlue_IServerGameClients__ClientVoice.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate5<IRecipientFilter *, float, const void *, SendTable *, int>, IVEngineServer> g_SMGlue_IVEngineServer__PlaybackTempEntity;
-inline int SMGlue_MkHook4_IVEngineServer__PlaybackTempEntity ( fastdelegate::FastDelegate5<IRecipientFilter *, float, const void *, SendTable *, int> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__PlaybackTempEntity.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IVEngineServer__PlaybackTempEntity ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__PlaybackTempEntity.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate3<int, int, bool, bool>, IVoiceServer> g_SMGlue_IVoiceServer__SetClientListening;
-inline int SMGlue_MkHook4_IVoiceServer__SetClientListening ( fastdelegate::FastDelegate3<int, int, bool, bool> delegate , IVoiceServer * instance, bool post = false ) {return g_SMGlue_IVoiceServer__SetClientListening.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IVoiceServer__SetClientListening ( int hk, IVoiceServer * instance, bool post = false ) {g_SMGlue_IVoiceServer__SetClientListening.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate8<int, Vector *, const char *, float, soundlevel_t, int, int, float>, IVEngineServer> g_SMGlue_IVEngineServer__EmitAmbientSound;
-inline int SMGlue_MkHook4_IVEngineServer__EmitAmbientSound ( fastdelegate::FastDelegate8<int, Vector *, const char *, float, soundlevel_t, int, int, float> delegate , IVEngineServer * instance, bool post = false ) {return g_SMGlue_IVEngineServer__EmitAmbientSound.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IVEngineServer__EmitAmbientSound ( int hk, IVEngineServer * instance, bool post = false ) {g_SMGlue_IVEngineServer__EmitAmbientSound.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate15<IRecipientFilter *, int, int, const char *, float, soundlevel_t, int, int, int, Vector *, Vector *, CUtlVector<Vector> *, bool, float, int, void>, IEngineSound> g_SMGlue_IEngineSound__EmitSound;
-inline int SMGlue_MkHook4_IEngineSound__EmitSound ( fastdelegate::FastDelegate15<IRecipientFilter *, int, int, const char *, float, soundlevel_t, int, int, int, Vector *, Vector *, CUtlVector<Vector> *, bool, float, int, void> delegate , IEngineSound * instance, bool post = false ) {return g_SMGlue_IEngineSound__EmitSound.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IEngineSound__EmitSound ( int hk, IEngineSound * instance, bool post = false ) {g_SMGlue_IEngineSound__EmitSound.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate15<IRecipientFilter *, int , int , const char *, float , float , int , int , int , Vector *, Vector *, CUtlVector<Vector> *, bool , float , int>, IEngineSound> g_SMGlue_IEngineSound__EmitSound2;
-inline int SMGlue_MkHook4_IEngineSound__EmitSound2 ( fastdelegate::FastDelegate15<IRecipientFilter *, int , int , const char *, float , float , int , int , int , Vector *, Vector *, CUtlVector<Vector> *, bool , float , int> delegate , IEngineSound * instance, bool post = false ) {return g_SMGlue_IEngineSound__EmitSound2.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IEngineSound__EmitSound2 ( int hk, IEngineSound * instance, bool post = false ) {g_SMGlue_IEngineSound__EmitSound2.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<const char*, const char*, bool>, IBaseFileSystem> g_SMGlue_IBaseFileSystem__FileExists;
-inline int SMGlue_MkHook4_IBaseFileSystem__FileExists ( fastdelegate::FastDelegate2<const char*, const char*, bool> delegate , IBaseFileSystem * instance, bool post = false ) {return g_SMGlue_IBaseFileSystem__FileExists.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IBaseFileSystem__FileExists ( int hk, IBaseFileSystem * instance, bool post = false ) {g_SMGlue_IBaseFileSystem__FileExists.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<const char*, unsigned int, bool>, INetChannel> g_SMGlue_INetChannel__SendFile;
-inline int SMGlue_MkHook4_INetChannel__SendFile ( fastdelegate::FastDelegate2<const char*, unsigned int, bool> delegate , INetChannel * instance, bool post = false ) {return g_SMGlue_INetChannel__SendFile.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_INetChannel__SendFile ( int hk, INetChannel * instance, bool post = false ) {g_SMGlue_INetChannel__SendFile.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<struct netpacket_s*, bool>, INetChannel> g_SMGlue_INetChannel__ProcessPacket;
-inline int SMGlue_MkHook4_INetChannel__ProcessPacket ( fastdelegate::FastDelegate2<struct netpacket_s*, bool> delegate , INetChannel * instance, bool post = false ) {return g_SMGlue_INetChannel__ProcessPacket.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_INetChannel__ProcessPacket ( int hk, INetChannel * instance, bool post = false ) {g_SMGlue_INetChannel__ProcessPacket.remove(hk, instance, post ? 1 : 0);}
-
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CLC_VoiceData*, bool>, IClientMessageHandler> g_SMGlue_IClientMessageHandler__ProcessVoiceData;
-inline int SMGlue_MkHook4_IClientMessageHandler__ProcessVoiceData ( fastdelegate::FastDelegate1<CLC_VoiceData*, bool> delegate , IClientMessageHandler * instance, bool post = false ) {return g_SMGlue_IClientMessageHandler__ProcessVoiceData.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_IClientMessageHandler__ProcessVoiceData ( int hk, IClientMessageHandler * instance, bool post = false ) {g_SMGlue_IClientMessageHandler__ProcessVoiceData.remove(hk, instance, post ? 1 : 0);}
-
-// /home/god/projects/css_enhanced_clean/sourcemod_metamod_core/metamod.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<bool>, IServerGameDLL> g_SMGlue_P0__SGD_GameInit;
-inline int SMGlue_MkHook4_P0__SGD_GameInit ( fastdelegate::FastDelegate0<bool> delegate , IServerGameDLL * instance, bool post = false ) {return g_SMGlue_P0__SGD_GameInit.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P0__SGD_GameInit ( int hk, IServerGameDLL * instance, bool post = false ) {g_SMGlue_P0__SGD_GameInit.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CBaseEntity *, void>, CBaseEntity> g_SMGlue_P1__EndTouch;
-inline int SMGlue_MkHook4_P1__EndTouch ( fastdelegate::FastDelegate1<CBaseEntity *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__EndTouch.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__EndTouch ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__EndTouch.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<FireBulletsInfo_t *, void>, CBaseEntity> g_SMGlue_P1__FireBullets;
-inline int SMGlue_MkHook4_P1__FireBullets ( fastdelegate::FastDelegate1<FireBulletsInfo_t *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__FireBullets.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__FireBullets ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__FireBullets.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<int>, CBaseEntity> g_SMGlue_P0__GetMaxHealth;
-inline int SMGlue_MkHook4_P0__GetMaxHealth ( fastdelegate::FastDelegate0<int> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P0__GetMaxHealth.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P0__GetMaxHealth ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P0__GetMaxHealth.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<void *, void>, CBaseEntity> g_SMGlue_P1__GroundEntChanged;
-inline int SMGlue_MkHook4_P1__GroundEntChanged ( fastdelegate::FastDelegate1<void *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__GroundEntChanged.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__GroundEntChanged ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__GroundEntChanged.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CTakeDamageInfo *, int>, CBaseEntity> g_SMGlue_P1__OnTakeDamage;
-inline int SMGlue_MkHook4_P1__OnTakeDamage ( fastdelegate::FastDelegate1<CTakeDamageInfo *, int> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__OnTakeDamage.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__OnTakeDamage ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__OnTakeDamage.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CTakeDamageInfo *, int>, CBaseEntity> g_SMGlue_P1__OnTakeDamage_Alive;
-inline int SMGlue_MkHook4_P1__OnTakeDamage_Alive ( fastdelegate::FastDelegate1<CTakeDamageInfo *, int> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__OnTakeDamage_Alive.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__OnTakeDamage_Alive ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__OnTakeDamage_Alive.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<void>, CBaseEntity> g_SMGlue_P0__PreThink;
-inline int SMGlue_MkHook4_P0__PreThink ( fastdelegate::FastDelegate0<void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P0__PreThink.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P0__PreThink ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P0__PreThink.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<void>, CBaseEntity> g_SMGlue_P0__PostThink;
-inline int SMGlue_MkHook4_P0__PostThink ( fastdelegate::FastDelegate0<void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P0__PostThink.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P0__PostThink ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P0__PostThink.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<bool>, CBaseEntity> g_SMGlue_P0__Reload;
-inline int SMGlue_MkHook4_P0__Reload ( fastdelegate::FastDelegate0<bool> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P0__Reload.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P0__Reload ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P0__Reload.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<CCheckTransmitInfo *, bool, void>, CBaseEntity> g_SMGlue_P2__SetTransmit;
-inline int SMGlue_MkHook4_P2__SetTransmit ( fastdelegate::FastDelegate2<CCheckTransmitInfo *, bool, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P2__SetTransmit.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P2__SetTransmit ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P2__SetTransmit.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<int, int, bool>, CBaseEntity> g_SMGlue_P2__ShouldCollide;
-inline int SMGlue_MkHook4_P2__ShouldCollide ( fastdelegate::FastDelegate2<int, int, bool> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P2__ShouldCollide.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P2__ShouldCollide ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P2__ShouldCollide.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<void>, CBaseEntity> g_SMGlue_P0__Spawn;
-inline int SMGlue_MkHook4_P0__Spawn ( fastdelegate::FastDelegate0<void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P0__Spawn.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P0__Spawn ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P0__Spawn.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CBaseEntity *, void>, CBaseEntity> g_SMGlue_P1__StartTouch;
-inline int SMGlue_MkHook4_P1__StartTouch ( fastdelegate::FastDelegate1<CBaseEntity *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__StartTouch.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__StartTouch ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__StartTouch.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<void>, CBaseEntity> g_SMGlue_P0__Think;
-inline int SMGlue_MkHook4_P0__Think ( fastdelegate::FastDelegate0<void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P0__Think.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P0__Think ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P0__Think.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CBaseEntity *, void>, CBaseEntity> g_SMGlue_P1__Touch;
-inline int SMGlue_MkHook4_P1__Touch ( fastdelegate::FastDelegate1<CBaseEntity *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__Touch.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__Touch ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__Touch.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate4<CTakeDamageInfo *, Vector *, CGameTrace *, CDmgAccumulator *, void>, CBaseEntity> g_SMGlue_P4__TraceAttack;
-inline int SMGlue_MkHook4_P4__TraceAttack ( fastdelegate::FastDelegate4<CTakeDamageInfo *, Vector *, CGameTrace *, CDmgAccumulator *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P4__TraceAttack.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P4__TraceAttack ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P4__TraceAttack.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate3<CTakeDamageInfo *, Vector *, CGameTrace *, void>, CBaseEntity> g_SMGlue_P3__TraceAttack;
-inline int SMGlue_MkHook4_P3__TraceAttack ( fastdelegate::FastDelegate3<CTakeDamageInfo *, Vector *, CGameTrace *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P3__TraceAttack.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P3__TraceAttack ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P3__TraceAttack.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate4<CBaseEntity *, CBaseEntity *, USE_TYPE, float, void>, CBaseEntity> g_SMGlue_P4__Use;
-inline int SMGlue_MkHook4_P4__Use ( fastdelegate::FastDelegate4<CBaseEntity *, CBaseEntity *, USE_TYPE, float, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P4__Use.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P4__Use ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P4__Use.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<IPhysicsObject *, void>, CBaseEntity> g_SMGlue_P1__VPhysicsUpdate;
-inline int SMGlue_MkHook4_P1__VPhysicsUpdate ( fastdelegate::FastDelegate1<IPhysicsObject *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__VPhysicsUpdate.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__VPhysicsUpdate ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__VPhysicsUpdate.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CBaseCombatWeapon *, bool>, CBaseEntity> g_SMGlue_P1__Weapon_CanSwitchTo;
-inline int SMGlue_MkHook4_P1__Weapon_CanSwitchTo ( fastdelegate::FastDelegate1<CBaseCombatWeapon *, bool> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__Weapon_CanSwitchTo.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__Weapon_CanSwitchTo ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__Weapon_CanSwitchTo.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CBaseCombatWeapon *, bool>, CBaseEntity> g_SMGlue_P1__Weapon_CanUse;
-inline int SMGlue_MkHook4_P1__Weapon_CanUse ( fastdelegate::FastDelegate1<CBaseCombatWeapon *, bool> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__Weapon_CanUse.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__Weapon_CanUse ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__Weapon_CanUse.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate3<CBaseCombatWeapon *, const Vector *, const Vector *, void>, CBaseEntity> g_SMGlue_P3__Weapon_Drop;
-inline int SMGlue_MkHook4_P3__Weapon_Drop ( fastdelegate::FastDelegate3<CBaseCombatWeapon *, const Vector *, const Vector *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P3__Weapon_Drop.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P3__Weapon_Drop ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P3__Weapon_Drop.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CBaseCombatWeapon *, void>, CBaseEntity> g_SMGlue_P1__Weapon_Equip;
-inline int SMGlue_MkHook4_P1__Weapon_Equip ( fastdelegate::FastDelegate1<CBaseCombatWeapon *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__Weapon_Equip.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__Weapon_Equip ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__Weapon_Equip.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<CBaseCombatWeapon *, int, bool>, CBaseEntity> g_SMGlue_P2__Weapon_Switch;
-inline int SMGlue_MkHook4_P2__Weapon_Switch ( fastdelegate::FastDelegate2<CBaseCombatWeapon *, int, bool> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P2__Weapon_Switch.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P2__Weapon_Switch ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P2__Weapon_Switch.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate1<CBaseEntity *, void>, CBaseEntity> g_SMGlue_P1__Blocked;
-inline int SMGlue_MkHook4_P1__Blocked ( fastdelegate::FastDelegate1<CBaseEntity *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P1__Blocked.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P1__Blocked ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P1__Blocked.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdkhooks/extension.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate0<bool>, CBaseEntity> g_SMGlue_P0__CanBeAutobalanced;
-inline int SMGlue_MkHook4_P0__CanBeAutobalanced ( fastdelegate::FastDelegate0<bool> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P0__CanBeAutobalanced.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P0__CanBeAutobalanced ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P0__CanBeAutobalanced.remove(hk, instance, post ? 1 : 0);}
-// /home/god/projects/css_enhanced_clean/sourcemod_sdktools/hooks.cpp
-GLUE_API extern SourcemodRouter<fastdelegate::FastDelegate2<CUserCmd *, IMoveHelper *, void>, CBaseEntity> g_SMGlue_P2__PlayerRunCmdHook2;
-inline int SMGlue_MkHook4_P2__PlayerRunCmdHook ( fastdelegate::FastDelegate2<CUserCmd *, IMoveHelper *, void> delegate , CBaseEntity * instance, bool post = false ) {return g_SMGlue_P2__PlayerRunCmdHook2.add(delegate,instance, post ? 1 : 0);}
-inline void SMGlue_RmHook4_P2__PlayerRunCmdHook ( int hk, CBaseEntity * instance, bool post = false ) {g_SMGlue_P2__PlayerRunCmdHook2.remove(hk, instance, post ? 1 : 0);}
+template <typename T> inline void SMGlue_RmHook4_ConCommand__Dispatch ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_ConCommand__Dispatch(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IBaseFileSystem__FileExists ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IBaseFileSystem__FileExists(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IClientMessageHandler__ProcessVoiceData ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IClientMessageHandler__ProcessVoiceData(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_ICvar__CallGlobalChangeCallback ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_ICvar__CallGlobalChangeCallback(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_ICvar__CallGlobalChangeCallbacks ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_ICvar__CallGlobalChangeCallbacks(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_ICvar__RegisterConCommand ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_ICvar__RegisterConCommand(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_ICvar__UnregisterConCommand ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_ICvar__UnregisterConCommand(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IEngineSound__EmitSound ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IEngineSound__EmitSound(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IEngineSound__EmitSound2 ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IEngineSound__EmitSound2(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IGameEventManager2__FireEvent ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IGameEventManager2__FireEvent(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_INetChannel__ProcessPacket ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_INetChannel__ProcessPacket(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_INetChannel__SendFile ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_INetChannel__SendFile(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameClients__ClientCommand ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameClients__ClientCommand(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameClients__ClientCommandKeyValues ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameClients__ClientCommandKeyValues(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameClients__ClientConnect ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameClients__ClientConnect(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameClients__ClientDisconnect ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameClients__ClientDisconnect(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameClients__ClientPutInServer ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameClients__ClientPutInServer(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameClients__ClientSettingsChanged ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameClients__ClientSettingsChanged(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameClients__ClientVoice ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameClients__ClientVoice(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameClients__SetCommandClient ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameClients__SetCommandClient(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameDLL__GameFrame ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameDLL__GameFrame(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameDLL__GameServerSteamAPIActivated ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameDLL__GameServerSteamAPIActivated(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameDLL__GetGameDescription ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameDLL__GetGameDescription(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameDLL__LevelInit ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameDLL__LevelInit(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameDLL__LevelShutdown ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameDLL__LevelShutdown(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameDLL__OnQueryCvarValueFinished ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameDLL__OnQueryCvarValueFinished(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameDLL__ServerActivate ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameDLL__ServerActivate(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameDLL__ServerHibernationUpdate ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameDLL__ServerHibernationUpdate(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameDLL__SetServerHibernation ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameDLL__SetServerHibernation(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerGameDLL__Think ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerGameDLL__Think(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerPluginCallbacks__OnQueryCvarValueFinished ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerPluginCallbacks__OnQueryCvarValueFinished(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IServerPluginHelpers__CreateMessage ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IServerPluginHelpers__CreateMessage(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IVEngineServer__ChangeLevel ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IVEngineServer__ChangeLevel(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IVEngineServer__ClientCommand ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IVEngineServer__ClientCommand(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IVEngineServer__ClientPrintf ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IVEngineServer__ClientPrintf(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IVEngineServer__EmitAmbientSound ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IVEngineServer__EmitAmbientSound(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IVEngineServer__GetMapEntitiesString ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IVEngineServer__GetMapEntitiesString(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IVEngineServer__LogPrint ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IVEngineServer__LogPrint(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IVEngineServer__MessageEnd ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IVEngineServer__MessageEnd(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IVEngineServer__PlaybackTempEntity ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IVEngineServer__PlaybackTempEntity(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IVEngineServer__UserMessageBegin ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IVEngineServer__UserMessageBegin(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_IVoiceServer__SetClientListening ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_IVoiceServer__SetClientListening(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P0__CanBeAutobalanced ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P0__CanBeAutobalanced(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P0__GetMaxHealth ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P0__GetMaxHealth(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P0__PostThink ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P0__PostThink(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P0__PreThink ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P0__PreThink(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P0__Reload ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P0__Reload(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P0__SGD_GameInit ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P0__SGD_GameInit(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P0__Spawn ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P0__Spawn(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P0__Think ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P0__Think(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__Blocked ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__Blocked(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__EndTouch ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__EndTouch(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__FireBullets ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__FireBullets(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__GroundEntChanged ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__GroundEntChanged(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__OnTakeDamage ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__OnTakeDamage(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__OnTakeDamage_Alive ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__OnTakeDamage_Alive(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__StartTouch ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__StartTouch(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__Touch ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__Touch(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__VPhysicsUpdate ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__VPhysicsUpdate(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__Weapon_CanSwitchTo ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__Weapon_CanSwitchTo(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__Weapon_CanUse ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__Weapon_CanUse(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P1__Weapon_Equip ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P1__Weapon_Equip(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P2__PlayerRunCmdHook ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P2__PlayerRunCmdHook(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P2__SetTransmit ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P2__SetTransmit(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P2__ShouldCollide ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P2__ShouldCollide(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P2__Weapon_Switch ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P2__Weapon_Switch(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P3__TraceAttack ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P3__TraceAttack(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P3__Weapon_Drop ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P3__Weapon_Drop(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P4__TraceAttack ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P4__TraceAttack(hk,instance,post);}
+template <typename T> inline void SMGlue_RmHook4_P4__Use ( int hk, T * instance, bool post = false ) {instance->GetSourcemodGlue()->SMGlue_RmHook4_P4__Use(hk,instance,post);}
 
 #define JOIN_(x, y) x ## y
 #define JOIN(x, y) JOIN_(x, y)

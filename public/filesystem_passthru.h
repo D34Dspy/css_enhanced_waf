@@ -86,6 +86,10 @@ public:
 		BaseClass::InitPassThru( pFileSystemPassThru );
 	}
 
+#ifdef WAF_USE_SOURCEMOD
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() { return nullptr; }
+#endif
+
 	// IAppSystem stuff.
 	// Here's where the app systems get to learn about each other 
 	virtual bool Connect( CreateInterfaceFn factory )															{ return m_pFileSystemPassThru->Connect( factory ); }

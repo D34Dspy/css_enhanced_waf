@@ -351,7 +351,7 @@ void CPropVehicleChoreoGeneric::Spawn( void )
 void CPropVehicleChoreoGeneric::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P3__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr);
+	GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr);
 #endif
 
 	if ( ptr->hitbox == VEHICLE_HITBOX_DRIVER )
@@ -550,7 +550,7 @@ void CPropVehicleChoreoGeneric::HandleAnimEvent( animevent_t *pEvent )
 void CPropVehicleChoreoGeneric::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	if ( !pPlayer )
@@ -913,7 +913,7 @@ void CChoreoGenericServerVehicle::GetVehicleViewPosition( int nRole, Vector *pAb
 bool CPropVehicleChoreoGeneric::ShouldCollide( int collisionGroup, int contentsMask ) const
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
 #endif
 	if ( m_bIgnorePlayerCollisions == true )
 	{

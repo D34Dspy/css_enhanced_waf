@@ -278,204 +278,6 @@ void CHookManager::OnClientPutInServer(int client)
 		PlayerRunCmdHook(client, true);
 }
 
-void CHookManager::PlayerRunCmdHook(int client, bool post)
-{
-	edict_t *pEdict = PEntityOfEntIndex(client);
-	if (!pEdict)
-	{
-		return;
-	}
-
-	IServerUnknown *pUnknown = pEdict->GetUnknown();
-	if (!pUnknown)
-	{
-		return;
-	}
-
-	CBaseEntity *pEntity = pUnknown->GetBaseEntity();
-	if (!pEntity)
-	{
-		return;
-	}
-
-	std::vector<CVTableHook *> &runUserCmdHookVec = post ? m_runUserCmdPostHooks : m_runUserCmdHooks;
-	CVTableHook hook(pEntity);
-	for (size_t i = 0; i < runUserCmdHookVec.size(); ++i)
-	{
-		if (hook == runUserCmdHookVec[i])
-		{
-			return;
-		}
-	}
-
-	int hookid;
-	if (post)
-		// hookid = SH_ADD_MANUALVPHOOK(PlayerRunCmdHook, pEntity, SH_MEMBER(this, &CHookManager::PlayerRunCmdPost), true);
-		hookid = SMGlue_MkHook4_P2__PlayerRunCmdHook(SH_MEMBER(this, &CHookManager::PlayerRunCmdPost), pEntity, true);
-	else
-		// hookid = SH_ADD_MANUALVPHOOK(PlayerRunCmdHook, pEntity, SH_MEMBER(this, &CHookManager::PlayerRunCmd), false);
-		hookid = SMGlue_MkHook4_P2__PlayerRunCmdHook(SH_MEMBER(this, &CHookManager::PlayerRunCmd), pEntity, false);
-
-	hook.SetHookID(hookid);
-	runUserCmdHookVec.push_back(new CVTableHook(hook));
-}
-
-void CHookManager::PlayerRunCmd(CUserCmd *ucmd, IMoveHelper *moveHelper)
-{
-	if (!ucmd)
-	{
-		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
-		return;
-	}
-
-	bool hasUsercmdsPreFwds = (m_usercmdsPreFwd->GetFunctionCount() > 0);
-	bool hasUsercmdsFwds = (m_usercmdsFwd->GetFunctionCount() > 0);
-
-	if (!hasUsercmdsPreFwds && !hasUsercmdsFwds)
-	{
-		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
-		return;
-	}
-
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
-
-	if (!pEntity)
-	{
-		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
-		return;
-	}
-
-	edict_t *pEdict = gameents->BaseEntityToEdict(pEntity);
-
-	if (!pEdict)
-	{
-		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
-		return;
-	}
-
-	int client = IndexOfEdict(pEdict);
-
-
-	cell_t result = 0;
-	/* Impulse is a byte so we copy it back manually */
-	cell_t impulse = ucmd->impulse;
-	cell_t vel[3] = {sp_ftoc(ucmd->forwardmove), sp_ftoc(ucmd->sidemove), sp_ftoc(ucmd->upmove)};
-	cell_t angles[3] = {sp_ftoc(ucmd->viewangles.x), sp_ftoc(ucmd->viewangles.y), sp_ftoc(ucmd->viewangles.z)};
-	cell_t mouse[2] = {ucmd->mousedx, ucmd->mousedy};
-	
-	if (hasUsercmdsPreFwds)
-	{
-		m_usercmdsPreFwd->PushCell(client);
-		m_usercmdsPreFwd->PushCell(ucmd->buttons);
-		m_usercmdsPreFwd->PushCell(ucmd->impulse);
-		m_usercmdsPreFwd->PushArray(vel, 3);
-		m_usercmdsPreFwd->PushArray(angles, 3);
-		m_usercmdsPreFwd->PushCell(ucmd->weaponselect);
-		m_usercmdsPreFwd->PushCell(ucmd->weaponsubtype);
-		m_usercmdsPreFwd->PushCell(ucmd->interpolated_amount_frac);
-		m_usercmdsPreFwd->PushCell(ucmd->snapshot_tickcount);
-		m_usercmdsPreFwd->PushArray(mouse, 2);
-		m_usercmdsPreFwd->Execute();
-	}
-
-	if (hasUsercmdsFwds)
-	{
-		m_usercmdsFwd->PushCell(client);
-		m_usercmdsFwd->PushCellByRef(&ucmd->buttons);
-		m_usercmdsFwd->PushCellByRef(&impulse);
-		m_usercmdsFwd->PushArray(vel, 3, SM_PARAM_COPYBACK);
-		m_usercmdsFwd->PushArray(angles, 3, SM_PARAM_COPYBACK);
-		m_usercmdsFwd->PushCellByRef(&ucmd->weaponselect);
-		m_usercmdsFwd->PushCellByRef(&ucmd->weaponsubtype);
-		m_usercmdsFwd->PushCellByRef((int*)&ucmd->interpolated_amount_frac);
-		m_usercmdsFwd->PushCellByRef((int*)&ucmd->snapshot_tickcount);
-		m_usercmdsFwd->PushCellByRef((int*)(&ucmd->snapshot_tickcount) + 1);
-		m_usercmdsFwd->PushArray(mouse, 2, SM_PARAM_COPYBACK);
-		m_usercmdsFwd->Execute(&result);
-
-		ucmd->impulse = impulse;
-		ucmd->forwardmove = sp_ctof(vel[0]);
-		ucmd->sidemove = sp_ctof(vel[1]);
-		ucmd->upmove = sp_ctof(vel[2]);
-		ucmd->viewangles.x = sp_ctof(angles[0]);
-		ucmd->viewangles.y = sp_ctof(angles[1]);
-		ucmd->viewangles.z = sp_ctof(angles[2]);
-		ucmd->mousedx = mouse[0];
-		ucmd->mousedy = mouse[1];
-
-
-		if (result == Pl_Handled)
-		{
-			// RETURN_META(MRES_SUPERCEDE);
-			g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_SUPERCEDE);
-			return;
-		}
-	}
-
-	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
-	return;
-}
-
-void CHookManager::PlayerRunCmdPost(CUserCmd *ucmd, IMoveHelper *moveHelper)
-{
-	if (!ucmd)
-	{
-		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
-		return;
-	}
-
-	if (m_usercmdsPostFwd->GetFunctionCount() == 0)
-	{
-		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
-		return;
-	}
-
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
-
-	if (!pEntity)
-	{
-		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
-		return;
-	}
-
-	edict_t *pEdict = gameents->BaseEntityToEdict(pEntity);
-
-	if (!pEdict)
-	{
-		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
-		return;
-	}
-
-	int client = IndexOfEdict(pEdict);
-	cell_t vel[3] = { sp_ftoc(ucmd->forwardmove), sp_ftoc(ucmd->sidemove), sp_ftoc(ucmd->upmove) };
-	cell_t angles[3] = { sp_ftoc(ucmd->viewangles.x), sp_ftoc(ucmd->viewangles.y), sp_ftoc(ucmd->viewangles.z) };
-	cell_t mouse[2] = { ucmd->mousedx, ucmd->mousedy };
-
-	m_usercmdsPostFwd->PushCell(client);
-	m_usercmdsPostFwd->PushCell(ucmd->buttons);
-	m_usercmdsPostFwd->PushCell(ucmd->impulse);
-	m_usercmdsPostFwd->PushArray(vel, 3);
-	m_usercmdsPostFwd->PushArray(angles, 3);
-	m_usercmdsPostFwd->PushCell(ucmd->weaponselect);
-	m_usercmdsPostFwd->PushCell(ucmd->weaponsubtype);
-	m_usercmdsPostFwd->PushCell((int)ucmd->snapshot_tickcount);
-	m_usercmdsPostFwd->PushArray(mouse, 2);
-	m_usercmdsPostFwd->Execute();
-
-	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P2__PlayerRunCmdHook2.create_return(MRES_IGNORED);
-	return;
-}
-
 void CHookManager::NetChannelHook(int client)
 {
 	if (!FILE_used)
@@ -507,16 +309,16 @@ void CHookManager::NetChannelHook(int client)
 #endif
 		if (!m_netChannelHooks.size())
 		{
-			CVTableHook filehook(basefilesystem);
-
-			int hookid = SH_ADD_VPHOOK(IBaseFileSystem, FileExists, basefilesystem, SH_MEMBER(this, &CHookManager::FileExists), false);
-			filehook.SetHookID(hookid);
-			m_netChannelHooks.push_back(new CVTableHook(filehook));
+			CHookRecord* pHk2 = new CHookRecord;
+			pHk2->pParent = this;
+			pHk2->pNetChannel = pNetChannel;
+			pHk2->hookId = SH_ADD_VPHOOK(IBaseFileSystem, FileExists, basefilesystem, SH_MEMBER(pHk2, &CHookRecord::FileExists), false);
+			m_netChannelHooks.push_back(pHk2);
 		}
 
 		for (iter = 0; iter < m_netChannelHooks.size(); ++iter)
 		{
-			if (nethook == m_netChannelHooks[iter])
+			if (pNetChannel == m_netChannelHooks[iter]->pNetChannel)
 			{
 				break;
 			}
@@ -524,134 +326,25 @@ void CHookManager::NetChannelHook(int client)
 
 		if (iter == m_netChannelHooks.size())
 		{
-			int hookid = SH_ADD_VPHOOK(INetChannel, SendFile, pNetChannel, SH_MEMBER(this, &CHookManager::SendFile), false);
-			nethook.SetHookID(hookid);
-			m_netChannelHooks.push_back(new CVTableHook(nethook));
+			CHookRecord* pHk = new CHookRecord;
+			pHk->pParent = this;
+			pHk->pNetChannel = pNetChannel;
+			pHk->hookId = SH_ADD_VPHOOK(INetChannel, SendFile, pNetChannel, SH_MEMBER(pHk, &CHookRecord::SendFile), false);
+			m_netChannelHooks.push_back(pHk);
+
+			pHk = new CHookRecord;
+			pHk->pParent = this;
+			pHk->pNetChannel = pNetChannel;
+			pHk->hookId = SH_ADD_VPHOOK(INetChannel, ProcessPacket, pNetChannel, SH_MEMBER(pHk, &CHookRecord::ProcessPacket), false);
+			m_netChannelHooks.push_back(pHk);
 			
-			hookid = SH_ADD_VPHOOK(INetChannel, ProcessPacket, pNetChannel, SH_MEMBER(this, &CHookManager::ProcessPacket), false);
-			nethook.SetHookID(hookid);
-			m_netChannelHooks.push_back(new CVTableHook(nethook));
-			
-			hookid = SH_ADD_VPHOOK(INetChannel, ProcessPacket, pNetChannel, SH_MEMBER(this, &CHookManager::ProcessPacket_Post), true);
-			nethook.SetHookID(hookid);
-			m_netChannelHooks.push_back(new CVTableHook(nethook));
+			pHk = new CHookRecord;
+			pHk->pParent = this;
+			pHk->pNetChannel = pNetChannel;
+			pHk->hookId = SH_ADD_VPHOOK(INetChannel, ProcessPacket, pNetChannel, SH_MEMBER(pHk, &CHookRecord::ProcessPacket_Post), true);
+			m_netChannelHooks.push_back(pHk);
 		}
 	}
-}
-
-void CHookManager::ProcessPacket(struct netpacket_s *packet, bool bHasHeader)
-{
-	if (m_netFileReceiveFwd->GetFunctionCount() == 0)
-	{
-		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_INetChannel__ProcessPacket.create_return(MRES_IGNORED);
-		return;
-	}
-
-	m_pActiveNetChannel = META_IFACEPTR(INetChannel);
-	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_INetChannel__ProcessPacket.create_return(MRES_IGNORED);
-	return;
-}
-
-bool CHookManager::FileExists(const char *filename, const char *pathID)
-{
-	if (m_pActiveNetChannel == NULL || m_netFileReceiveFwd->GetFunctionCount() == 0)
-	{
-		// RETURN_META_VALUE(MRES_IGNORED, false);
-		g_SMGlue_IBaseFileSystem__FileExists.create_return(MRES_IGNORED, {false});
-		return false;
-	}
-
-	bool ret = SH_CALL(basefilesystemPatch, &IBaseFileSystem::FileExists)(filename, pathID);
-	if (ret == true) /* If the File Exists, the engine historically bails out. */
-	{
-		// RETURN_META_VALUE(MRES_IGNORED, false);
-		g_SMGlue_IBaseFileSystem__FileExists.create_return(MRES_IGNORED, {false});
-		return false;
-	}
-
-	int userid = 0;
-	IClient *pClient = (IClient *)m_pActiveNetChannel->GetMsgHandler();
-	if (pClient != NULL)
-	{
-		userid = pClient->GetUserID();
-	}
-
-	cell_t res = Pl_Continue;
-	m_netFileReceiveFwd->PushCell(playerhelpers->GetClientOfUserId(userid));
-	m_netFileReceiveFwd->PushString(filename);
-	m_netFileReceiveFwd->Execute(&res);
-
-	if (res != Pl_Continue)
-	{
-		// RETURN_META_VALUE(MRES_SUPERCEDE, true);
-		g_SMGlue_IBaseFileSystem__FileExists.create_return(MRES_SUPERCEDE, {true});
-		return true;
-	}
-
-	// RETURN_META_VALUE(MRES_IGNORED, false);
-	g_SMGlue_IBaseFileSystem__FileExists.create_return(MRES_IGNORED, {false});
-	return false;
-}
-
-void CHookManager::ProcessPacket_Post(struct netpacket_s* packet, bool bHasHeader)
-{
-	m_pActiveNetChannel = NULL;
-	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_INetChannel__ProcessPacket.create_return(MRES_IGNORED);
-	return;
-}
-
-#if (SOURCE_ENGINE >= SE_ALIENSWARM || SOURCE_ENGINE == SE_LEFT4DEAD || SOURCE_ENGINE == SE_LEFT4DEAD2)
-bool CHookManager::SendFile(const char *filename, unsigned int transferID, bool isReplayDemo)
-#else
-bool CHookManager::SendFile(const char *filename, unsigned int transferID)
-#endif
-{
-	if (m_netFileSendFwd->GetFunctionCount() == 0)
-	{
-		// RETURN_META_VALUE(MRES_IGNORED, false);
-		g_SMGlue_INetChannel__SendFile.create_return(MRES_IGNORED, {false});
-		return false;
-	}
-
-	INetChannel *pNetChannel = META_IFACEPTR(INetChannel);
-	if (pNetChannel == NULL)
-	{
-		// RETURN_META_VALUE(MRES_IGNORED, false);
-		g_SMGlue_INetChannel__SendFile.create_return(MRES_IGNORED, {false});
-		return false;
-	}
-
-	int userid = 0;
-	IClient *pClient = (IClient *)pNetChannel->GetMsgHandler();
-	if (pClient != NULL)
-	{
-		userid = pClient->GetUserID();
-	}
-
-	cell_t res = Pl_Continue;
-	m_netFileSendFwd->PushCell(playerhelpers->GetClientOfUserId(userid));
-	m_netFileSendFwd->PushString(filename);
-	m_netFileSendFwd->Execute(&res);
-
-	if (res != Pl_Continue)
-	{
-		/* Mimic the Engine. */
-#if (SOURCE_ENGINE >= SE_ALIENSWARM || SOURCE_ENGINE == SE_LEFT4DEAD || SOURCE_ENGINE == SE_LEFT4DEAD2)
-		pNetChannel->DenyFile(filename, transferID, isReplayDemo);
-#else
-		pNetChannel->DenyFile(filename, transferID);
-#endif
-		// RETURN_META_VALUE(MRES_SUPERCEDE, false);
-		g_SMGlue_INetChannel__SendFile.create_return(MRES_SUPERCEDE, {false});
-		return false;
-	}
-
-	// RETURN_META_VALUE(MRES_IGNORED, false);
-	g_SMGlue_INetChannel__SendFile.create_return(MRES_IGNORED, {false});
-	return false;
 }
 
 #if !defined CLIENTVOICE_HOOK_SUPPORT

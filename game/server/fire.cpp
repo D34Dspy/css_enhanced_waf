@@ -1268,7 +1268,7 @@ void CEnvFireSource::Spawn()
 void CEnvFireSource::Think()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 	if ( !m_bEnabled )
 		return;
@@ -1374,7 +1374,7 @@ void CEnvFireSensor::Spawn()
 void CEnvFireSensor::Think()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 	if ( !m_bEnabled )
 		return;

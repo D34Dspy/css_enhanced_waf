@@ -184,7 +184,7 @@ void CGameWeaponManager::Spawn()
 void CGameWeaponManager::Think()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 	int i;
 

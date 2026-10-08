@@ -1464,7 +1464,7 @@ int CPointCommentaryNode::UpdateTransmitState( void )
 void CPointCommentaryNode::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
 #endif
 	// Are we already marked for transmission?
 	if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
@@ -1634,7 +1634,7 @@ void CCommentaryAuto::Spawn(void)
 void CCommentaryAuto::Think(void)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 	if ( g_CommentarySystem.CommentaryWasEnabledMidGame() )
 	{

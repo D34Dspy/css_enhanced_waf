@@ -19,6 +19,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -122,7 +126,17 @@ KeyValues* CGameEvent::GetDataKeys()
 CGameEventManager::CGameEventManager()
 {
 	Reset();
+#ifdef WAF_USE_SOURCEMOD == 1
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
 }
+
+#ifdef WAF_USE_SOURCEMOD == 1
+CSourcemodGlueInterface* CGameEventManager::GetSourcemodGlue()
+{
+	return m_pSourcemodGlue;
+}
+#endif
 
 CGameEventManager::~CGameEventManager()
 {
@@ -350,13 +364,10 @@ IGameEvent *CGameEventManager::CreateEvent( const char *name, bool bForce )
 	return new CGameEvent ( descriptor );
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
-#include <glue.hpp>
-#endif
 bool CGameEventManager::FireEvent( IGameEvent *event, bool bServerOnly )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IGameEventManager2__FireEvent.invoke(this, event, bServerOnly);
+	GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke(this, event, bServerOnly);
 #endif
 	return FireEventIntern( event, bServerOnly, false );
 }

@@ -20,9 +20,9 @@ def configure(conf):
 	configure_vars(conf, PROJECT_NAME) # Todo specify Windows
 
 def build(bld):
-	source = ['timeleft.cpp', 'extension.cpp', 'RegNatives.cpp', 'natives.cpp', 'util_cstrike.cpp', 'forwards.cpp', 'rulesfix.cpp', '../sourcemod_CDetour/detours.cpp', '../public/sourcemod/smsdk_ext.cpp', '../sourcemod_base/source_engine_wrapper.cpp']
+	source = ['timeleft.cpp', 'extension.cpp', 'RegNatives.cpp', 'natives.cpp', 'util_cstrike.cpp', 'forwards.cpp', 'forwards_hooks.cpp', 'rulesfix.cpp', '../sourcemod_CDetour/detours.cpp', '../public/sourcemod/smsdk_ext.cpp', '../sourcemod_base/source_engine_wrapper.cpp']
 
-	includes, defines, libs = [], [], []
+	includes, defines, libs = ['../public', '../game/shared', '../game/server', '../game/server/cstrike', '../game/shared/cstrike', '../public/game/shared'], [], ['game/server']
 	build_vars(bld, includes, defines, libs, PROJECT_NAME) # Todo specify Windows
 
 	install_path = bld.env.LIBDIR

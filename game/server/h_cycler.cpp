@@ -131,7 +131,7 @@ void CCycler::Spawn( )
 void CCycler::Think( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 	SetNextThink( gpGlobals->curtime + 0.1f );
 
@@ -387,7 +387,7 @@ void CWreckage::Precache( )
 void CWreckage::Think( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 	StudioFrameAdvance( );
 	SetNextThink( gpGlobals->curtime + 0.2 );
@@ -498,7 +498,7 @@ bool CBlendingCycler::KeyValue( const char *szKeyName, const char *szValue )
 void CBlendingCycler::Think( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 	SetNextThink( gpGlobals->curtime + 0.1f );
 

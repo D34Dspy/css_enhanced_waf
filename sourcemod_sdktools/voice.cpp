@@ -134,7 +134,7 @@ void SDKTools::OnClientCommand(edict_t *pEntity)
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_IGNORED);
+	serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.create_return(MRES_IGNORED);
 	return;
 }
 
@@ -143,39 +143,39 @@ bool SDKTools::OnSetClientListening(int iReceiver, int iSender, bool bListen)
 	if (g_ClientMutes[iReceiver][iSender])
 	{
 		// RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, bListen, &IVoiceServer::SetClientListening, (iReceiver, iSender, false));
-		g_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
-		g_SMGlue_IVoiceServer__SetClientListening.invoke(g_SMGlue_IVoiceServer__SetClientListening.candidate(), iReceiver, iSender, false);
+		voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
+		voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.invoke(voiceserver, iReceiver, iSender, false);
 		return bListen;
 	}
 
 	if (g_VoiceFlags[iSender] & SPEAK_MUTED)
 	{
 		// RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, bListen, &IVoiceServer::SetClientListening, (iReceiver, iSender, false));
-		g_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
-		g_SMGlue_IVoiceServer__SetClientListening.invoke(g_SMGlue_IVoiceServer__SetClientListening.candidate(), iReceiver, iSender, false);
+		voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
+		voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.invoke(voiceserver, iReceiver, iSender, false);
 		return bListen;
 	}
 
 	if (g_VoiceMap[iReceiver][iSender] == Listen_No)
 	{
 		// RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, bListen, &IVoiceServer::SetClientListening, (iReceiver, iSender, false));
-		g_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
-		g_SMGlue_IVoiceServer__SetClientListening.invoke(g_SMGlue_IVoiceServer__SetClientListening.candidate(), iReceiver, iSender, false);
+		voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
+		voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.invoke(voiceserver, iReceiver, iSender, false);
 		return bListen;
 	}
 	else if (g_VoiceMap[iReceiver][iSender] == Listen_Yes)
 	{
 		// RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, bListen, &IVoiceServer::SetClientListening, (iReceiver, iSender, true));
-		g_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
-		g_SMGlue_IVoiceServer__SetClientListening.invoke(g_SMGlue_IVoiceServer__SetClientListening.candidate(), iReceiver, iSender, false);
+		voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
+		voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.invoke(voiceserver, iReceiver, iSender, false);
 		return bListen;
 	}
 
 	if ((g_VoiceFlags[iSender] & SPEAK_ALL) || (g_VoiceFlags[iReceiver] & SPEAK_LISTENALL))
 	{
 		// RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, bListen, &IVoiceServer::SetClientListening, (iReceiver, iSender, true));
-		g_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
-		g_SMGlue_IVoiceServer__SetClientListening.invoke(g_SMGlue_IVoiceServer__SetClientListening.candidate(), iReceiver, iSender, false);
+		voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
+		voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.invoke(voiceserver, iReceiver, iSender, false);
 		return bListen;
 	}
 
@@ -192,15 +192,15 @@ bool SDKTools::OnSetClientListening(int iReceiver, int iSender, bool bListen)
 			if (pRInfo && pSInfo && pRInfo->GetTeamIndex() == pSInfo->GetTeamIndex())
 			{
 				// RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, bListen, &IVoiceServer::SetClientListening, (iReceiver, iSender, true));
-				g_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
-				g_SMGlue_IVoiceServer__SetClientListening.invoke(g_SMGlue_IVoiceServer__SetClientListening.candidate(), iReceiver, iSender, true);
+				voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
+				voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.invoke(voiceserver, iReceiver, iSender, true);
 				return bListen;
 			}
 		}
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, bListen);
-	g_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
+	voiceserver->GetSourcemodGlue()->l_SMGlue_IVoiceServer__SetClientListening.create_return(MRES_IGNORED, {bListen});
 	return bListen;
 }
 

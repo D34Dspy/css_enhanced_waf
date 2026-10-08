@@ -250,6 +250,10 @@ ConVar cl_autohelp(
 
 #else
 
+	#ifdef WAF_USE_SOURCEMOD == 1
+	#include "glue.hpp"
+	#endif
+
 	// longest the intermission can last, in seconds
 	#define MAX_INTERMISSION_TIME 120
 
@@ -4080,7 +4084,14 @@ ConVar cl_autohelp(
 		return true;
 	}
 
-	void CCSGameRules::TerminateRound(float tmDelay, int iReason )
+	#if WAF_USE_SOURCEMOD == 1
+	void SM_CCSGameRules__TerminateRoundOriginal(CCSGameRules* pGameRules, float delay, int reason) 
+	{
+		pGameRules->TerminateRoundOriginal(delay, reason);
+	}
+	#endif
+
+	void CCSGameRules::TerminateRoundOriginal( float tmDelay, int iReason )
 	{
 		variant_t emptyVariant;
 		int iWinnerTeam = WINNER_NONE;
@@ -4278,6 +4289,16 @@ ConVar cl_autohelp(
 			UTIL_LogPrintf("World triggered \"Intermission_Time_Limit\"\n");
 			GoToIntermission();
 		}
+
+	}
+
+	void CCSGameRules::TerminateRound(float tmDelay, int iReason )
+	{
+		#ifdef WAF_USE_SOURCEMOD
+		g_SMGlue_CCSGameRules__TerminateRound.invoke(this, this, tmDelay, iReason);
+		#endif
+
+		TerminateRoundOriginal(tmDelay, iReason);
 	}
 
 	//=============================================================================

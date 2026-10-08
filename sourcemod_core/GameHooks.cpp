@@ -25,13 +25,13 @@
 // exceptions, found in LICENSE.txt (as of this writing, version JULY-31-2007),
 // or <http://www.sourcemod.net/license.php>.
 #include "GameHooks.h"
-#include "glue.hpp"
 #include "sourcemm_api.h"
 #include "sourcemod.h"
 #include "ConVarManager.h"
 #include "command_args.h"
 #include "provider.h"
 
+#include "glue.hpp"
 #if SOURCE_ENGINE >= SE_ORANGEBOX
 int Hk_ICvar__CallGlobalChangeCallback;
 // SH_DECL_HOOK3_void(ICvar, CallGlobalChangeCallbacks, SH_NOATTRIB, false, ConVar *, const char *, float);
@@ -66,7 +66,8 @@ void GameHooks::Start()
 {
 	// Hook ICvar::CallGlobalChangeCallbacks.
 #if SOURCE_ENGINE >= SE_ORANGEBOX
-	hooks_ += SMGlue_MkHook4_ICvar__CallGlobalChangeCallbacks(SH_STATIC(OnConVarChanged), icvar);
+	hk_call_global_change_cb_ += SMGlue_MkHook4_ICvar__CallGlobalChangeCallbacks(SH_STATIC(OnConVarChanged), icvar);
+	// hooks_ += SMGlue_MkHook4_ICvar__CallGlobalChangeCallbacks(SH_STATIC(OnConVarChanged), icvar);
 	// hooks_ += SH_ADD_HOOK(ICvar, CallGlobalChangeCallbacks, icvar, SH_STATIC(OnConVarChanged), false);
 #else
 	hooks_ += SH_ADD_HOOK(ICvar, CallGlobalChangeCallback, icvar, SH_STATIC(OnConVarChanged), false);
@@ -80,7 +81,8 @@ void GameHooks::Start()
 	}
 #endif
 
-	hooks_ += SMGlue_MkHook4_IServerGameClients__SetCommandClient(SH_MEMBER(this, &GameHooks::SetCommandClient), serverClients);
+	hk_set_command_client_ += SMGlue_MkHook4_IServerGameClients__SetCommandClient(SH_MEMBER(this, &GameHooks::SetCommandClient), serverClients);
+	// hooks_ += SMGlue_MkHook4_IServerGameClients__SetCommandClient(SH_MEMBER(this, &GameHooks::SetCommandClient), serverClients);
 	// hooks_ += SH_ADD_HOOK(IServerGameClients, SetCommandClient, serverClients, , false);
 }
 
@@ -93,7 +95,7 @@ void GameHooks::OnVSPReceived()
 		return;
 
 #if SOURCE_ENGINE != SE_DARKMESSIAH
-	hooks_ += SMGlue_MkHook4_IServerPluginCallbacks__OnQueryCvarValueFinished(SH_MEMBER(this, &GameHooks::OnQueryCvarValueFinished), vsp_interface);
+	hk_query_cvar_val_finished_ += SMGlue_MkHook4_IServerPluginCallbacks__OnQueryCvarValueFinished(SH_MEMBER(this, &GameHooks::OnQueryCvarValueFinished), vsp_interface);
 	// hooks_ += SH_ADD_HOOK(IServerPluginCallbacks, OnQueryCvarValueFinished, vsp_interface, SH_MEMBER(this, &GameHooks::OnQueryCvarValueFinished), false);
 	client_cvar_query_mode_ = ClientCvarQueryMode::VSP;
 #endif
@@ -101,9 +103,17 @@ void GameHooks::OnVSPReceived()
 
 void GameHooks::Shutdown()
 {
-	for (size_t i = 0; i < hooks_.size(); i++)
-		SH_REMOVE_HOOK_ID(hooks_[i]);
-	hooks_.clear();
+	for (size_t i = 0; i < hk_call_global_change_cb_.size(); i++)
+		SMGlue_RmHook4_ICvar__CallGlobalChangeCallback(hk_call_global_change_cb_[i], icvar);
+	hk_call_global_change_cb_.clear();
+
+	for (size_t i = 0; i < hk_set_command_client_.size(); i++)
+		SMGlue_RmHook4_IServerGameClients__SetCommandClient(hk_set_command_client_[i], serverClients);
+	hk_set_command_client_.clear();
+
+	for (size_t i = 0; i < hk_query_cvar_val_finished_.size(); i++)
+		SMGlue_RmHook4_IServerPluginCallbacks__OnQueryCvarValueFinished(hk_query_cvar_val_finished_[i], vsp_interface);
+	hk_query_cvar_val_finished_.clear();
 
 	client_cvar_query_mode_ = ClientCvarQueryMode::Unavailable;
 }
@@ -177,7 +187,7 @@ void CommandHook::Dispatch(DISPATCH_ARGS)
 	if (rval)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_ConCommand__Dispatch.create_return(MRES_SUPERCEDE);
+		cmd_->GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.create_return(MRES_SUPERCEDE);
 		return;
 	}
 }

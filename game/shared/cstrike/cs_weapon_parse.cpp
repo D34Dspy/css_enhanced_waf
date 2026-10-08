@@ -277,9 +277,28 @@ CCSWeaponInfo::CCSWeaponInfo()
 	m_szAddonModel[0] = 0;
 }
 
-int	CCSWeaponInfo::GetWeaponPrice( void ) const
+#ifdef WAF_USE_SOURCEMOD == 1
+#include "glue.hpp"
+#endif
+
+int	CCSWeaponInfo::GetWeaponPriceOriginal( void ) const
 {
 	return m_iWeaponPrice;
+}
+
+#if WAF_USE_SOURCEMOD == 1
+int SM_CCSWeaponInfo__GetWeaponPriceOriginal(CCSWeaponInfo* pWeaponInfo) {
+	return pWeaponInfo->GetWeaponPriceOriginal();
+}
+#endif
+
+int	CCSWeaponInfo::GetWeaponPrice( void ) const
+{
+#ifdef WAF_USE_SOURCEMOD == 1
+	auto this_ = const_cast<CCSWeaponInfo*>(this);
+	g_SMGlue_CCSWeaponInfo__GetWeaponPrice.invoke(this_, this_);
+#endif
+	return GetWeaponPriceOriginal();
 }
 
 int	CCSWeaponInfo::GetDefaultPrice( void )
