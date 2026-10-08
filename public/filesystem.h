@@ -500,9 +500,14 @@ public:
 // a named set of files.
 #define BASEFILESYSTEM_INTERFACE_VERSION		"VBaseFileSystem011"
 
+class CSourcemodGlueInterface;
+
 abstract_class IBaseFileSystem
 {
 public:
+#ifdef WAF_USE_SOURCEMOD
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+#endif
 	virtual int				Read( void* pOutput, int size, FileHandle_t file ) = 0;
 	virtual int				Write( void const* pInput, int size, FileHandle_t file ) = 0;
 

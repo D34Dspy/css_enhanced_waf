@@ -568,6 +568,33 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CServerGameDLL, IServerGameDLL, INTERFACEVERSI
 // When bumping the version to this interface, check that our assumption is still valid and expose the older version in the same way
 COMPILE_TIME_ASSERT( INTERFACEVERSION_SERVERGAMEDLL_INT == 10 );
 
+#ifdef WAF_USE_SOURCEMOD == 1
+class CGlobalSourcemodGlueBridge : public IGlobalSourcemodGlueInterface {
+	public:
+	virtual void CCSGameRules__TerminateRoundOriginal(CCSGameRules* pGameRules, float delay, int reason) {
+		return SM_CCSGameRules__TerminateRoundOriginal(pGameRules, delay, reason);
+	}
+	virtual int CCSWeaponInfo__GetWeaponPriceOriginal(CCSWeaponInfo* pWeaponInfo){
+		return SM_CCSWeaponInfo__GetWeaponPriceOriginal(pWeaponInfo);
+	}
+};
+CSourcemodGlueInterface* CServerGameDLL::GetSourcemodGlue() 
+{
+	return m_pSourcemodGlue;
+}
+IGlobalSourcemodGlueInterface* CServerGameDLL::GetSourcemodBridge() 
+{
+	return m_pSourcemodBridge;
+}
+#endif
+
+CServerGameDLL::CServerGameDLL() {
+#ifdef WAF_USE_SOURCEMOD == 1
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
+	m_pSourcemodBridge = new CGlobalSourcemodGlueBridge;
+#endif
+}
+
 bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory, 
 		CreateInterfaceFn physicsFactory, CreateInterfaceFn fileSystemFactory, 
 		CGlobalVars *pGlobals)
@@ -945,7 +972,7 @@ bool CServerGameDLL::IsRestoring()
 bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, char const *pOldLevel, char const *pLandmarkName, bool loadGame, bool background )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameDLL__LevelInit.invoke(this, pMapName, pMapEntities, pOldLevel, pLandmarkName, loadGame, background);
+	GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.invoke(this, pMapName, pMapEntities, pOldLevel, pLandmarkName, loadGame, background);
 #endif
 	VPROF("CServerGameDLL::LevelInit");
 
@@ -1089,7 +1116,7 @@ bool g_bCheckForChainedActivate;
 void CServerGameDLL::ServerActivate( edict_t *pEdictList, int edictCount, int clientMax )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameDLL__ServerActivate.invoke(this, pEdictList, edictCount, clientMax);
+	GetSourcemodGlue()->l_SMGlue_IServerGameDLL__ServerActivate.invoke(this, pEdictList, edictCount, clientMax);
 #endif
 	// HACKHACK: UNDONE: We need to redesign the main loop with respect to save/load/server activate
 	if ( g_InRestore )
@@ -1147,7 +1174,7 @@ void CServerGameDLL::ServerActivate( edict_t *pEdictList, int edictCount, int cl
 void CServerGameDLL::GameServerSteamAPIActivated( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameDLL__GameServerSteamAPIActivated.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_IServerGameDLL__GameServerSteamAPIActivated.invoke(this);
 #endif
 
 #ifndef NO_STEAM
@@ -1190,7 +1217,7 @@ ConVar  trace_report( "trace_report", "0" );
 void CServerGameDLL::GameFrame( bool simulating, bool bFinalTick )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameDLL__GameFrame.invoke(this, simulating, bFinalTick);
+	GetSourcemodGlue()->l_SMGlue_IServerGameDLL__GameFrame.invoke(this, simulating, bFinalTick);
 #endif
 	VPROF( "CServerGameDLL::GameFrame" );
 
@@ -1320,7 +1347,7 @@ void CServerGameDLL::PostClientUpdate( bool simulating, bool bFinalTick )
 void CServerGameDLL::Think( bool finalTick )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameDLL__Think.invoke(this, finalTick);
+	GetSourcemodGlue()->l_SMGlue_IServerGameDLL__Think.invoke(this, finalTick);
 #endif
 	if ( m_fAutoSaveDangerousTime != 0.0f && m_fAutoSaveDangerousTime < gpGlobals->curtime )
 	{
@@ -1346,7 +1373,7 @@ void CServerGameDLL::Think( bool finalTick )
 void CServerGameDLL::OnQueryCvarValueFinished( QueryCvarCookie_t iCookie, edict_t *pPlayerEntity, EQueryCvarValueStatus eStatus, const char *pCvarName, const char *pCvarValue )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameDLL__OnQueryCvarValueFinished.invoke(this, iCookie, pPlayerEntity, eStatus, pCvarName, pCvarValue);
+	GetSourcemodGlue()->l_SMGlue_IServerGameDLL__OnQueryCvarValueFinished.invoke(this, iCookie, pPlayerEntity, eStatus, pCvarName, pCvarValue);
 #endif
 }
 
@@ -1355,7 +1382,7 @@ void CServerGameDLL::OnQueryCvarValueFinished( QueryCvarCookie_t iCookie, edict_
 void CServerGameDLL::LevelShutdown( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameDLL__LevelShutdown.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelShutdown.invoke(this);
 #endif
 #ifndef NO_STEAM
 	IGameSystem::LevelShutdownPreClearSteamAPIContextAllSystems();
@@ -1408,7 +1435,7 @@ ServerClass* CServerGameDLL::GetAllServerClasses()
 const char *CServerGameDLL::GetGameDescription( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameDLL__GetGameDescription.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_IServerGameDLL__GetGameDescription.invoke(this);
 #endif
 	return ::GetGameDescription();
 }
@@ -1866,7 +1893,7 @@ IServerGCLobby *CServerGameDLL::GetServerGCLobby()
 void CServerGameDLL::SetServerHibernation( bool bHibernating )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameDLL__SetServerHibernation.invoke(this, bHibernating);
+	GetSourcemodGlue()->l_SMGlue_IServerGameDLL__SetServerHibernation.invoke(this, bHibernating);
 #endif
 	m_bIsHibernating = bHibernating;
 
@@ -2639,6 +2666,19 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 //	Msg("A:%i, N:%i, F: %i, P: %i\n", always, dontSend, fullCheck, PVS );
 }
 
+CServerGameClients::CServerGameClients()
+{
+#if WAF_USE_SOURCEMOD == 1
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
+}
+	
+#ifdef WAF_USE_SOURCEMOD == 1
+CSourcemodGlueInterface* CServerGameClients::GetSourcemodGlue() 
+{
+	return m_pSourcemodGlue;
+}
+#endif
 
 CServerGameClients g_ServerGameClients;
 // INTERFACEVERSION_SERVERGAMECLIENTS_VERSION_3 is compatible with the latest since we're only adding things to the end, so expose that as well.
@@ -2659,7 +2699,7 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CServerGameClients, IServerGameClients, INTERF
 bool CServerGameClients::ClientConnect( edict_t *pEdict, const char *pszName, const char *pszAddress, char *reject, int maxrejectlen )
 {	
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameClients__ClientConnect.invoke(this, pEdict, pszName, pszAddress, reject, maxrejectlen);
+	GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientConnect.invoke(this, pEdict, pszName, pszAddress, reject, maxrejectlen);
 #endif
 	if ( !g_pGameRules )
 		return false;
@@ -2733,7 +2773,7 @@ void CServerGameClients::ClientSpawned( edict_t *pPlayer )
 void CServerGameClients::ClientDisconnect( edict_t *pEdict )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameClients__ClientDisconnect.invoke(this, pEdict);
+	GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientDisconnect.invoke(this, pEdict);
 #endif
 	extern bool	g_fGameOver;
 
@@ -2798,7 +2838,7 @@ void CServerGameClients::ClientDisconnect( edict_t *pEdict )
 void CServerGameClients::ClientPutInServer( edict_t *pEntity, const char *playername )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameClients__ClientPutInServer.invoke(this, pEntity, playername);
+	GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientPutInServer.invoke(this, pEntity, playername);
 #endif
 	if ( g_pClientPutInServerOverride )
 		g_pClientPutInServerOverride( pEntity, playername );
@@ -2809,7 +2849,7 @@ void CServerGameClients::ClientPutInServer( edict_t *pEntity, const char *player
 void CServerGameClients::ClientCommand( edict_t *pEntity, const CCommand &args )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameClients__ClientCommand.invoke(this, pEntity, const_cast<CCommand*>(&args));
+	GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommand.invoke(this, pEntity, const_cast<CCommand*>(&args));
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( GetContainingEntity( pEntity ) );
 	::ClientCommand( pPlayer, args );
@@ -2824,7 +2864,7 @@ void CServerGameClients::ClientCommand( edict_t *pEntity, const CCommand &args )
 void CServerGameClients::ClientSettingsChanged( edict_t *pEdict )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameClients__ClientSettingsChanged.invoke(this, pEdict);
+	GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientSettingsChanged.invoke(this, pEdict);
 #endif
 	// Is the client spawned yet?
 	if ( !pEdict->GetUnknown() )
@@ -3125,7 +3165,7 @@ void CServerGameClients::PostClientMessagesSent_DEPRECIATED( void )
 void CServerGameClients::SetCommandClient( int index )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameClients__SetCommandClient.invoke(this, index);
+	GetSourcemodGlue()->l_SMGlue_IServerGameClients__SetCommandClient.invoke(this, index);
 #endif
 	g_nCommandClientIndex = index;
 }
@@ -3230,7 +3270,7 @@ void CServerGameClients::NetworkIDValidated( const char *pszUserName, const char
 void CServerGameClients::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValues )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IServerGameClients__ClientCommandKeyValues.invoke(this, pEntity,pKeyValues);
+	GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientCommandKeyValues.invoke(this, pEntity,pKeyValues);
 #endif
 	if ( !pKeyValues )
 		return;

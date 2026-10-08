@@ -7,6 +7,7 @@
 #include "cbase.h"
 #include "edict.h"
 #include "globalstate.h"
+#include "glue.hpp"
 #include "isaverestore.h"
 #include "client.h"
 #include "decals.h"
@@ -335,6 +336,9 @@ CBaseEntity::CBaseEntity( bool bServerOnly )
 	m_vecAbsVelocity.Init();
 #endif
 
+#if WAF_USE_SOURCEMOD == 1
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
 	m_bAlternateSorting = false;
 	m_CollisionGroup = COLLISION_GROUP_NONE;
 	m_iParentAttachment = 0;
@@ -393,6 +397,15 @@ CBaseEntity::CBaseEntity( bool bServerOnly )
 	m_flSimulationTime = gpGlobals->curtime;
 	m_nSimulatedTickCount = 0;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: Expose Sourcemod Glue
+//-----------------------------------------------------------------------------
+#if WAF_USE_SOURCEMOD == 1
+CSourcemodGlueInterface* CBaseEntity::GetSourcemodGlue() {
+	return m_pSourcemodGlue;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Scale up our physics hull and test against the new one
@@ -2091,7 +2104,7 @@ int CBaseEntity::ObjectCaps( void )
 void CBaseEntity::StartTouch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__StartTouch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
 #endif
 	// notify parent
 	if ( m_pParent != NULL )
@@ -2101,7 +2114,7 @@ void CBaseEntity::StartTouch( CBaseEntity *pOther )
 void CBaseEntity::Touch( CBaseEntity *pOther )
 { 
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__Touch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
 #endif
 	if ( m_pfnTouch ) 
 		(this->*m_pfnTouch)( pOther );
@@ -2114,7 +2127,7 @@ void CBaseEntity::Touch( CBaseEntity *pOther )
 void CBaseEntity::EndTouch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__EndTouch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
 #endif
 	// notify parent
 	if ( m_pParent != NULL )
@@ -2134,7 +2147,7 @@ void CBaseEntity::EndTouch( CBaseEntity *pOther )
 void CBaseEntity::Blocked( CBaseEntity *pOther )
 { 
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 	if ( m_pfnBlocked )
 	{
@@ -2161,7 +2174,7 @@ void CBaseEntity::Blocked( CBaseEntity *pOther )
 void CBaseEntity::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) 
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	if ( m_pfnUse != NULL ) 
 	{
@@ -3555,7 +3568,7 @@ int CBaseEntity::ShouldTransmit( const CCheckTransmitInfo *pInfo )
 void CBaseEntity::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
 #endif
 	int index = entindex();
 

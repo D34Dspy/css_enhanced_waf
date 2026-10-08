@@ -21,9 +21,14 @@ class	INetChannelInfo;
 typedef struct netpacket_s netpacket_t;
 typedef struct netadr_s	netadr_t;
 
+class CSourcemodGlueInterface;
+
 abstract_class INetChannel : public INetChannelInfo
 {
 public:
+#ifdef WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+#endif
 	virtual	~INetChannel( void ) {};
 
 	virtual void	SetDataRate(float rate) = 0;

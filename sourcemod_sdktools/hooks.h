@@ -40,8 +40,33 @@ class CUserCmd;
 #include "iclient.h"
 #include "vtable_hook_helper.h"
 
+class CHookManager;
+
+class CHookRecord 
+{
+public:
+#if (SOURCE_ENGINE >= SE_ALIENSWARM || SOURCE_ENGINE == SE_LEFT4DEAD || SOURCE_ENGINE == SE_LEFT4DEAD2)
+	bool SendFile(const char *filename, unsigned int transferID, bool isReplayDemo);
+#else
+	bool SendFile(const char *filename, unsigned int transferID);
+#endif
+	bool FileExists(const char *filename, const char *pathID);
+	void ProcessPacket(struct netpacket_s *packet, bool bHasHeader);
+	void ProcessPacket_Post(struct netpacket_s *packet, bool bHasHeader);
+
+	void PlayerRunCmd(CUserCmd *ucmd, IMoveHelper *moveHelper);
+	void PlayerRunCmdPost(CUserCmd *ucmd, IMoveHelper *moveHelper);
+
+	INetChannel* pNetChannel;
+	CBaseEntity* pEntity;
+
+	CHookManager* pParent;
+	int hookId;
+};
+
 class CHookManager : IPluginsListener, IFeatureProvider
 {
+	friend CHookRecord;
 public:
 	CHookManager();
 	void Initialize();
@@ -51,21 +76,11 @@ public:
 	void OnClientConnected(int client);
 #endif
 	void OnClientPutInServer(int client);
-	void PlayerRunCmd(CUserCmd *ucmd, IMoveHelper *moveHelper);
-	void PlayerRunCmdPost(CUserCmd *ucmd, IMoveHelper *moveHelper);
 	void OnMapStart();
 public: /* NetChannel/Related Hooks */
-	bool FileExists(const char *filename, const char *pathID);
-#if (SOURCE_ENGINE >= SE_ALIENSWARM || SOURCE_ENGINE == SE_LEFT4DEAD || SOURCE_ENGINE == SE_LEFT4DEAD2)
-	bool SendFile(const char *filename, unsigned int transferID, bool isReplayDemo);
-#else
-	bool SendFile(const char *filename, unsigned int transferID);
-#endif
 #if !defined CLIENTVOICE_HOOK_SUPPORT
 	bool ProcessVoiceData(CLC_VoiceData *msg);
 #endif
-	void ProcessPacket(struct netpacket_s *packet, bool bHasHeader);
-	void ProcessPacket_Post(struct netpacket_s *packet, bool bHasHeader);
 public: //IPluginsListener
 	void OnPluginLoaded(IPlugin *plugin);
 	void OnPluginUnloaded(IPlugin *plugin);
@@ -82,9 +97,9 @@ private:
 	IForward *m_usercmdsPostFwd;
 	IForward *m_netFileSendFwd;
 	IForward *m_netFileReceiveFwd;
-	std::vector<CVTableHook *> m_runUserCmdHooks;
-	std::vector<CVTableHook *> m_runUserCmdPostHooks;
-	std::vector<CVTableHook *> m_netChannelHooks;
+	std::vector<CHookRecord *> m_runUserCmdHooks;
+	std::vector<CHookRecord *> m_runUserCmdPostHooks;
+	std::vector<CHookRecord *> m_netChannelHooks;
 #if !defined CLIENTVOICE_HOOK_SUPPORT
 	std::vector<CVTableHook *> m_netProcessVoiceData;
 #endif

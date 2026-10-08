@@ -217,12 +217,13 @@ public:
         memcpy(&param,&cpy, sizeof(ParamSet));
 
         rec.stopDelegation = false;
+        rec.parametersAltered = false;
         for(int i = rec.position_router; i < routers.Count(); i++) {
             auto& router = routers.Element(i);
             for (int j = rec.position_route; j < router.routes.Count(); j++)
             {
                 auto& route = router.routes.Element(j);
-                if(route.keyIface != iface || route.keyIface != nullptr)
+                if(route.keyIface != iface && route.keyIface != nullptr)
                     continue;
                 route.delegate(params...);
                 if(rec.stopDelegation)
@@ -317,6 +318,7 @@ public:
 
     ParamSet& parameters() { return param; }
     bool parameters_altered() { return paramAltered; }
+    void alter_parameters() { paramAltered = true; }
     CInterface* candidate() { return curr; }
 };
 #endif // !ROUTER_HPP

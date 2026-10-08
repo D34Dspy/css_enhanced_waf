@@ -50,7 +50,6 @@ enum ConnectionStatus_t
 	CONNECTION_STATE_CONNECTED,
 };
 
-
 //-----------------------------------------------------------------------------
 // This interface encompasses a one-way communication path between two machines
 //-----------------------------------------------------------------------------

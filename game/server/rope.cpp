@@ -434,7 +434,7 @@ void CRopeKeyframe::DieAtNextRest( void )
 void CRopeKeyframe::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
 #endif
 	if ( !pInfo->m_pTransmitEdict->Get( entindex() ) )
 	{	

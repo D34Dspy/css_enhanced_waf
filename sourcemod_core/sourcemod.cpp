@@ -32,8 +32,6 @@
 #include <stdio.h>
 #include "IShareSys.h"
 #include "am-string.h"
-#include "glue.hpp"
-#include "sourcehook.h"
 #include "sourcemod.h"
 #include "sourcemm_api.h"
 #include <sh_string.h>
@@ -52,6 +50,8 @@
 #include <bridge/include/IScriptManager.h>
 #include <bridge/include/IProviderCallbacks.h>
 #include <bridge/include/ILogger.h>
+
+#include "glue.hpp"
 
 SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, false, bool, const char *, const char *, const char *, const char *, bool, bool);
 SH_DECL_HOOK0_void(IServerGameDLL, LevelShutdown, SH_NOATTRIB, false);
@@ -440,13 +440,13 @@ bool SourceModBase::LevelInit(char const *pMapName, char const *pMapEntities, ch
 	{
 		logger->LogError("Map entity lump parsing for %s failed with error code %d on position %d", pMapName, parseError, position);
 		// RETURN_META_VALUE(MRES_IGNORED, true);
-		g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+		engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
 		return true;
 	}
 
 	// RETURN_META_VALUE_NEWPARAMS(MRES_HANDLED, true, &IServerGameDLL::LevelInit, (pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background));
-	g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
-	g_SMGlue_IServerGameDLL__LevelInit.invoke(g_SMGlue_IServerGameDLL__LevelInit.candidate(), pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background);
+	engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+	engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.invoke(gamedll, pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background);
 	return true;
 }
 
@@ -456,11 +456,11 @@ const char *SourceModBase::GetMapEntitiesString()
 	if (pNewMapEntities != nullptr)
 	{
 		// RETURN_META_VALUE(MRES_SUPERCEDE, pNewMapEntities);
-		g_SMGlue_IVEngineServer__GetMapEntitiesString.create_return(MRES_SUPERCEDE, {pNewMapEntities});
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__GetMapEntitiesString.create_return(MRES_SUPERCEDE, {pNewMapEntities});
 		return pNewMapEntities;
 	}
 	// RETURN_META_VALUE(MRES_IGNORED, NULL);
-	g_SMGlue_IVEngineServer__GetMapEntitiesString.create_return(MRES_IGNORED, {nullptr});
+	engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__GetMapEntitiesString.create_return(MRES_IGNORED, {nullptr});
 	return nullptr;
 }
 
@@ -554,10 +554,10 @@ void SourceModBase::DoGlobalPluginLoads()
 		"sourcemodbintools", 
 		"sourcemodsdktools", 
 		"sourcemodcurl", 
+		"sourcemodsdkhooks", 
 		"sourcemoddhooks", 
 		"sourcemodgeoip", 
 		"sourcemodregex", 
-		"sourcemodsdkhooks", 
 		"sourcemodstructs", 
 		"sourcemodtopmenus", 
 	};

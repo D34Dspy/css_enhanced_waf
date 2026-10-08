@@ -21,6 +21,8 @@
 #include "iplayerinfo.h"
 #include <filesystem.h>
 
+#include "glue.hpp"
+
 using namespace SourceMM;
 
 /**

@@ -164,7 +164,7 @@ void C_CHostage::RecvProxy_Rescued( const CRecvProxyData *pData, void *pStruct, 
 
 int C_CHostage::GetMaxHealth( void ) const { 
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__GetMaxHealth.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.invoke(this);
 #endif
 	return m_iMaxHealth; 
 }
@@ -219,7 +219,7 @@ C_CHostage::~C_CHostage()
 void C_CHostage::Spawn( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Spawn.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke(this);
 #endif
 	m_leader = NULL;
 	m_blinkTimer.Invalidate();

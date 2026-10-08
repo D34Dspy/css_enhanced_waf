@@ -174,7 +174,7 @@ bool CColorCorrectionVolume::PassesTriggerFilters( CBaseEntity *pEntity )
 void CColorCorrectionVolume::StartTouch( CBaseEntity *pEntity )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__StartTouch.invoke(this, pEntity);
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pEntity);
 #endif
 	m_LastEnterTime = gpGlobals->curtime;
 	m_LastEnterWeight = m_Weight;
@@ -183,7 +183,7 @@ void CColorCorrectionVolume::StartTouch( CBaseEntity *pEntity )
 void CColorCorrectionVolume::EndTouch( CBaseEntity *pEntity )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__EndTouch.invoke(this, pEntity);
+	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pEntity);
 #endif
 	m_LastExitTime = gpGlobals->curtime;
 	m_LastExitWeight = m_Weight;

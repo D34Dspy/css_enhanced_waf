@@ -85,6 +85,8 @@ struct bbox_t
 	Vector maxs;
 };
 
+class IGlobalSourcemodGlueInterface;
+
 //-----------------------------------------------------------------------------
 // Purpose: Interface the engine exposes to the game DLL
 //-----------------------------------------------------------------------------
@@ -449,6 +451,8 @@ public:
 	virtual void SetPausedForced( bool bPaused, float flDuration = -1.f ) = 0;
 	virtual void SetSendTableCurrentEntityIndex(int index) = 0;
     virtual int GetSendTableCurrentEntityIndex() = 0;
+
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
 };
 
 // These only differ in new items added to the end
@@ -637,6 +641,11 @@ public:
 	virtual bool			IsManualMapChangeOkay( const char **pszReason ) = 0;
 
 	virtual void			PostClientUpdate( bool simulating, bool bFinalTick ) = 0;
+
+#ifdef WAF_USE_SOURCEMOD
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+	virtual IGlobalSourcemodGlueInterface* GetSourcemodBridge() = 0;
+#endif
 };
 
 typedef IServerGameDLL IServerGameDLL008;
@@ -749,6 +758,8 @@ public:
 
 	// Hook for player spawning
 	virtual void			ClientSpawned( edict_t *pPlayer ) = 0;
+
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
 };
 
 typedef IServerGameClients IServerGameClients003;

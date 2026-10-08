@@ -57,7 +57,7 @@ static void HookLogPrint(const char *message)
 	if (stopped)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_IVEngineServer__LogPrint.create_return(MRES_SUPERCEDE);
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__LogPrint.create_return(MRES_SUPERCEDE);
 		return;
 	}
 }

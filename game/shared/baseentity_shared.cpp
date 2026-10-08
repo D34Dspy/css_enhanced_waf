@@ -5,8 +5,8 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include "baseentity.h"
 #include "cbase.h"
+#include "baseentity.h"
 
 #include "decals.h"
 #include "effect_dispatch_data.h"
@@ -632,28 +632,6 @@ bool CBaseEntity::GetKeyValue( const char *szKeyName, char *szValue, int iMaxLen
 	}
 
 	return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : collisionGroup - 
-// Output : Returns true on success, false on failure.
-//-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
-#include <glue.hpp>
-#endif
-
-bool CBaseEntity::ShouldCollide( int collisionGroup, int contentsMask ) const
-{
-#ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P2__ShouldCollide.invoke(const_cast<CBaseEntity*>(this), collisionGroup, contentsMask);
-#endif
-	if ( m_CollisionGroup == COLLISION_GROUP_DEBRIS )
-	{
-		if ( ! (contentsMask & CONTENTS_DEBRIS) )
-			return false;
-	}
-	return true;
 }
 
 
@@ -1624,451 +1602,6 @@ public:
 typedef CTraceFilterSimpleList CBulletsTraceFilter;
 #endif
 
-#ifdef WAF_USE_SOURCEMOD == 1
-#include <glue.hpp>
-#endif
-void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
-{
-#ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__FireBullets.invoke(this, const_cast<FireBulletsInfo_t*>(&info));
-#endif
-	static int	tracerCount;
-	trace_t		tr;
-	CAmmoDef*	pAmmoDef	= GetAmmoDef();
-	int			nDamageType	= pAmmoDef->DamageType(info.m_iAmmoType);
-	int			nAmmoFlags	= pAmmoDef->Flags(info.m_iAmmoType);
-	
-	bool bDoServerEffects = true;
-
-#if defined( HL2MP ) && defined( GAME_DLL )
-	bDoServerEffects = false;
-#endif
-
-#if defined( GAME_DLL )
-	if( IsPlayer() )
-	{
-		CBasePlayer *pPlayer = dynamic_cast<CBasePlayer*>(this);
-
-		int rumbleEffect = pPlayer->GetActiveWeapon()->GetRumbleEffect();
-
-		if( rumbleEffect != RUMBLE_INVALID )
-		{
-			if( rumbleEffect == RUMBLE_SHOTGUN_SINGLE )
-			{
-				if( info.m_iShots == 12 )
-				{
-					// Upgrade to double barrel rumble effect
-					rumbleEffect = RUMBLE_SHOTGUN_DOUBLE;
-				}
-			}
-
-			pPlayer->RumbleEffect( rumbleEffect, 0, RUMBLE_FLAG_RESTART );
-		}
-	}
-#endif// GAME_DLL
-
-	int iPlayerDamage = info.m_iPlayerDamage;
-	if ( iPlayerDamage == 0 )
-	{
-		if ( nAmmoFlags & AMMO_INTERPRET_PLRDAMAGE_AS_DAMAGE_TO_PLAYER )
-		{
-			iPlayerDamage = pAmmoDef->PlrDamage( info.m_iAmmoType );
-		}
-	}
-
-	// the default attacker is ourselves
-	CBaseEntity *pAttacker = info.m_pAttacker ? info.m_pAttacker : this;
-
-	// Make sure we don't have a dangling damage target from a recursive call
-	if ( g_MultiDamage.GetTarget() != NULL )
-	{
-		ApplyMultiDamage();
-	}
-	  
-	ClearMultiDamage();
-	g_MultiDamage.SetDamageType( nDamageType | DMG_NEVERGIB );
-
-	Vector vecDir;
-	Vector vecEnd;
-	
-	// Skip multiple entities when tracing
-	CBulletsTraceFilter traceFilter( COLLISION_GROUP_NONE );
-	traceFilter.SetPassEntity( this ); // Standard pass entity for THIS so that it can be easily removed from the list after passing through a portal
-	traceFilter.AddEntityToIgnore( info.m_pAdditionalIgnoreEnt );
-
-#if defined( HL2_EPISODIC ) && defined( GAME_DLL )
-	// FIXME: We need to emulate this same behavior on the client as well -- jdw
-	// Also ignore a vehicle we're a passenger in
-	if ( MyCombatCharacterPointer() != NULL && MyCombatCharacterPointer()->IsInAVehicle() )
-	{
-		traceFilter.AddEntityToIgnore( MyCombatCharacterPointer()->GetVehicleEntity() );
-	}
-#endif // SERVER_DLL
-
-	bool bUnderwaterBullets = ShouldDrawUnderwaterBulletBubbles();
-	bool bStartedInWater = false;
-	if ( bUnderwaterBullets )
-	{
-		bStartedInWater = ( enginetrace->GetPointContents( info.m_vecSrc ) & (CONTENTS_WATER|CONTENTS_SLIME) ) != 0;
-	}
-
-	// Prediction is only usable on players
-	int iSeed = 0;
-	if ( IsPlayer() )
-	{
-		iSeed = CBaseEntity::GetPredictionRandomSeed();
-	}
-
-#if defined( HL2MP ) && defined( GAME_DLL )
-	int iEffectSeed = iSeed;
-#endif
-	//-----------------------------------------------------
-	// Set up our shot manipulator.
-	//-----------------------------------------------------
-	CShotManipulator Manipulator( info.m_vecDirShooting );
-
-	bool bDoImpacts = false;
-	bool bDoTracers = false;
-	
-	float flCumulativeDamage = 0.0f;
-
-	for (int iShot = 0; iShot < info.m_iShots; iShot++)
-	{
-		bool bHitWater = false;
-		bool bHitGlass = false;
-
-		// Prediction is only usable on players
-		if ( IsPlayer() )
-		{
-			RandomSeed( iSeed );	// init random system with this seed
-		}
-
-		// If we're firing multiple shots, and the first shot has to be bang on target, ignore spread
-		if ( iShot == 0 && info.m_iShots > 1 && (info.m_nFlags & FIRE_BULLETS_FIRST_SHOT_ACCURATE) )
-		{
-			vecDir = Manipulator.GetShotDirection();
-		}
-		else
-		{
-
-			// Don't run the biasing code for the player at the moment.
-			vecDir = Manipulator.ApplySpread( info.m_vecSpread );
-		}
-
-		vecEnd = info.m_vecSrc + vecDir * info.m_flDistance;
-
-#ifdef PORTAL
-		CProp_Portal *pShootThroughPortal = NULL;
-		float fPortalFraction = 2.0f;
-#endif
-
-
-		if( IsPlayer() && info.m_iShots > 1 && iShot % 2 )
-		{
-			// Half of the shotgun pellets are hulls that make it easier to hit targets with the shotgun.
-#ifdef PORTAL
-			Ray_t rayBullet;
-			rayBullet.Init( info.m_vecSrc, vecEnd );
-			pShootThroughPortal = UTIL_Portal_FirstAlongRay( rayBullet, fPortalFraction );
-			if ( !UTIL_Portal_TraceRay_Bullets( pShootThroughPortal, rayBullet, MASK_SHOT, &traceFilter, &tr ) )
-			{
-				pShootThroughPortal = NULL;
-			}
-#else
-			AI_TraceHull( info.m_vecSrc, vecEnd, Vector( -3, -3, -3 ), Vector( 3, 3, 3 ), MASK_SHOT, &traceFilter, &tr );
-#endif //#ifdef PORTAL
-		}
-		else
-		{
-#ifdef PORTAL
-			Ray_t rayBullet;
-			rayBullet.Init( info.m_vecSrc, vecEnd );
-			pShootThroughPortal = UTIL_Portal_FirstAlongRay( rayBullet, fPortalFraction );
-			if ( !UTIL_Portal_TraceRay_Bullets( pShootThroughPortal, rayBullet, MASK_SHOT, &traceFilter, &tr ) )
-			{
-				pShootThroughPortal = NULL;
-			}
-#elif TF_DLL
-			CTraceFilterIgnoreFriendlyCombatItems traceFilterCombatItem( this, COLLISION_GROUP_NONE, GetTeamNumber() );
-			if ( TFGameRules() && TFGameRules()->GameModeUsesUpgrades() )
-			{
-				CTraceFilterChain traceFilterChain( &traceFilter, &traceFilterCombatItem );
-				AI_TraceLine(info.m_vecSrc, vecEnd, MASK_SHOT, &traceFilterChain, &tr);
-			}
-			else
-			{
-				AI_TraceLine(info.m_vecSrc, vecEnd, MASK_SHOT, &traceFilter, &tr);
-			}
-#else
-			AI_TraceLine(info.m_vecSrc, vecEnd, MASK_SHOT, &traceFilter, &tr);
-#endif //#ifdef PORTAL
-		}
-
-		// Tracker 70354/63250:  ywb 8/2/07
-		// Fixes bug where trace from turret with attachment point outside of Vcollide
-		//  starts solid so doesn't hit anything else in the world and the final coord 
-		//  is outside of the MAX_COORD_FLOAT range.  This cause trying to send the end pos
-		//  of the tracer down to the client with an origin which is out-of-range for networking
-		if ( tr.startsolid )
-		{
-			tr.endpos = tr.startpos;
-			tr.fraction = 0.0f;
-		}
-
-	// bullet's final direction can be changed by passing through a portal
-#ifdef PORTAL
-		if ( !tr.startsolid )
-		{
-			vecDir = tr.endpos - tr.startpos;
-			VectorNormalize( vecDir );
-		}
-#endif
-
-#ifdef GAME_DLL
-		if ( ai_debug_shoot_positions.GetBool() )
-			NDebugOverlay::Line(info.m_vecSrc, vecEnd, 255, 255, 255, false, .1 );
-#endif
-
-		if ( bStartedInWater )
-		{
-#ifdef GAME_DLL
-			Vector vBubbleStart = info.m_vecSrc;
-			Vector vBubbleEnd = tr.endpos;
-
-#ifdef PORTAL
-			if ( pShootThroughPortal )
-			{
-				vBubbleEnd = info.m_vecSrc + ( vecEnd - info.m_vecSrc ) * fPortalFraction;
-			}
-#endif //#ifdef PORTAL
-
-			CreateBubbleTrailTracer( vBubbleStart, vBubbleEnd, vecDir );
-			
-#ifdef PORTAL
-			if ( pShootThroughPortal )
-			{
-				Vector vTransformedIntersection;
-				UTIL_Portal_PointTransform( pShootThroughPortal->MatrixThisToLinked(), vBubbleEnd, vTransformedIntersection );
-
-				CreateBubbleTrailTracer( vTransformedIntersection, tr.endpos, vecDir );
-			}
-#endif //#ifdef PORTAL
-
-#endif //#ifdef GAME_DLL
-			bHitWater = true;
-		}
-
-		// Now hit all triggers along the ray that respond to shots...
-		// Clip the ray to the first collided solid returned from traceline
-		CTakeDamageInfo triggerInfo( pAttacker, pAttacker, info.m_flDamage, nDamageType );
-		CalculateBulletDamageForce( &triggerInfo, info.m_iAmmoType, vecDir, tr.endpos );
-		triggerInfo.ScaleDamageForce( info.m_flDamageForceScale );
-		triggerInfo.SetAmmoType( info.m_iAmmoType );
-#ifdef GAME_DLL
-		TraceAttackToTriggers( triggerInfo, tr.startpos, tr.endpos, vecDir );
-#endif
-
-		// Make sure given a valid bullet type
-		if (info.m_iAmmoType == -1)
-		{
-			DevMsg("ERROR: Undefined ammo type!\n");
-			return;
-		}
-
-		Vector vecTracerDest = tr.endpos;
-
-		// do damage, paint decals
-		if (tr.fraction != 1.0)
-		{
-#ifdef GAME_DLL
-			UpdateShotStatistics( tr );
-
-			// For shots that don't need persistance
-			int soundEntChannel = ( info.m_nFlags&FIRE_BULLETS_TEMPORARY_DANGER_SOUND ) ? SOUNDENT_CHANNEL_BULLET_IMPACT : SOUNDENT_CHANNEL_UNSPECIFIED;
-
-			CSoundEnt::InsertSound( SOUND_BULLET_IMPACT, tr.endpos, 200, 0.5, this, soundEntChannel );
-#endif
-
-			// See if the bullet ended up underwater + started out of the water
-			if ( !bHitWater && ( enginetrace->GetPointContents( tr.endpos ) & (CONTENTS_WATER|CONTENTS_SLIME) ) )
-			{
-				bHitWater = HandleShotImpactingWater( info, vecEnd, &traceFilter, &vecTracerDest );
-			}
-
-			float flActualDamage = info.m_flDamage;
-
-			// If we hit a player, and we have player damage specified, use that instead
-			// Adrian: Make sure to use the currect value if we hit a vehicle the player is currently driving.
-			if ( iPlayerDamage )
-			{
-				if ( tr.m_pEnt->IsPlayer() )
-				{
-					flActualDamage = iPlayerDamage;
-				}
-#ifdef GAME_DLL
-				else if ( tr.m_pEnt->GetServerVehicle() )
-				{
-					if ( tr.m_pEnt->GetServerVehicle()->GetPassenger() && tr.m_pEnt->GetServerVehicle()->GetPassenger()->IsPlayer() )
-					{
-						flActualDamage = iPlayerDamage;
-					}
-				}
-#endif
-			}
-
-			int nActualDamageType = nDamageType;
-			if ( flActualDamage == 0.0 )
-			{
-				flActualDamage = g_pGameRules->GetAmmoDamage( pAttacker, tr.m_pEnt, info.m_iAmmoType );
-			}
-			else
-			{
-				nActualDamageType = nDamageType | ((flActualDamage > 16) ? DMG_ALWAYSGIB : DMG_NEVERGIB );
-			}
-
-			if ( !bHitWater || ((info.m_nFlags & FIRE_BULLETS_DONT_HIT_UNDERWATER) == 0) )
-			{
-				// Damage specified by function parameter
-				CTakeDamageInfo dmgInfo( this, pAttacker, flActualDamage, nActualDamageType );
-				ModifyFireBulletsDamage( &dmgInfo );
-				CalculateBulletDamageForce( &dmgInfo, info.m_iAmmoType, vecDir, tr.endpos );
-				dmgInfo.ScaleDamageForce( info.m_flDamageForceScale );
-				dmgInfo.SetAmmoType( info.m_iAmmoType );
-				tr.m_pEnt->DispatchTraceAttack( dmgInfo, vecDir, &tr );
-			
-				if ( ToBaseCombatCharacter( tr.m_pEnt ) )
-				{
-					flCumulativeDamage += dmgInfo.GetDamage();
-				}
-
-				if ( bStartedInWater || !bHitWater || (info.m_nFlags & FIRE_BULLETS_ALLOW_WATER_SURFACE_IMPACTS) )
-				{
-					if ( bDoServerEffects == true )
-					{
-						DoImpactEffect( tr, nDamageType );
-					}
-					else
-					{
-						bDoImpacts = true;
-					}
-				}
-				else
-				{
-					// We may not impact, but we DO need to affect ragdolls on the client
-					CEffectData data;
-					data.m_vStart = tr.startpos;
-					data.m_vOrigin = tr.endpos;
-					data.m_nDamageType = nDamageType;
-					
-					DispatchEffect( "RagdollImpact", data );
-				}
-	
-#ifdef GAME_DLL
-				if ( nAmmoFlags & AMMO_FORCE_DROP_IF_CARRIED )
-				{
-					// Make sure if the player is holding this, he drops it
-					Pickup_ForcePlayerToDropThisObject( tr.m_pEnt );		
-				}
-#endif
-			}
-		}
-
-		// See if we hit glass
-		if ( tr.m_pEnt != NULL )
-		{
-#ifdef GAME_DLL
-			surfacedata_t *psurf = physprops->GetSurfaceData( tr.surface.surfaceProps );
-			if ( ( psurf != NULL ) && ( psurf->game.material == CHAR_TEX_GLASS ) && ( tr.m_pEnt->ClassMatches( "func_breakable" ) ) )
-			{
-				// Query the func_breakable for whether it wants to allow for bullet penetration
-				if ( tr.m_pEnt->HasSpawnFlags( SF_BREAK_NO_BULLET_PENETRATION ) == false )
-				{
-					bHitGlass = true;
-				}
-			}
-#endif
-		}
-
-		if ( ( info.m_iTracerFreq != 0 ) && ( tracerCount++ % info.m_iTracerFreq ) == 0 && ( bHitGlass == false ) )
-		{
-			if ( bDoServerEffects == true )
-			{
-				Vector vecTracerSrc = vec3_origin;
-				ComputeTracerStartPosition( info.m_vecSrc, &vecTracerSrc );
-
-				trace_t Tracer;
-				Tracer = tr;
-				Tracer.endpos = vecTracerDest;
-
-#ifdef PORTAL
-				if ( pShootThroughPortal )
-				{
-					Tracer.endpos = info.m_vecSrc + ( vecEnd - info.m_vecSrc ) * fPortalFraction;
-				}
-#endif //#ifdef PORTAL
-
-				MakeTracer( vecTracerSrc, Tracer, pAmmoDef->TracerType(info.m_iAmmoType) );
-
-#ifdef PORTAL
-				if ( pShootThroughPortal )
-				{
-					Vector vTransformedIntersection;
-					UTIL_Portal_PointTransform( pShootThroughPortal->MatrixThisToLinked(), Tracer.endpos, vTransformedIntersection );
-					ComputeTracerStartPosition( vTransformedIntersection, &vecTracerSrc );
-
-					Tracer.endpos = vecTracerDest;
-
-					MakeTracer( vecTracerSrc, Tracer, pAmmoDef->TracerType(info.m_iAmmoType) );
-
-					// Shooting through a portal, the damage direction is translated through the passed-through portal
-					// so the damage indicator hud animation is correct
-					Vector vDmgOriginThroughPortal;
-					UTIL_Portal_PointTransform( pShootThroughPortal->MatrixThisToLinked(), info.m_vecSrc, vDmgOriginThroughPortal );
-					g_MultiDamage.SetDamagePosition ( vDmgOriginThroughPortal );
-				}
-				else
-				{
-					g_MultiDamage.SetDamagePosition ( info.m_vecSrc );
-				}
-#endif //#ifdef PORTAL
-			}
-			else
-			{
-				bDoTracers = true;
-			}
-		}
-
-		//NOTENOTE: We could expand this to a more general solution for various material penetration types (wood, thin metal, etc)
-
-		// See if we should pass through glass
-#ifdef GAME_DLL
-		if ( bHitGlass )
-		{
-			HandleShotImpactingGlass( info, tr, vecDir, &traceFilter );
-		}
-#endif
-
-		iSeed++;
-	}
-
-#if defined( HL2MP ) && defined( GAME_DLL )
-	if ( bDoServerEffects == false )
-	{
-		TE_HL2MPFireBullets( entindex(), tr.startpos, info.m_vecDirShooting, info.m_iAmmoType, iEffectSeed, info.m_iShots, info.m_vecSpread.x, bDoTracers, bDoImpacts );
-	}
-#endif
-
-#ifdef GAME_DLL
-	ApplyMultiDamage();
-
-	if ( IsPlayer() && flCumulativeDamage > 0.0f )
-	{
-		CBasePlayer *pPlayer = static_cast< CBasePlayer * >( this );
-		CTakeDamageInfo dmgInfo( this, pAttacker, flCumulativeDamage, nDamageType );
-		gamestats->Event_WeaponHit( pPlayer, info.m_bPrimaryAttack, pPlayer->GetActiveWeapon()->GetClassname(), dmgInfo );
-	}
-#endif
-}
 
 
 //-----------------------------------------------------------------------------
@@ -2154,36 +1687,6 @@ void CBaseEntity::DispatchTraceAttack( const CTakeDamageInfo &info, const Vector
 #endif
 
 	TraceAttack( info, vecDir, ptr, pAccumulator );
-}
-
-void CBaseEntity::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
-{
-#ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
-#endif
-	Vector vecOrigin = ptr->endpos - vecDir * 4;
-
-	if ( m_takedamage )
-	{
-#ifdef GAME_DLL
-		if ( pAccumulator )
-		{
-			pAccumulator->AccumulateMultiDamage( info, this );
-		}
-		else
-#endif // GAME_DLL
-		{
-			AddMultiDamage( info, this );
-		}
-
-		int blood = BloodColor();
-		
-		if ( blood != DONT_BLEED )
-		{
-			SpawnBlood( vecOrigin, vecDir, blood, info.GetDamage() );// a little surface blood.
-			TraceBleed( info.GetDamage(), vecDir, ptr, info.GetDamageType() );
-		}
-	}
 }
 
 
@@ -3120,4 +2623,499 @@ void CBaseEntity::InputAddOutput( inputdata_t &inputdata )
 	{
 		Warning("AddOutput input fired with bad string. Format: <output name> <targetname>,<inputname>,<parameter>,<delay>,<max times to fire (-1 == infinite)>\n");
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : collisionGroup - 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+#ifdef WAF_USE_SOURCEMOD == 1
+#include <glue.hpp>
+#endif
+
+bool CBaseEntity::ShouldCollide( int collisionGroup, int contentsMask ) const
+{
+#ifdef WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.invoke(const_cast<CBaseEntity*>(this), collisionGroup, contentsMask);
+#endif
+	if ( m_CollisionGroup == COLLISION_GROUP_DEBRIS )
+	{
+		if ( ! (contentsMask & CONTENTS_DEBRIS) )
+			return false;
+	}
+	return true;
+}
+
+void CBaseEntity::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
+{
+#ifdef WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#endif
+	Vector vecOrigin = ptr->endpos - vecDir * 4;
+
+	if ( m_takedamage )
+	{
+#ifdef GAME_DLL
+		if ( pAccumulator )
+		{
+			pAccumulator->AccumulateMultiDamage( info, this );
+		}
+		else
+#endif // GAME_DLL
+		{
+			AddMultiDamage( info, this );
+		}
+
+		int blood = BloodColor();
+		
+		if ( blood != DONT_BLEED )
+		{
+			SpawnBlood( vecOrigin, vecDir, blood, info.GetDamage() );// a little surface blood.
+			TraceBleed( info.GetDamage(), vecDir, ptr, info.GetDamageType() );
+		}
+	}
+}
+
+void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
+{
+#ifdef WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke(this, const_cast<FireBulletsInfo_t*>(&info));
+#endif
+	static int	tracerCount;
+	trace_t		tr;
+	CAmmoDef*	pAmmoDef	= GetAmmoDef();
+	int			nDamageType	= pAmmoDef->DamageType(info.m_iAmmoType);
+	int			nAmmoFlags	= pAmmoDef->Flags(info.m_iAmmoType);
+	
+	bool bDoServerEffects = true;
+
+#if defined( HL2MP ) && defined( GAME_DLL )
+	bDoServerEffects = false;
+#endif
+
+#if defined( GAME_DLL )
+	if( IsPlayer() )
+	{
+		CBasePlayer *pPlayer = dynamic_cast<CBasePlayer*>(this);
+
+		int rumbleEffect = pPlayer->GetActiveWeapon()->GetRumbleEffect();
+
+		if( rumbleEffect != RUMBLE_INVALID )
+		{
+			if( rumbleEffect == RUMBLE_SHOTGUN_SINGLE )
+			{
+				if( info.m_iShots == 12 )
+				{
+					// Upgrade to double barrel rumble effect
+					rumbleEffect = RUMBLE_SHOTGUN_DOUBLE;
+				}
+			}
+
+			pPlayer->RumbleEffect( rumbleEffect, 0, RUMBLE_FLAG_RESTART );
+		}
+	}
+#endif// GAME_DLL
+
+	int iPlayerDamage = info.m_iPlayerDamage;
+	if ( iPlayerDamage == 0 )
+	{
+		if ( nAmmoFlags & AMMO_INTERPRET_PLRDAMAGE_AS_DAMAGE_TO_PLAYER )
+		{
+			iPlayerDamage = pAmmoDef->PlrDamage( info.m_iAmmoType );
+		}
+	}
+
+	// the default attacker is ourselves
+	CBaseEntity *pAttacker = info.m_pAttacker ? info.m_pAttacker : this;
+
+	// Make sure we don't have a dangling damage target from a recursive call
+	if ( g_MultiDamage.GetTarget() != NULL )
+	{
+		ApplyMultiDamage();
+	}
+	  
+	ClearMultiDamage();
+	g_MultiDamage.SetDamageType( nDamageType | DMG_NEVERGIB );
+
+	Vector vecDir;
+	Vector vecEnd;
+	
+	// Skip multiple entities when tracing
+	CBulletsTraceFilter traceFilter( COLLISION_GROUP_NONE );
+	traceFilter.SetPassEntity( this ); // Standard pass entity for THIS so that it can be easily removed from the list after passing through a portal
+	traceFilter.AddEntityToIgnore( info.m_pAdditionalIgnoreEnt );
+
+#if defined( HL2_EPISODIC ) && defined( GAME_DLL )
+	// FIXME: We need to emulate this same behavior on the client as well -- jdw
+	// Also ignore a vehicle we're a passenger in
+	if ( MyCombatCharacterPointer() != NULL && MyCombatCharacterPointer()->IsInAVehicle() )
+	{
+		traceFilter.AddEntityToIgnore( MyCombatCharacterPointer()->GetVehicleEntity() );
+	}
+#endif // SERVER_DLL
+
+	bool bUnderwaterBullets = ShouldDrawUnderwaterBulletBubbles();
+	bool bStartedInWater = false;
+	if ( bUnderwaterBullets )
+	{
+		bStartedInWater = ( enginetrace->GetPointContents( info.m_vecSrc ) & (CONTENTS_WATER|CONTENTS_SLIME) ) != 0;
+	}
+
+	// Prediction is only usable on players
+	int iSeed = 0;
+	if ( IsPlayer() )
+	{
+		iSeed = CBaseEntity::GetPredictionRandomSeed();
+	}
+
+#if defined( HL2MP ) && defined( GAME_DLL )
+	int iEffectSeed = iSeed;
+#endif
+	//-----------------------------------------------------
+	// Set up our shot manipulator.
+	//-----------------------------------------------------
+	CShotManipulator Manipulator( info.m_vecDirShooting );
+
+	bool bDoImpacts = false;
+	bool bDoTracers = false;
+	
+	float flCumulativeDamage = 0.0f;
+
+	for (int iShot = 0; iShot < info.m_iShots; iShot++)
+	{
+		bool bHitWater = false;
+		bool bHitGlass = false;
+
+		// Prediction is only usable on players
+		if ( IsPlayer() )
+		{
+			RandomSeed( iSeed );	// init random system with this seed
+		}
+
+		// If we're firing multiple shots, and the first shot has to be bang on target, ignore spread
+		if ( iShot == 0 && info.m_iShots > 1 && (info.m_nFlags & FIRE_BULLETS_FIRST_SHOT_ACCURATE) )
+		{
+			vecDir = Manipulator.GetShotDirection();
+		}
+		else
+		{
+
+			// Don't run the biasing code for the player at the moment.
+			vecDir = Manipulator.ApplySpread( info.m_vecSpread );
+		}
+
+		vecEnd = info.m_vecSrc + vecDir * info.m_flDistance;
+
+#ifdef PORTAL
+		CProp_Portal *pShootThroughPortal = NULL;
+		float fPortalFraction = 2.0f;
+#endif
+
+
+		if( IsPlayer() && info.m_iShots > 1 && iShot % 2 )
+		{
+			// Half of the shotgun pellets are hulls that make it easier to hit targets with the shotgun.
+#ifdef PORTAL
+			Ray_t rayBullet;
+			rayBullet.Init( info.m_vecSrc, vecEnd );
+			pShootThroughPortal = UTIL_Portal_FirstAlongRay( rayBullet, fPortalFraction );
+			if ( !UTIL_Portal_TraceRay_Bullets( pShootThroughPortal, rayBullet, MASK_SHOT, &traceFilter, &tr ) )
+			{
+				pShootThroughPortal = NULL;
+			}
+#else
+			AI_TraceHull( info.m_vecSrc, vecEnd, Vector( -3, -3, -3 ), Vector( 3, 3, 3 ), MASK_SHOT, &traceFilter, &tr );
+#endif //#ifdef PORTAL
+		}
+		else
+		{
+#ifdef PORTAL
+			Ray_t rayBullet;
+			rayBullet.Init( info.m_vecSrc, vecEnd );
+			pShootThroughPortal = UTIL_Portal_FirstAlongRay( rayBullet, fPortalFraction );
+			if ( !UTIL_Portal_TraceRay_Bullets( pShootThroughPortal, rayBullet, MASK_SHOT, &traceFilter, &tr ) )
+			{
+				pShootThroughPortal = NULL;
+			}
+#elif TF_DLL
+			CTraceFilterIgnoreFriendlyCombatItems traceFilterCombatItem( this, COLLISION_GROUP_NONE, GetTeamNumber() );
+			if ( TFGameRules() && TFGameRules()->GameModeUsesUpgrades() )
+			{
+				CTraceFilterChain traceFilterChain( &traceFilter, &traceFilterCombatItem );
+				AI_TraceLine(info.m_vecSrc, vecEnd, MASK_SHOT, &traceFilterChain, &tr);
+			}
+			else
+			{
+				AI_TraceLine(info.m_vecSrc, vecEnd, MASK_SHOT, &traceFilter, &tr);
+			}
+#else
+			AI_TraceLine(info.m_vecSrc, vecEnd, MASK_SHOT, &traceFilter, &tr);
+#endif //#ifdef PORTAL
+		}
+
+		// Tracker 70354/63250:  ywb 8/2/07
+		// Fixes bug where trace from turret with attachment point outside of Vcollide
+		//  starts solid so doesn't hit anything else in the world and the final coord 
+		//  is outside of the MAX_COORD_FLOAT range.  This cause trying to send the end pos
+		//  of the tracer down to the client with an origin which is out-of-range for networking
+		if ( tr.startsolid )
+		{
+			tr.endpos = tr.startpos;
+			tr.fraction = 0.0f;
+		}
+
+	// bullet's final direction can be changed by passing through a portal
+#ifdef PORTAL
+		if ( !tr.startsolid )
+		{
+			vecDir = tr.endpos - tr.startpos;
+			VectorNormalize( vecDir );
+		}
+#endif
+
+#ifdef GAME_DLL
+		if ( ai_debug_shoot_positions.GetBool() )
+			NDebugOverlay::Line(info.m_vecSrc, vecEnd, 255, 255, 255, false, .1 );
+#endif
+
+		if ( bStartedInWater )
+		{
+#ifdef GAME_DLL
+			Vector vBubbleStart = info.m_vecSrc;
+			Vector vBubbleEnd = tr.endpos;
+
+#ifdef PORTAL
+			if ( pShootThroughPortal )
+			{
+				vBubbleEnd = info.m_vecSrc + ( vecEnd - info.m_vecSrc ) * fPortalFraction;
+			}
+#endif //#ifdef PORTAL
+
+			CreateBubbleTrailTracer( vBubbleStart, vBubbleEnd, vecDir );
+			
+#ifdef PORTAL
+			if ( pShootThroughPortal )
+			{
+				Vector vTransformedIntersection;
+				UTIL_Portal_PointTransform( pShootThroughPortal->MatrixThisToLinked(), vBubbleEnd, vTransformedIntersection );
+
+				CreateBubbleTrailTracer( vTransformedIntersection, tr.endpos, vecDir );
+			}
+#endif //#ifdef PORTAL
+
+#endif //#ifdef GAME_DLL
+			bHitWater = true;
+		}
+
+		// Now hit all triggers along the ray that respond to shots...
+		// Clip the ray to the first collided solid returned from traceline
+		CTakeDamageInfo triggerInfo( pAttacker, pAttacker, info.m_flDamage, nDamageType );
+		CalculateBulletDamageForce( &triggerInfo, info.m_iAmmoType, vecDir, tr.endpos );
+		triggerInfo.ScaleDamageForce( info.m_flDamageForceScale );
+		triggerInfo.SetAmmoType( info.m_iAmmoType );
+#ifdef GAME_DLL
+		TraceAttackToTriggers( triggerInfo, tr.startpos, tr.endpos, vecDir );
+#endif
+
+		// Make sure given a valid bullet type
+		if (info.m_iAmmoType == -1)
+		{
+			DevMsg("ERROR: Undefined ammo type!\n");
+			return;
+		}
+
+		Vector vecTracerDest = tr.endpos;
+
+		// do damage, paint decals
+		if (tr.fraction != 1.0)
+		{
+#ifdef GAME_DLL
+			UpdateShotStatistics( tr );
+
+			// For shots that don't need persistance
+			int soundEntChannel = ( info.m_nFlags&FIRE_BULLETS_TEMPORARY_DANGER_SOUND ) ? SOUNDENT_CHANNEL_BULLET_IMPACT : SOUNDENT_CHANNEL_UNSPECIFIED;
+
+			CSoundEnt::InsertSound( SOUND_BULLET_IMPACT, tr.endpos, 200, 0.5, this, soundEntChannel );
+#endif
+
+			// See if the bullet ended up underwater + started out of the water
+			if ( !bHitWater && ( enginetrace->GetPointContents( tr.endpos ) & (CONTENTS_WATER|CONTENTS_SLIME) ) )
+			{
+				bHitWater = HandleShotImpactingWater( info, vecEnd, &traceFilter, &vecTracerDest );
+			}
+
+			float flActualDamage = info.m_flDamage;
+
+			// If we hit a player, and we have player damage specified, use that instead
+			// Adrian: Make sure to use the currect value if we hit a vehicle the player is currently driving.
+			if ( iPlayerDamage )
+			{
+				if ( tr.m_pEnt->IsPlayer() )
+				{
+					flActualDamage = iPlayerDamage;
+				}
+#ifdef GAME_DLL
+				else if ( tr.m_pEnt->GetServerVehicle() )
+				{
+					if ( tr.m_pEnt->GetServerVehicle()->GetPassenger() && tr.m_pEnt->GetServerVehicle()->GetPassenger()->IsPlayer() )
+					{
+						flActualDamage = iPlayerDamage;
+					}
+				}
+#endif
+			}
+
+			int nActualDamageType = nDamageType;
+			if ( flActualDamage == 0.0 )
+			{
+				flActualDamage = g_pGameRules->GetAmmoDamage( pAttacker, tr.m_pEnt, info.m_iAmmoType );
+			}
+			else
+			{
+				nActualDamageType = nDamageType | ((flActualDamage > 16) ? DMG_ALWAYSGIB : DMG_NEVERGIB );
+			}
+
+			if ( !bHitWater || ((info.m_nFlags & FIRE_BULLETS_DONT_HIT_UNDERWATER) == 0) )
+			{
+				// Damage specified by function parameter
+				CTakeDamageInfo dmgInfo( this, pAttacker, flActualDamage, nActualDamageType );
+				ModifyFireBulletsDamage( &dmgInfo );
+				CalculateBulletDamageForce( &dmgInfo, info.m_iAmmoType, vecDir, tr.endpos );
+				dmgInfo.ScaleDamageForce( info.m_flDamageForceScale );
+				dmgInfo.SetAmmoType( info.m_iAmmoType );
+				tr.m_pEnt->DispatchTraceAttack( dmgInfo, vecDir, &tr );
+			
+				if ( ToBaseCombatCharacter( tr.m_pEnt ) )
+				{
+					flCumulativeDamage += dmgInfo.GetDamage();
+				}
+
+				if ( bStartedInWater || !bHitWater || (info.m_nFlags & FIRE_BULLETS_ALLOW_WATER_SURFACE_IMPACTS) )
+				{
+					if ( bDoServerEffects == true )
+					{
+						DoImpactEffect( tr, nDamageType );
+					}
+					else
+					{
+						bDoImpacts = true;
+					}
+				}
+				else
+				{
+					// We may not impact, but we DO need to affect ragdolls on the client
+					CEffectData data;
+					data.m_vStart = tr.startpos;
+					data.m_vOrigin = tr.endpos;
+					data.m_nDamageType = nDamageType;
+					
+					DispatchEffect( "RagdollImpact", data );
+				}
+	
+#ifdef GAME_DLL
+				if ( nAmmoFlags & AMMO_FORCE_DROP_IF_CARRIED )
+				{
+					// Make sure if the player is holding this, he drops it
+					Pickup_ForcePlayerToDropThisObject( tr.m_pEnt );		
+				}
+#endif
+			}
+		}
+
+		// See if we hit glass
+		if ( tr.m_pEnt != NULL )
+		{
+#ifdef GAME_DLL
+			surfacedata_t *psurf = physprops->GetSurfaceData( tr.surface.surfaceProps );
+			if ( ( psurf != NULL ) && ( psurf->game.material == CHAR_TEX_GLASS ) && ( tr.m_pEnt->ClassMatches( "func_breakable" ) ) )
+			{
+				// Query the func_breakable for whether it wants to allow for bullet penetration
+				if ( tr.m_pEnt->HasSpawnFlags( SF_BREAK_NO_BULLET_PENETRATION ) == false )
+				{
+					bHitGlass = true;
+				}
+			}
+#endif
+		}
+
+		if ( ( info.m_iTracerFreq != 0 ) && ( tracerCount++ % info.m_iTracerFreq ) == 0 && ( bHitGlass == false ) )
+		{
+			if ( bDoServerEffects == true )
+			{
+				Vector vecTracerSrc = vec3_origin;
+				ComputeTracerStartPosition( info.m_vecSrc, &vecTracerSrc );
+
+				trace_t Tracer;
+				Tracer = tr;
+				Tracer.endpos = vecTracerDest;
+
+#ifdef PORTAL
+				if ( pShootThroughPortal )
+				{
+					Tracer.endpos = info.m_vecSrc + ( vecEnd - info.m_vecSrc ) * fPortalFraction;
+				}
+#endif //#ifdef PORTAL
+
+				MakeTracer( vecTracerSrc, Tracer, pAmmoDef->TracerType(info.m_iAmmoType) );
+
+#ifdef PORTAL
+				if ( pShootThroughPortal )
+				{
+					Vector vTransformedIntersection;
+					UTIL_Portal_PointTransform( pShootThroughPortal->MatrixThisToLinked(), Tracer.endpos, vTransformedIntersection );
+					ComputeTracerStartPosition( vTransformedIntersection, &vecTracerSrc );
+
+					Tracer.endpos = vecTracerDest;
+
+					MakeTracer( vecTracerSrc, Tracer, pAmmoDef->TracerType(info.m_iAmmoType) );
+
+					// Shooting through a portal, the damage direction is translated through the passed-through portal
+					// so the damage indicator hud animation is correct
+					Vector vDmgOriginThroughPortal;
+					UTIL_Portal_PointTransform( pShootThroughPortal->MatrixThisToLinked(), info.m_vecSrc, vDmgOriginThroughPortal );
+					g_MultiDamage.SetDamagePosition ( vDmgOriginThroughPortal );
+				}
+				else
+				{
+					g_MultiDamage.SetDamagePosition ( info.m_vecSrc );
+				}
+#endif //#ifdef PORTAL
+			}
+			else
+			{
+				bDoTracers = true;
+			}
+		}
+
+		//NOTENOTE: We could expand this to a more general solution for various material penetration types (wood, thin metal, etc)
+
+		// See if we should pass through glass
+#ifdef GAME_DLL
+		if ( bHitGlass )
+		{
+			HandleShotImpactingGlass( info, tr, vecDir, &traceFilter );
+		}
+#endif
+
+		iSeed++;
+	}
+
+#if defined( HL2MP ) && defined( GAME_DLL )
+	if ( bDoServerEffects == false )
+	{
+		TE_HL2MPFireBullets( entindex(), tr.startpos, info.m_vecDirShooting, info.m_iAmmoType, iEffectSeed, info.m_iShots, info.m_vecSpread.x, bDoTracers, bDoImpacts );
+	}
+#endif
+
+#ifdef GAME_DLL
+	ApplyMultiDamage();
+
+	if ( IsPlayer() && flCumulativeDamage > 0.0f )
+	{
+		CBasePlayer *pPlayer = static_cast< CBasePlayer * >( this );
+		CTakeDamageInfo dmgInfo( this, pAttacker, flCumulativeDamage, nDamageType );
+		gamestats->Event_WeaponHit( pPlayer, info.m_bPrimaryAttack, pPlayer->GetActiveWeapon()->GetClassname(), dmgInfo );
+	}
+#endif
 }

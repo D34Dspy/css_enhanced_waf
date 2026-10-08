@@ -1128,7 +1128,7 @@ float CAI_BaseNPC::GetHitgroupDamageMultiplier( int iHitGroup, const CTakeDamage
 void CAI_BaseNPC::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 #endif
 
 	m_fNoDamageDecal = false;
@@ -6683,7 +6683,7 @@ void CAI_BaseNPC::CheckPhysicsContacts()
 void CAI_BaseNPC::StartTouch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__StartTouch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
 #endif
 	BaseClass::StartTouch(pOther);
 

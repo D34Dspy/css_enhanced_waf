@@ -336,6 +336,8 @@ struct thinkfunc_t
 struct EmitSound_t;
 struct rotatingpushmove_t;
 
+class CSourcemodGlueInterface;
+
 #define CREATE_PREDICTED_ENTITY( className )	\
 	CBaseEntity::CreatePredictedEntityByName( className, __FILE__, __LINE__ );
 
@@ -366,6 +368,10 @@ public:
 	static uint64 			m_nGlobalSimulatedTickCount;
 
   protected:
+
+#if WAF_USE_SOURCEMOD == 1
+	CSourcemodGlueInterface* m_pSourcemodGlue; // Sourcemod Binding (The array of event listeners for each hook)
+#endif
 
 	static bool				m_bDebugPause;		// Whether entity i/o is paused for debugging.
 	static int				m_nDebugSteps;		// Number of entity outputs to fire before pausing again.
@@ -405,6 +411,9 @@ public:
 	virtual ICollideable	*GetCollideable();
 	virtual IServerNetworkable *GetNetworkable();
 	virtual CBaseEntity		*GetBaseEntity();
+#if WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue(); // Sourcemod Binding
+#endif
 
 // IServerEntity overrides.
 public:

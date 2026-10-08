@@ -295,7 +295,7 @@ void CTriggerBrush::Spawn( void )
 void CTriggerBrush::StartTouch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__StartTouch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
 #endif
 	if ( PassesInputFilter(pOther, m_iInputFilter) && !(m_iInputFilter & TRIGGER_IGNORETOUCH) )
 	{
@@ -316,7 +316,7 @@ void CTriggerBrush::StartTouch( CBaseEntity *pOther )
 void CTriggerBrush::EndTouch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__EndTouch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
 #endif
 	if ( PassesInputFilter(pOther, m_iInputFilter) && !(m_iInputFilter & TRIGGER_IGNORETOUCH) )
 	{
@@ -338,7 +338,7 @@ void CTriggerBrush::EndTouch( CBaseEntity *pOther )
 void CTriggerBrush::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
 #endif
 	if ( PassesInputFilter(pActivator, m_iInputFilter) && !(m_iInputFilter & TRIGGER_IGNOREUSE) )
 	{

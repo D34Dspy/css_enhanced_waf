@@ -93,6 +93,8 @@ public:
 	virtual int  CommandCompletionCallback( const char *pPartial, CUtlVector< CUtlString > &commands ) = 0;
 };
 
+class CSourcemodGlueInterface;
+
 //-----------------------------------------------------------------------------
 // Purpose: The base console invoked command/cvar interface
 //-----------------------------------------------------------------------------
@@ -107,12 +109,16 @@ class ConCommandBase
 	// FIXME: Remove when ConVar changes are done
 	friend class CDefaultCvar;
 
+	CSourcemodGlueInterface* m_pSourcemodGlue;
+
 public:
 								ConCommandBase( void );
 								ConCommandBase( const char *pName, const char *pHelpString = 0, 
 									int flags = 0 );
 
 	virtual						~ConCommandBase( void );
+
+	virtual CSourcemodGlueInterface* GetSourcemodGlue();
 
 	virtual	bool				IsCommand( void ) const;
 

@@ -96,10 +96,16 @@ public:
 	virtual void FireGameEvent( IGameEvent *event ) = 0;
 };
 
+class CSourcemodGlueInterface;
+
 abstract_class IGameEventManager2 : public IBaseInterface
 {
 public:
 	virtual	~IGameEventManager2( void ) {};
+
+	#ifdef WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+	#endif
 
 	// load game event descriptions from a file eg "resource\gameevents.res"
 	virtual int LoadEventsFromFile( const char *filename ) = 0;

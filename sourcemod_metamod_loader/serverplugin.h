@@ -30,8 +30,57 @@
 
 #include "loader_bridge.h"
 
+#include "glue.hpp"
+
 extern void *
 mm_GetVspCallbacks(unsigned int version);
+
+
+class CSourcemodGlueInterface;
+class edict_t;
+
+class ServerPlugin
+{
+	char game_name[128];
+	unsigned int vsp_version;
+	bool load_allowed;
+	CSourcemodGlueInterface* m_pSourcemodGlue;
+public:
+	ServerPlugin();
+
+	virtual CSourcemodGlueInterface* GetSourcemodGlue();
+
+	virtual bool Load(QueryValveInterface engineFactory, QueryValveInterface gsFactory);
+	virtual void Unload();
+	virtual void Pause();
+	virtual void UnPause();
+	virtual const char *GetPluginDescription();
+	virtual void LevelInit(char const *pMapName);
+	virtual void ServerActivate(edict_t *pEdictList, int edictCount, int clientMax);
+	virtual void GameFrame(bool simulating);
+	virtual void LevelShutdown();
+	virtual void ClientActive(edict_t *pEntity);
+	virtual void ClientFullyConnect(edict_t *pEntity);
+	virtual void ClientDisconnect(edict_t *pEntity);
+	virtual void ClientPutInServer(edict_t *pEntity, char const *playername);
+	virtual void SetCommandClient(int index);
+	virtual void ClientSettingsChanged(edict_t *pEdict);
+	virtual PLUGIN_RESULT ClientConnect(bool *bAllowConnect,
+										edict_t *pEntity,
+										const char *pszName,
+										const char *pszAddress,
+										char *reject,
+										int maxrejectlen) ;
+	virtual PLUGIN_RESULT ClientCommand(edict_t *pEntity);
+	virtual PLUGIN_RESULT NetworkIDValidated(const char *pszUserName, const char *pszNetworkID);
+	virtual void OnQueryCvarValueFinished(QueryCvarCookie_t iCookie,
+										  edict_t *pPlayerEntity,
+										  EQueryCvarValueStatus eStatus,
+										  const char *pCvarName,
+										  const char *pCvarValue);
+	void PrepForLoad(unsigned int version);
+};
+
 
 extern IVspBridge *vsp_bridge;
 

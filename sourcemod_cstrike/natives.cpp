@@ -36,6 +36,8 @@
 #include <server_class.h>
 #include <sm_argbuffer.h>
 
+#include "cs_weapon_parse.h"
+
 #if SOURCE_ENGINE == SE_CSGO
 #include "itemdef-hash.h"
 #endif
@@ -436,7 +438,7 @@ static cell_t CS_GetWeaponPrice(IPluginContext *pContext, const cell_t *params)
 	int id = params[2];
 
 	//Hard code return values for weapons that dont call GetWeaponPrice and always use default value.
- 	if (id == WEAPON_C4 || id == WEAPON_KNIFE || id == WEAPON_SHIELD)
+ 	if (id == WEAPON_C4 || id == WEAPON_KNIFE || id == WEAPON_SHIELDGUN)
 		return 0;
 	else if (id == WEAPON_KEVLAR)
 		return 650;

@@ -50,9 +50,16 @@ private:
 //---------------------------------------------------------------------------------
 class CServerPlugin : public IServerPluginHelpers
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	CSourcemodGlueInterface* m_pSourcemodGlue;
+#endif
 public:
 	CServerPlugin();
 	~CServerPlugin();
+
+#ifdef WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue();
+#endif
 
 	// management functions
 	void LoadPlugins();

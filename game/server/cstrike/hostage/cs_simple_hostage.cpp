@@ -299,7 +299,7 @@ float CHostage::GetModifiedDamage( float flDamage, int nHitGroup )
 void CHostage::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 #endif
 	CTakeDamageInfo scaledInfo = info;
 	scaledInfo.SetDamage( GetModifiedDamage( info.GetDamage(), ptr->hitgroup ) );
@@ -542,7 +542,7 @@ void CHostage::HostageRescueZoneTouch( inputdata_t &inputdata )
 void CHostage::Touch( CBaseEntity *other )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__StartTouch.invoke(this, other);
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, other);
 #endif
 	BaseClass::Touch( other );
 

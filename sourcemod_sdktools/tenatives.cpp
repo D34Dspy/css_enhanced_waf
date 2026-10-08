@@ -230,14 +230,14 @@ void TempEntHooks::OnPlaybackTempEntity(IRecipientFilter *filter, float delay, c
 			{
 				g_CurrentTE = oldinfo;
 				// RETURN_META(MRES_SUPERCEDE);
-				g_SMGlue_IVEngineServer__PlaybackTempEntity.create_return(MRES_SUPERCEDE);
+				engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__PlaybackTempEntity.create_return(MRES_SUPERCEDE);
 				return;
 			}
 		}
 
 		g_CurrentTE = oldinfo;
 		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_IVEngineServer__PlaybackTempEntity.create_return(MRES_IGNORED);
+		engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__PlaybackTempEntity.create_return(MRES_IGNORED);
 		return;
 	}
 }

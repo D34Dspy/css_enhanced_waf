@@ -262,7 +262,7 @@ void CWeaponElite::PrimaryAttack()
 bool CWeaponElite::Reload()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Reload.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
 #endif
 	if ( !DefaultPistolReload() )
 		return false;

@@ -1373,7 +1373,7 @@ bool C_CSPlayer::Interpolate( size_t nAmountOfTicks, float flInterpolationAmount
 int	C_CSPlayer::GetMaxHealth() const
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__GetMaxHealth.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.invoke(this);
 #endif
 	return 100;
 }
@@ -2720,7 +2720,7 @@ void C_CSPlayer::Simulate( void )
 void C_CSPlayer::PostThink()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__PostThink.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__PostThink.invoke(this);
 #endif
 	// TODO_ENHANCED: These can't be predicted (yet)
 	m_iv_angEyeAngles.RestoreToLastKnownValue();

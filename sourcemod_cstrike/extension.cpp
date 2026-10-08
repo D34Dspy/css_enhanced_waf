@@ -32,6 +32,7 @@
 #include <sourcemod_version.h>
 #include "extension.h"
 #include "RegNatives.h"
+#include "eiface.h"
 #include "timeleft.h"
 #include "iplayerinfo.h"
 #include "ISDKTools.h"
@@ -63,6 +64,7 @@ SMEXT_LINK(&g_CStrike);
 extern sp_nativeinfo_t g_CSNatives[];
 
 ISDKTools *g_pSDKTools = NULL;
+IServerGameDLL* g_pGameDLL = nullptr;
 
 bool CStrike::SDK_OnLoad(char *error, size_t maxlength, bool late)
 {
@@ -117,6 +119,7 @@ bool CStrike::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool 
 {
 	GET_V_IFACE_CURRENT(GetEngineFactory, gameevents, IGameEventManager2, INTERFACEVERSION_GAMEEVENTSMANAGER2);
 	GET_V_IFACE_CURRENT(GetEngineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
+	GET_V_IFACE_CURRENT(GetEngineFactory, g_pGameDLL, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
 	gpGlobals = ismm->GetCGlobals();
 
 #if SOURCE_ENGINE == SE_CSGO

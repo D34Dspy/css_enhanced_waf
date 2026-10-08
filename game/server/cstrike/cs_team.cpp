@@ -62,7 +62,7 @@ void CCSTeam::Precache( void )
 void CCSTeam::Think( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 }
 

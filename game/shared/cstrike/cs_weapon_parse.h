@@ -77,6 +77,7 @@ enum CSWeaponID
 
 	WEAPON_MAX,		// number of weapons weapon index
 };
+#define CSWEAPONID_DEFINED
 
 #define MAX_EQUIPMENT (WEAPON_MAX - WEAPON_KEVLAR)
 
@@ -175,6 +176,7 @@ public:
 	float	m_flIdleInterval;
 	bool	m_bIsFirstBulletStraight;
    
+	int		GetWeaponPriceOriginal( void ) const;
 	int		GetWeaponPrice( void ) const;
 	int		GetDefaultPrice( void );
 	int		GetPrevousPrice( void );

@@ -608,6 +608,9 @@ IExtension *CExtensionManager::LoadAutoExtension(const char *path, bool bErrorOn
 		if (bErrorOnMissing || libsys->IsPathFile(p->GetPath()))
 		{
 			logger->LogError("[SM] Unable to load extension \"%s\": %s", path, error);
+			for(auto lib : m_Libs) {
+				logger->LogMessage("[SM]    Already loaded : \"%s\": %s: %s", lib->GetPath(), lib->IsLoaded() ? "loaded" : "unloaded", lib->m_Error.c_str());
+			}
 		}
 		
 		p->SetError(error);
@@ -659,11 +662,15 @@ IExtension *CExtensionManager::FindExtensionByFile(const char *file)
 	for (iter=m_Libs.begin(); iter!=m_Libs.end(); iter++)
 	{
 		pExt = (*iter);
-		if (pExt->IsSameFile(lookup))
+		if (pExt->IsSameFile(lookup) || pExt->IsSameFile(file))
 		{
+			logger->LogMessage("[SM] FindExtensionByFile \"%s\": match against \"%s\" \"%s\" \"%s\" succeeded", lookup, pExt->m_File.c_str(), pExt->m_Path.c_str(), pExt->m_RealFile.c_str());
 			return pExt;
 		}
+		else logger->LogMessage("[SM] FindExtensionByFile \"%s\": match against \"%s\" \"%s\" \"%s\" failed", lookup, pExt->m_File.c_str(), pExt->m_Path.c_str(), pExt->m_RealFile.c_str());
 	}
+
+	logger->LogError("[SM] FindExtensionByFile \"%s\": nothing found", lookup);
 
 	return NULL;
 }
@@ -1503,7 +1510,19 @@ void CExtensionManager::FreeExtensionList(const CVector<IExtension *> *list)
 bool CLocalExtension::IsSameFile(const char *file)
 {
 	/* Only care about the shortened name. */
-	return strcmp(file, m_File.c_str()) == 0;
+	if(strcmp(file, m_File.c_str()) == 0)
+		return true;
+
+	if(strcmp(file,m_Path.c_str()) == 0)
+		return true;
+	
+	char path[PLATFORM_MAX_PATH];
+	ke::SafeSprintf(path, sizeof(path), "%s.%s", file, PLATFORM_LIB_EXT);
+
+	if(strcmp(path,m_Path.c_str()) == 0)
+		return true;
+
+	return false;
 }
 
 bool CRemoteExtension::IsSameFile(const char *file)

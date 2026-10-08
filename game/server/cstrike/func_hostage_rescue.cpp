@@ -52,7 +52,7 @@ void CHostageRescueZone::HostageRescueTouch( CBaseEntity *pOther )
 void CHostageRescueZone::EndTouch( CBaseEntity* pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P1__EndTouch.invoke(this, pOther);
+	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
 #endif
 	CCSPlayer *p = dynamic_cast< CCSPlayer* >( pOther );
 	if ( p )

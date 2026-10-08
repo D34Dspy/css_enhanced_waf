@@ -402,7 +402,7 @@ bool EventManager::OnFireEvent(IGameEvent *pEvent, bool bDontBroadcast)
 	if (!pEvent)
 	{
 		// RETURN_META_VALUE(MRES_IGNORED, false);
-		g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED);
+		gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED);
 		return false;
 	}
 
@@ -447,7 +447,7 @@ bool EventManager::OnFireEvent(IGameEvent *pEvent, bool bDontBroadcast)
 		{
 			gameevents->FreeEvent(pEvent);
 			// RETURN_META_VALUE(MRES_SUPERCEDE, false);
-			g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_SUPERCEDE, {false});
+			gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_SUPERCEDE, {false});
 			return false;
 			
 		}
@@ -460,13 +460,13 @@ bool EventManager::OnFireEvent(IGameEvent *pEvent, bool bDontBroadcast)
 	if (broadcast != bDontBroadcast)
 	 	{
 			// RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, true, &IGameEventManager2::FireEvent, (pEvent, broadcast));
-			g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {true});
-			g_SMGlue_IGameEventManager2__FireEvent.invoke(g_SMGlue_IGameEventManager2__FireEvent.candidate(), pEvent, broadcast);
+			gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {true});
+			gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke(gameevents, pEvent, broadcast);
 			return true;
 		}
 
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {true});
+	gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {true});
 	return true;
 }
 
@@ -482,7 +482,7 @@ bool EventManager::OnFireEvent_Post(IGameEvent *pEvent, bool bDontBroadcast)
 	if (!pEvent)
 	{
 		// RETURN_META_VALUE(MRES_IGNORED, false);
-		g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {false});
+		gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {false});
 		return false;
 	}
 
@@ -535,7 +535,7 @@ bool EventManager::OnFireEvent_Post(IGameEvent *pEvent, bool bDontBroadcast)
 	m_EventStack.pop();
 
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {true});
+	gameevents->GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.create_return(MRES_IGNORED, {true});
 	return true;
 
 }

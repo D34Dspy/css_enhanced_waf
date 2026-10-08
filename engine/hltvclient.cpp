@@ -30,9 +30,20 @@ static ConVar tv_chatgroupsize( "tv_chatgroupsize", "0", 0, "Set the default cha
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+#ifdef WAF_USE_SOURCEMOD == 1
+#include "glue.hpp"
+CSourcemodGlueInterface* CHLTVClient::GetSourcemodGlue() {
+	return m_pSourcemodGlue;
+}
+#endif
+
 CHLTVClient::CHLTVClient(int slot, CBaseServer *pServer)
 {
 	Clear();
+
+#ifdef WAF_USE_SOURCEMOD == 1
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
 
 	Assert( hltv == pServer );
 
@@ -119,7 +130,7 @@ bool CHLTVClient::ProcessSaveReplay( CLC_SaveReplay *msg )
 bool CHLTVClient::ProcessVoiceData(CLC_VoiceData *msg)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, msg);
+	GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, msg);
 #endif
 	// HLTV clients can't speak
 	return true;

@@ -243,6 +243,7 @@ CBaseEntityOutput::~CBaseEntityOutput()
 	}
 }
 
+#include "glue.hpp"
 
 //-----------------------------------------------------------------------------
 // Purpose: Fires the event, causing a sequence of action to occur in other ents.
@@ -251,6 +252,10 @@ CBaseEntityOutput::~CBaseEntityOutput()
 //-----------------------------------------------------------------------------
 void CBaseEntityOutput::FireOutput(variant_t Value, CBaseEntity *pActivator, CBaseEntity *pCaller, float fDelay)
 {
+#ifdef WAF_USE_SOURCEMOD == 1
+	g_SMGlue_COutputEvent__FireOutput.invoke(this, this, pActivator, pCaller, fDelay);
+#endif
+	
 	//
 	// Iterate through all eventactions and fire them off.
 	//

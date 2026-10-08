@@ -11,6 +11,7 @@
 #include <string.h>
 #include "basetypes.h"
 #include "tier1/convar.h"
+#include "glue.hpp"
 #include "tier1/strtools.h"
 #include "tier1/characterset.h"
 #include "tier1/utlbuffer.h"
@@ -106,6 +107,8 @@ ConCommandBase::ConCommandBase( void )
 
 	m_nFlags = 0;
 	m_pNext  = NULL;
+
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
 }
 
 //-----------------------------------------------------------------------------
@@ -117,6 +120,7 @@ ConCommandBase::ConCommandBase( void )
 ConCommandBase::ConCommandBase( const char *pName, const char *pHelpString /*=0*/, int flags /*= 0*/ )
 {
 	CreateBase( pName, pHelpString, flags );
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
 }
 
 //-----------------------------------------------------------------------------
@@ -124,6 +128,11 @@ ConCommandBase::ConCommandBase( const char *pName, const char *pHelpString /*=0*
 //-----------------------------------------------------------------------------
 ConCommandBase::~ConCommandBase( void )
 {
+}
+
+CSourcemodGlueInterface* ConCommandBase::GetSourcemodGlue( )
+{ 
+	return m_pSourcemodGlue;
 }
 
 //-----------------------------------------------------------------------------
@@ -574,7 +583,7 @@ bool ConCommand::IsCommand( void ) const
 void ConCommand::Dispatch( const CCommand &command )
 {
 #if WAF_USE_SOURCEMOD == 1
-	g_SMGlue_ConCommand__Dispatch.invoke(this, const_cast<CCommand*>(&command));
+	GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.invoke(this, const_cast<CCommand*>(&command));
 #endif
 	this->DispatchOrig(command);
 }

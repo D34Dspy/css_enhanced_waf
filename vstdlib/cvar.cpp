@@ -8,6 +8,7 @@
 
 #include "vstdlib/cvar.h"
 #include <ctype.h>
+#include "glue.hpp"
 #include "tier0/icommandline.h"
 #include "tier1/utlrbtree.h"
 #include "tier1/strtools.h"
@@ -59,8 +60,12 @@ static ICvarQuery *s_pCVarQuery = NULL;
 //-----------------------------------------------------------------------------
 class CCvar : public ICvar
 {
+	CSourcemodGlueInterface* m_pSourcemodGlue;
 public:
 	CCvar();
+
+	// Sourcemod Glue
+	virtual CSourcemodGlueInterface* GetSourcemodGlue();
 
 	// Methods of IAppSystem
 	virtual bool Connect( CreateInterfaceFn factory );
@@ -221,12 +226,16 @@ CreateInterfaceFn VStdLib_GetICVarFactory()
 //-----------------------------------------------------------------------------
 CCvar::CCvar() : m_TempConsoleBuffer( 0, 1024 )
 {
+	m_pSourcemodGlue = new CSourcemodGlueInterface;
 	m_nNextDLLIdentifier = 0;
 	m_pConCommandList = NULL;
 
 	m_bMaterialSystemThreadSetAllowed = false;
 }
 
+CSourcemodGlueInterface* CCvar::GetSourcemodGlue() {
+	return m_pSourcemodGlue;
+}
 
 //-----------------------------------------------------------------------------
 // Methods of IAppSystem
@@ -300,7 +309,7 @@ CVarDLLIdentifier_t CCvar::AllocateDLLIdentifier()
 void CCvar::RegisterConCommand( ConCommandBase *variable )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_ICvar__RegisterConCommand.invoke(this, variable);
+	GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke(this, variable);
 #endif
 	// Already registered
 	if ( variable->IsRegistered() )
@@ -416,7 +425,7 @@ void CCvar::RegisterConCommand( ConCommandBase *variable )
 void CCvar::UnregisterConCommand( ConCommandBase *pCommandToRemove )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_ICvar__UnregisterConCommand.invoke(this, pCommandToRemove);
+	GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.invoke(this, pCommandToRemove);
 #endif
 	// Not registered? Don't bother
 	if ( !pCommandToRemove->IsRegistered() )

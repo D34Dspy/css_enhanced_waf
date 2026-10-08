@@ -2460,7 +2460,7 @@ LocalFlexController_t CFlexCycler::LookupFlex( const char *szTarget  )
 void CFlexCycler::Think( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_P0__Think.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
 #endif
 	SetNextThink( gpGlobals->curtime + 0.1f );
 

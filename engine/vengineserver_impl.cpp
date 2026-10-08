@@ -275,12 +275,21 @@ static bool ValidCmd( const char *pCmd )
 #endif
 class CVEngineServer : public IVEngineServer
 {
+	CSourcemodGlueInterface* m_pSourcemodGlue;
 public:
+	CVEngineServer() {
+    	m_pSourcemodGlue = new CSourcemodGlueInterface;
+	}
+
+	CSourcemodGlueInterface* GetSourcemodGlue( )
+	{ 
+		return m_pSourcemodGlue;
+	}
 
 	virtual void ChangeLevel( const char* s1, const char* s2)
 	{
 #ifdef WAF_USE_SOURCEMOD == 1
-		g_SMGlue_IVEngineServer__ChangeLevel.invoke(this, s1, s2);
+		GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.invoke(this, s1, s2);
 #endif
 		if ( !s1 )
 		{
@@ -783,7 +792,7 @@ public:
 		soundlevel_t soundlevel, int fFlags, int pitch, float soundtime /*=0.0f*/ )
 	{
 #ifdef WAF_USE_SOURCEMOD == 1
-		g_SMGlue_IVEngineServer__EmitAmbientSound.invoke(this, entindex, const_cast<Vector*>(&pos), samp, vol, soundlevel, fFlags, pitch, soundtime);
+		GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.invoke(this, entindex, const_cast<Vector*>(&pos), samp, vol, soundlevel, fFlags, pitch, soundtime);
 #endif
 		SoundInfo_t sound; 
 		sound.SetDefault();
@@ -1016,7 +1025,7 @@ public:
 	virtual void ClientCommand(edict_t* pEdict, const char* szFmt, ...)
 	{
 #ifdef WAF_USE_SOURCEMOD == 1
-		g_SMGlue_IVEngineServer__ClientCommand.invoke(this, pEdict, szFmt);
+		GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.invoke(this, pEdict, szFmt);
 #endif
 		va_list		argptr; 
 		static char	szOut[1024];
@@ -1149,7 +1158,7 @@ public:
 	virtual bf_write *UserMessageBegin( IRecipientFilter *filter, int msg_index )
 	{
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IVEngineServer__UserMessageBegin.invoke(this, filter, msg_index);
+	GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.invoke(this, filter, msg_index);
 #endif
 		if ( s_MsgData.started )
 		{
@@ -1234,7 +1243,7 @@ public:
 	virtual void MessageEnd( void )
 	{
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IVEngineServer__MessageEnd.invoke(this);
+	GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.invoke(this);
 #endif
 		if ( !s_MsgData.started )
 		{
@@ -1269,7 +1278,7 @@ public:
 	virtual void ClientPrintf( edict_t *pEdict, const char *szMsg )
 	{
 #ifdef WAF_USE_SOURCEMOD == 1
-		g_SMGlue_IVEngineServer__ClientPrintf.invoke(this, pEdict, szMsg);
+		GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.invoke(this, pEdict, szMsg);
 #endif
 		int entnum = NUM_FOR_EDICT( pEdict );
 		
@@ -1845,7 +1854,7 @@ static CUtlMemoryPool s_PVSInfoAllocator( 128, 128 * 64, CUtlMemoryPool::GROW_SL
 void CVEngineServer::PlaybackTempEntity( IRecipientFilter& filter, float delay, const void *pSender, const SendTable *pST, int classID  )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	g_SMGlue_IVEngineServer__PlaybackTempEntity.invoke(this, &filter, delay, pSender, const_cast<SendTable*>(pST), classID);
+	GetSourcemodGlue()->l_SMGlue_IVEngineServer__PlaybackTempEntity.invoke(this, &filter, delay, pSender, const_cast<SendTable*>(pST), classID);
 #endif
 	VPROF( "PlaybackTempEntity" );
 
@@ -1926,7 +1935,7 @@ client_textmessage_t *CVEngineServer::TextMessageGet( const char *pName )
 void CVEngineServer::LogPrint(const char * msg)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-		g_SMGlue_IVEngineServer__LogPrint.invoke(this, msg);
+		GetSourcemodGlue()->l_SMGlue_IVEngineServer__LogPrint.invoke(this, msg);
 #endif
 	g_Log.Print( msg );
 }
@@ -1966,7 +1975,7 @@ void CVEngineServer::ClearSaveDirAfterClientLoad()
 const char* CVEngineServer::GetMapEntitiesString()
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-		g_SMGlue_IVEngineServer__GetMapEntitiesString.invoke(this);
+		GetSourcemodGlue()->l_SMGlue_IVEngineServer__GetMapEntitiesString.invoke(this);
 #endif
 	return CM_EntityString();
 }

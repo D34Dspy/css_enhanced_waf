@@ -12,9 +12,21 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#if WAF_USE_SOURCEMOD == 1
+#include "glue.hpp"
+#endif
+
 class CVoiceServer : public IVoiceServer
 {
+#if WAF_USE_SOURCEMOD == 1
+	CSourcemodGlueInterface m_SourcemodGlue;
+#endif
 public:
+#if WAF_USE_SOURCEMOD == 1
+	virtual CSourcemodGlueInterface* GetSourcemodGlue() {
+		return &m_SourcemodGlue;
+	}
+#endif
 	
 	virtual bool	GetClientListening(int iReceiver, int iSender)
 	{

@@ -196,7 +196,7 @@ bool SDKExtension::OnExtensionLoad(IExtension *me, IShareSys *sys, char *error, 
 	if (SDK_OnLoad(error, maxlength, late))
 	{
 #if defined SMEXT_CONF_METAMOD
-		m_WeAreUnloaded = true;
+		// m_WeAreUnloaded = true;
 #endif
 		return true;
 	}

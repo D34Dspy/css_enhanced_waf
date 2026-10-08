@@ -116,7 +116,7 @@ SDKHooks g_Interface;
 SMEXT_LINK(&g_Interface);
 
 CGlobalVars *gpGlobals;
-std::vector<CVTableList *> g_HookList[SDKHook_MAXHOOKS];
+std::vector<SDKHooksHookRecord *> g_HookList[SDKHook_MAXHOOKS];
 
 IBinTools *g_pBinTools = NULL;
 ICvar *icvar = NULL;
@@ -475,7 +475,7 @@ void SDKHooks::LevelShutdown()
 #if defined PLATFORM_LINUX
 	for (size_t type = 0; type < SDKHook_MAXHOOKS; ++type)
 	{
-		std::vector<CVTableList *> &vtablehooklist = g_HookList[type];
+		std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[type];
 		for (size_t listentry = 0; listentry < vtablehooklist.size(); ++listentry)
 		{
 			std::vector<HookList> &pawnhooks = vtablehooklist[listentry]->hooks;
@@ -541,11 +541,10 @@ cell_t SDKHooks::Call(CBaseEntity *pEnt, SDKHookType type, CBaseEntity *pOther)
 {
 	cell_t ret = Pl_Continue;
 
-	CVTableHook vhook(pEnt);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[type];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[type];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEnt != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -647,11 +646,10 @@ HookReturn SDKHooks::Hook(int entity, SDKHookType type, IPluginFunction *callbac
 	}
 
 	size_t entry;
-	CVTableHook vhook(pEnt);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[type];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[type];
 	for (entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook == vtablehooklist[entry]->vtablehook)
+		if (pEnt == vtablehooklist[entry]->pEntity)
 		{
 			break;
 		}
@@ -659,150 +657,146 @@ HookReturn SDKHooks::Hook(int entity, SDKHookType type, IPluginFunction *callbac
 
 	if (entry == vtablehooklist.size())
 	{
-		int hookid = 0;
+		SDKHooksHookRecord* pRec = new SDKHooksHookRecord;
+		pRec->pParent = this;
+		pRec->pEntity = pEnt;
 		switch(type)
 		{
 			case SDKHook_EndTouch:
-				hookid = SH_ADD_MANUALVPHOOK_N(EndTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_EndTouch), false, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(EndTouch, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_EndTouch), false, 1);
 				break;
 			case SDKHook_EndTouchPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(EndTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_EndTouchPost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(EndTouch, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_EndTouchPost), true, 1);
 				break;
 			case SDKHook_FireBulletsPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(FireBullets, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_FireBulletsPost), true, 1);
-				break;
-#ifdef GETMAXHEALTH_IS_VIRTUAL
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(FireBullets, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_FireBulletsPost), true, 1);
+				break; // #ifdef GETMAXHEALTH_IS_VIRTUAL
 			case SDKHook_GetMaxHealth:
-				hookid = SH_ADD_MANUALVPHOOK_N(GetMaxHealth, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_GetMaxHealth), false, 0);
-				break;
-#endif
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(GetMaxHealth, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_GetMaxHealth), false, 0);
+				break; // #endif
 			case SDKHook_GroundEntChangedPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(GroundEntChanged, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_GroundEntChangedPost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(GroundEntChanged, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_GroundEntChangedPost), true, 1);
 				break;
 			case SDKHook_OnTakeDamage:
-				hookid = SH_ADD_MANUALVPHOOK_N(OnTakeDamage, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamage), false, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(OnTakeDamage, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_OnTakeDamage), false, 1);
 				break;
 			case SDKHook_OnTakeDamagePost:
-				hookid = SH_ADD_MANUALVPHOOK_N(OnTakeDamage, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamagePost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(OnTakeDamage, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_OnTakeDamagePost), true, 1);
 				break;
 			case SDKHook_OnTakeDamage_Alive:
-				hookid = SH_ADD_MANUALVPHOOK_N(OnTakeDamage_Alive, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamage_Alive), false, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(OnTakeDamage_Alive, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_OnTakeDamage_Alive), false, 1);
 				break;
 			case SDKHook_OnTakeDamage_AlivePost:
-				hookid = SH_ADD_MANUALVPHOOK_N(OnTakeDamage_Alive, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_OnTakeDamage_AlivePost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(OnTakeDamage_Alive, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_OnTakeDamage_AlivePost), true, 1);
 				break;
 			case SDKHook_PreThink:
-				hookid = SH_ADD_MANUALVPHOOK_N(PreThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PreThink), false, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(PreThink, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_PreThink), false, 0);
 				break;
 			case SDKHook_PreThinkPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(PreThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PreThinkPost), true, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(PreThink, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_PreThinkPost), true, 0);
 				break;
 			case SDKHook_PostThink:
-				hookid = SH_ADD_MANUALVPHOOK_N(PostThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PostThink), false, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(PostThink, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_PostThink), false, 0);
 				break;
 			case SDKHook_PostThinkPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(PostThink, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_PostThinkPost), true, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(PostThink, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_PostThinkPost), true, 0);
 				break;
 			case SDKHook_Reload:
-				hookid = SH_ADD_MANUALVPHOOK_N(Reload, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Reload), false, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Reload, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_Reload), false, 0);
 				break;
 			case SDKHook_ReloadPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Reload, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_ReloadPost), true, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Reload, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_ReloadPost), true, 0);
 				break;
 			case SDKHook_SetTransmit:
-				hookid = SH_ADD_MANUALVPHOOK_N(SetTransmit, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_SetTransmit), false, 2);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(SetTransmit, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_SetTransmit), false, 2);
 				break;
 			case SDKHook_Spawn:
-				hookid = SH_ADD_MANUALVPHOOK_N(Spawn, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Spawn), false, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Spawn, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_Spawn), false, 0);
 				break;
 			case SDKHook_SpawnPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Spawn, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_SpawnPost), true, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Spawn, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_SpawnPost), true, 0);
 				break;
 			case SDKHook_StartTouch:
-				hookid = SH_ADD_MANUALVPHOOK_N(StartTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_StartTouch), false, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(StartTouch, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_StartTouch), false, 1);
 				break;
 			case SDKHook_StartTouchPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(StartTouch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_StartTouchPost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(StartTouch, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_StartTouchPost), true, 1);
 				break;
 			case SDKHook_Think:
-				hookid = SH_ADD_MANUALVPHOOK_N(Think, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Think), false, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Think, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_Think), false, 0);
 				break;
 			case SDKHook_ThinkPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Think, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_ThinkPost), true, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Think, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_ThinkPost), true, 0);
 				break;
 			case SDKHook_Touch:
-				hookid = SH_ADD_MANUALVPHOOK_N(Touch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Touch), false, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Touch, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_Touch), false, 1);
 				break;
 			case SDKHook_TouchPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Touch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_TouchPost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Touch, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_TouchPost), true, 1);
 				break;
 			case SDKHook_TraceAttack:
-				hookid = SH_ADD_MANUALVPHOOK_N(TraceAttack, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_TraceAttack), false, 4);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(TraceAttack, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_TraceAttack), false, 4);
 				break;
 			case SDKHook_TraceAttackPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(TraceAttack, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_TraceAttackPost), true, 4);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(TraceAttack, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_TraceAttackPost), true, 4);
 				break;
 			case SDKHook_Use:
-				hookid = SH_ADD_MANUALVPHOOK_N(Use, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Use), false, 4);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Use, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_Use), false, 4);
 				break;
 			case SDKHook_UsePost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Use, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_UsePost), true, 4);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Use, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_UsePost), true, 4);
 				break;
 			case SDKHook_VPhysicsUpdate:
-				hookid = SH_ADD_MANUALVPHOOK_N(VPhysicsUpdate, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_VPhysicsUpdate), false, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(VPhysicsUpdate, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_VPhysicsUpdate), false, 1);
 				break;
 			case SDKHook_VPhysicsUpdatePost:
-				hookid = SH_ADD_MANUALVPHOOK_N(VPhysicsUpdate, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_VPhysicsUpdatePost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(VPhysicsUpdate, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_VPhysicsUpdatePost), true, 1);
 				break;
 			case SDKHook_WeaponCanSwitchTo:
-				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_CanSwitchTo, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanSwitchTo), false, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Weapon_CanSwitchTo, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_WeaponCanSwitchTo), false, 1);
 				break;
 			case SDKHook_WeaponCanSwitchToPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_CanSwitchTo, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanSwitchToPost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Weapon_CanSwitchTo, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_WeaponCanSwitchToPost), true, 1);
 				break;
 			case SDKHook_WeaponCanUse:
-				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_CanUse, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanUse), false, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Weapon_CanUse, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_WeaponCanUse), false, 1);
 				break;
 			case SDKHook_WeaponCanUsePost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_CanUse, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponCanUsePost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Weapon_CanUse, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_WeaponCanUsePost), true, 1);
 				break;
 			case SDKHook_WeaponDrop:
-				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Drop, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponDrop), false, 3);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Weapon_Drop, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_WeaponDrop), false, 3);
 				break;
 			case SDKHook_WeaponDropPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Drop, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponDropPost), true, 3);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Weapon_Drop, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_WeaponDropPost), true, 3);
 				break;
 			case SDKHook_WeaponEquip:
-				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Equip, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponEquip), false, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Weapon_Equip, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_WeaponEquip), false, 1);
 				break;
 			case SDKHook_WeaponEquipPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Equip, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponEquipPost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Weapon_Equip, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_WeaponEquipPost), true, 1);
 				break;
 			case SDKHook_WeaponSwitch:
-				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Switch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponSwitch), false, 2);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Weapon_Switch, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_WeaponSwitch), false, 2);
 				break;
 			case SDKHook_WeaponSwitchPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Weapon_Switch, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_WeaponSwitchPost), true, 2);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Weapon_Switch, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_WeaponSwitchPost), true, 2);
 				break;
 			case SDKHook_ShouldCollide:
-				hookid = SH_ADD_MANUALVPHOOK_N(ShouldCollide, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_ShouldCollide), true, 2);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(ShouldCollide, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_ShouldCollide), true, 2);
 				break;
 			case SDKHook_Blocked:
-				hookid = SH_ADD_MANUALVPHOOK_N(Blocked, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_Blocked), false, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Blocked, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_Blocked), false, 1);
 				break;
 			case SDKHook_BlockedPost:
-				hookid = SH_ADD_MANUALVPHOOK_N(Blocked, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_BlockedPost), true, 1);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(Blocked, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_BlockedPost), true, 1);
 				break;
 			case SDKHook_CanBeAutobalanced:
-				hookid = SH_ADD_MANUALVPHOOK_N(CanBeAutobalanced, pEnt, SH_MEMBER(&g_Interface, &SDKHooks::Hook_CanBeAutobalanced), false, 0);
+				pRec->hookId = SH_ADD_MANUALVPHOOK_N(CanBeAutobalanced, pEnt, SH_MEMBER(pRec, &SDKHooksHookRecord::Hook_CanBeAutobalanced), false, 0);
 				break;
 		}
 
-		vhook.SetHookID(hookid);
-
-		CVTableList *vtablelist = new CVTableList;
-		vtablelist->vtablehook = new CVTableHook(vhook);
-		vtablehooklist.push_back(vtablelist);
+		vtablehooklist.push_back(pRec);
 	}
 	
 	// Add hook to hook list
@@ -824,7 +818,7 @@ void SDKHooks::Unhook(CBaseEntity *pEntity)
 	int entity = gamehelpers->EntityToBCompatRef(pEntity);
 	for (size_t type = 0; type < SDKHook_MAXHOOKS; ++type)
 	{
-		std::vector<CVTableList *> &vtablehooklist = g_HookList[type];
+		std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[type];
 		for (size_t listentry = 0; listentry < vtablehooklist.size(); ++listentry)
 		{
 			std::vector<HookList> &pawnhooks = vtablehooklist[listentry]->hooks;
@@ -855,7 +849,7 @@ void SDKHooks::Unhook(IPluginContext *pContext)
 {
 	for (size_t type = 0; type < SDKHook_MAXHOOKS; ++type)
 	{
-		std::vector<CVTableList *> &vtablehooklist = g_HookList[type];
+		std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[type];
 		for (size_t listentry = 0; listentry < vtablehooklist.size(); ++listentry)
 		{
 			std::vector<HookList> &pawnhooks = vtablehooklist[listentry]->hooks;
@@ -890,11 +884,10 @@ void SDKHooks::Unhook(int entity, SDKHookType type, IPluginFunction *pCallback)
 		return;
 	}
 
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[type];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[type];
 	for (size_t listentry = 0; listentry < vtablehooklist.size(); ++listentry)
 	{
-		if (vhook != vtablehooklist[listentry]->vtablehook)
+		if (pEntity != vtablehooklist[listentry]->pEntity)
 		{
 			continue;
 		}
@@ -983,7 +976,7 @@ bool SDKHooks::Hook_LevelInit(char const *pMapName, char const *pMapEntities, ch
 	g_pOnLevelInit->Execute();
 
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+	gamedll->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
 	return true;
 }
 
@@ -991,18 +984,17 @@ bool SDKHooks::Hook_LevelInit(char const *pMapName, char const *pMapEntities, ch
 /**
  * CBaseEntity Hook Handlers
  */
-bool SDKHooks::Hook_CanBeAutobalanced()
+bool SDKHooksHookRecord::Hook_CanBeAutobalanced()
 {
-	CBaseEntity *pPlayer = META_IFACEPTR(CBaseEntity);
+	CBaseEntity *pPlayer = pEntity;
 	CBaseMultiplayerPlayer* pPlayer2 = (CBaseMultiplayerPlayer*)pPlayer;
 	// pPlayer2->CanBeAutobalanced();
 	
 
-	CVTableHook vhook(pPlayer);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_CanBeAutobalanced];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_CanBeAutobalanced];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pPlayer != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1034,7 +1026,7 @@ bool SDKHooks::Hook_CanBeAutobalanced()
 		if (newRet != origRet)
 		{
 			// RETURN_META_VALUE(MRES_SUPERCEDE, newRet);
-			g_SMGlue_P0__CanBeAutobalanced.create_return(MRES_SUPERCEDE, {newRet});
+			pEntity->GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.create_return(MRES_SUPERCEDE, {newRet});
 			return newRet;
 		}
 
@@ -1042,44 +1034,44 @@ bool SDKHooks::Hook_CanBeAutobalanced()
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, false);
-	g_SMGlue_P0__CanBeAutobalanced.create_return(MRES_IGNORED, {false});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.create_return(MRES_IGNORED, {false});
 	return false;
 }
 
-void SDKHooks::Hook_EndTouch(CBaseEntity *pOther)
+void SDKHooksHookRecord::Hook_EndTouch(CBaseEntity *pOther)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_EndTouch, pOther);
+	cell_t result = pParent->Call(pEntity, SDKHook_EndTouch, pOther);
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_P1__EndTouch.create_return(MRES_SUPERCEDE);
+		pEntity->GetSourcemodGlue()->l_SMGlue_P1__EndTouch.create_return(MRES_SUPERCEDE);
 		return;
 
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__EndTouch.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__EndTouch.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_EndTouchPost(CBaseEntity *pOther)
+void SDKHooksHookRecord::Hook_EndTouchPost(CBaseEntity *pOther)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_EndTouchPost, pOther);
+	pParent->Call(pEntity, SDKHook_EndTouchPost, pOther);
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__EndTouch.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__EndTouch.create_return(MRES_IGNORED);
 }
 
-void SDKHooks::Hook_FireBulletsPost(FireBulletsInfo_t *info_)
+void SDKHooksHookRecord::Hook_FireBulletsPost(FireBulletsInfo_t *info_)
 {
 	const FireBulletsInfo_t& info = *info_;
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
+	CBaseEntity *pEntity = pEntity;
 	int entity = gamehelpers->EntityToBCompatRef(pEntity);
 
 	IGamePlayer *pPlayer = playerhelpers->GetGamePlayer(entity);
 	if(!pPlayer)
 	{
 		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
+		pEntity->GetSourcemodGlue()->l_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
 		return;
 	}
 
@@ -1087,15 +1079,14 @@ void SDKHooks::Hook_FireBulletsPost(FireBulletsInfo_t *info_)
 	if(!pInfo)
 	{
 		// RETURN_META(MRES_IGNORED);
-		g_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
+		pEntity->GetSourcemodGlue()->l_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
 		return;
 	}
 
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_FireBulletsPost];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_FireBulletsPost];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1117,21 +1108,20 @@ void SDKHooks::Hook_FireBulletsPost(FireBulletsInfo_t *info_)
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
 	return;
 }
 
 #ifdef GETMAXHEALTH_IS_VIRTUAL
-int SDKHooks::Hook_GetMaxHealth()
+int SDKHooksHookRecord::Hook_GetMaxHealth()
 {
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
+	CBaseEntity *pEntity = pEntity;
 	int original_max = pEntity->GetMaxHealthOrig();
 
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_GetMaxHealth];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_GetMaxHealth];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1162,14 +1152,14 @@ int SDKHooks::Hook_GetMaxHealth()
 		if (ret >= Pl_Handled)
 		{
 			// RETURN_META_VALUE(MRES_SUPERCEDE, original_max);
-			g_SMGlue_P0__GetMaxHealth.create_return(MRES_SUPERCEDE, {original_max});
+			pEntity->GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.create_return(MRES_SUPERCEDE, {original_max});
 			return original_max;
 		}
 
 		if (ret >= Pl_Changed)
 		{
 			// RETURN_META_VALUE(MRES_SUPERCEDE, new_max);
-			g_SMGlue_P0__GetMaxHealth.create_return(MRES_SUPERCEDE, {new_max});
+			pEntity->GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.create_return(MRES_SUPERCEDE, {new_max});
 			return new_max;
 		}
 
@@ -1177,14 +1167,14 @@ int SDKHooks::Hook_GetMaxHealth()
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, original_max);
-	g_SMGlue_P0__GetMaxHealth.create_return(MRES_IGNORED, {original_max});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.create_return(MRES_IGNORED, {original_max});
 	return original_max;
 }
 #endif
 
-void SDKHooks::Hook_GroundEntChangedPost(void *pVar)
+void SDKHooksHookRecord::Hook_GroundEntChangedPost(void *pVar)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_GroundEntChangedPost);
+	pParent->Call(pEntity, SDKHook_GroundEntChangedPost);
 }
 
 CTakeDamageInfoHack& getcast(CTakeDamageInfo& info) {
@@ -1192,14 +1182,13 @@ CTakeDamageInfoHack& getcast(CTakeDamageInfo& info) {
 }
 int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo *info2, SDKHookType hookType)
 {
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
+	CBaseEntity *pEntity = pEntity;
 	CTakeDamageInfoHack& info = getcast(*info2);
 
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[hookType];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[hookType];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1245,7 +1234,7 @@ int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo *info2, SDKHookType hookTyp
 					{
 						callback->GetParentContext()->BlamePluginError(callback, "Callback-provided entity %d for attacker is invalid", attacker);
 						// RETURN_META_VALUE(MRES_IGNORED, 0);
-						g_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
+						pEntity->GetSourcemodGlue()->l_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
 						return 0;
 					}
 					CBaseEntity *pEntInflictor = gamehelpers->ReferenceToEntity(inflictor);
@@ -1253,7 +1242,7 @@ int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo *info2, SDKHookType hookTyp
 					{
 						callback->GetParentContext()->BlamePluginError(callback, "Callback-provided entity %d for inflictor is invalid", inflictor);
 						// RETURN_META_VALUE(MRES_IGNORED, 0);
-						g_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
+						pEntity->GetSourcemodGlue()->l_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
 						return 0;
 					}
 
@@ -1277,14 +1266,14 @@ int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo *info2, SDKHookType hookTyp
 		if (ret >= Pl_Handled)
 		{
 			// RETURN_META_VALUE(MRES_SUPERCEDE, 1);
-			g_SMGlue_P1__OnTakeDamage.create_return(MRES_SUPERCEDE, {1});
+			pEntity->GetSourcemodGlue()->l_SMGlue_P1__OnTakeDamage.create_return(MRES_SUPERCEDE, {1});
 			return 1;
 		}
 
 		if (ret == Pl_Changed)
 		{
 			// RETURN_META_VALUE(MRES_HANDLED, 1);
-			g_SMGlue_P1__OnTakeDamage.create_return(MRES_HANDLED, {1});
+			pEntity->GetSourcemodGlue()->l_SMGlue_P1__OnTakeDamage.create_return(MRES_HANDLED, {1});
 			return 1;
 		}
 
@@ -1292,20 +1281,19 @@ int SDKHooks::HandleOnTakeDamageHook(CTakeDamageInfo *info2, SDKHookType hookTyp
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, 0);
-	g_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
 	return 0;
 }
 
 int SDKHooks::HandleOnTakeDamageHookPost(CTakeDamageInfo *info2, SDKHookType hookType)
 {
 	CTakeDamageInfoHack& info = getcast(*info2);
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
+	CBaseEntity *pEntity = pEntity;
 
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[hookType];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[hookType];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1341,66 +1329,63 @@ int SDKHooks::HandleOnTakeDamageHookPost(CTakeDamageInfo *info2, SDKHookType hoo
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, 0);
-	g_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__OnTakeDamage.create_return(MRES_IGNORED, {0});
 	return 0;
 }
 
 
-int SDKHooks::Hook_OnTakeDamage(CTakeDamageInfo *info)
+int SDKHooksHookRecord::Hook_OnTakeDamage(CTakeDamageInfo *info)
 {
-	return HandleOnTakeDamageHook(info, SDKHook_OnTakeDamage);
+	return pParent->HandleOnTakeDamageHook(info, SDKHook_OnTakeDamage);
 }
 
-int SDKHooks::Hook_OnTakeDamagePost(CTakeDamageInfo *info)
+int SDKHooksHookRecord::Hook_OnTakeDamagePost(CTakeDamageInfo *info)
 {
-	return HandleOnTakeDamageHookPost(info, SDKHook_OnTakeDamagePost);
+	return pParent->HandleOnTakeDamageHookPost(info, SDKHook_OnTakeDamagePost);
 }
 
-int SDKHooks::Hook_OnTakeDamage_Alive(CTakeDamageInfo*info)
+int SDKHooksHookRecord::Hook_OnTakeDamage_Alive(CTakeDamageInfo*info)
 {
-	return HandleOnTakeDamageHook(info, SDKHook_OnTakeDamage_Alive);
+	return pParent->HandleOnTakeDamageHook(info, SDKHook_OnTakeDamage_Alive);
 }
 
-int SDKHooks::Hook_OnTakeDamage_AlivePost(CTakeDamageInfo *info)
+int SDKHooksHookRecord::Hook_OnTakeDamage_AlivePost(CTakeDamageInfo *info)
 {
-	return HandleOnTakeDamageHookPost(info, SDKHook_OnTakeDamage_AlivePost);
+	return pParent->HandleOnTakeDamageHookPost(info, SDKHook_OnTakeDamage_AlivePost);
 }
 
-void SDKHooks::Hook_PreThink()
+void SDKHooksHookRecord::Hook_PreThink()
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_PreThink);
+	pParent->Call(pEntity, SDKHook_PreThink);
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P0__PreThink.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P0__PreThink.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_PreThinkPost()
+void SDKHooksHookRecord::Hook_PreThinkPost()
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_PreThinkPost);
+	pParent->Call(pEntity, SDKHook_PreThinkPost);
 }
 
-void SDKHooks::Hook_PostThink()
+void SDKHooksHookRecord::Hook_PostThink()
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_PostThink);
+	pParent->Call(pEntity, SDKHook_PostThink);
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P0__PostThink.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P0__PostThink.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_PostThinkPost()
+void SDKHooksHookRecord::Hook_PostThinkPost()
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_PostThinkPost);
+	pParent->Call(pEntity, SDKHook_PostThinkPost);
 }
 
-bool SDKHooks::Hook_Reload()
+bool SDKHooksHookRecord::Hook_Reload()
 {
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
-
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_Reload];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_Reload];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1420,7 +1405,7 @@ bool SDKHooks::Hook_Reload()
 		if (res >= Pl_Handled)
 		{
 			// RETURN_META_VALUE(MRES_SUPERCEDE, false);
-			g_SMGlue_P0__Reload.create_return(MRES_SUPERCEDE, {false});
+			pEntity->GetSourcemodGlue()->l_SMGlue_P0__Reload.create_return(MRES_SUPERCEDE, {false});
 			return false;
 		}
 
@@ -1428,19 +1413,16 @@ bool SDKHooks::Hook_Reload()
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_P0__Reload.create_return(MRES_IGNORED, {true});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P0__Reload.create_return(MRES_IGNORED, {true});
 	return true;
 }
 
-bool SDKHooks::Hook_ReloadPost()
+bool SDKHooksHookRecord::Hook_ReloadPost()
 {
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
-
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_ReloadPost];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_ReloadPost];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1464,32 +1446,31 @@ bool SDKHooks::Hook_ReloadPost()
 	return true;
 }
 
-void SDKHooks::Hook_SetTransmit(CCheckTransmitInfo *pInfo, bool bAlways)
+void SDKHooksHookRecord::Hook_SetTransmit(CCheckTransmitInfo *pInfo, bool bAlways)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_SetTransmit, gamehelpers->IndexOfEdict(pInfo->m_pClientEnt));
+	cell_t result = pParent->Call(pEntity, SDKHook_SetTransmit, gamehelpers->IndexOfEdict(pInfo->m_pClientEnt));
 
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_P2__SetTransmit.create_return(MRES_SUPERCEDE);
+		pEntity->GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.create_return(MRES_SUPERCEDE);
 		return;
 
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P2__SetTransmit.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.create_return(MRES_IGNORED);
 	return;
 }
 
-bool SDKHooks::Hook_ShouldCollide(int collisionGroup, int contentsMask)
+bool SDKHooksHookRecord::Hook_ShouldCollide(int collisionGroup, int contentsMask)
 {
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
+	CBaseEntity *pEntity = pEntity;
 
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_ShouldCollide];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_ShouldCollide];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1517,25 +1498,22 @@ bool SDKHooks::Hook_ShouldCollide(int collisionGroup, int contentsMask)
 		}
 
 		// RETURN_META_VALUE(MRES_SUPERCEDE, ret);
-		g_SMGlue_P2__ShouldCollide.create_return(MRES_SUPERCEDE, {ret});
+		pEntity->GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.create_return(MRES_SUPERCEDE, {ret});
 		return ret;
 		
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_P2__ShouldCollide.create_return(MRES_SUPERCEDE, {true});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.create_return(MRES_SUPERCEDE, {true});
 	return true;
 }
 
-void SDKHooks::Hook_Spawn()
+void SDKHooksHookRecord::Hook_Spawn()
 {
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
-
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_Spawn];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_Spawn];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1562,7 +1540,7 @@ void SDKHooks::Hook_Spawn()
 		if (ret >= Pl_Handled)
 		{
 			// RETURN_META(MRES_SUPERCEDE);
-			g_SMGlue_P0__Spawn.create_return(MRES_SUPERCEDE);
+			pEntity->GetSourcemodGlue()->l_SMGlue_P0__Spawn.create_return(MRES_SUPERCEDE);
 			return;
 
 		}
@@ -1571,98 +1549,97 @@ void SDKHooks::Hook_Spawn()
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P0__Spawn.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P0__Spawn.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_SpawnPost()
+void SDKHooksHookRecord::Hook_SpawnPost()
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_SpawnPost);
+	pParent->Call(pEntity, SDKHook_SpawnPost);
 }
 
-void SDKHooks::Hook_StartTouch(CBaseEntity *pOther)
+void SDKHooksHookRecord::Hook_StartTouch(CBaseEntity *pOther)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_StartTouch, pOther);
+	cell_t result = pParent->Call(pEntity, SDKHook_StartTouch, pOther);
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_P1__StartTouch.create_return(MRES_SUPERCEDE);
+		pEntity->GetSourcemodGlue()->l_SMGlue_P1__StartTouch.create_return(MRES_SUPERCEDE);
 		return;
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__StartTouch.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__StartTouch.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_StartTouchPost(CBaseEntity *pOther)
+void SDKHooksHookRecord::Hook_StartTouchPost(CBaseEntity *pOther)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_StartTouchPost, pOther);
+	pParent->Call(pEntity, SDKHook_StartTouchPost, pOther);
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__StartTouch.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__StartTouch.create_return(MRES_IGNORED);
 }
 
-void SDKHooks::Hook_Think()
+void SDKHooksHookRecord::Hook_Think()
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_Think);
+	cell_t result = pParent->Call(pEntity, SDKHook_Think);
 
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_P0__Think.create_return(MRES_SUPERCEDE);
+		pEntity->GetSourcemodGlue()->l_SMGlue_P0__Think.create_return(MRES_SUPERCEDE);
 		return;
 
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P0__Think.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P0__Think.create_return(MRES_IGNORED);
 }
 
-void SDKHooks::Hook_ThinkPost()
+void SDKHooksHookRecord::Hook_ThinkPost()
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_ThinkPost);
+	pParent->Call(pEntity, SDKHook_ThinkPost);
 }
 
-void SDKHooks::Hook_Touch(CBaseEntity *pOther)
+void SDKHooksHookRecord::Hook_Touch(CBaseEntity *pOther)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_Touch, pOther);
+	cell_t result = pParent->Call(pEntity, SDKHook_Touch, pOther);
 
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_P1__Touch.create_return(MRES_SUPERCEDE);
+		pEntity->GetSourcemodGlue()->l_SMGlue_P1__Touch.create_return(MRES_SUPERCEDE);
 		return;
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__Touch.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__Touch.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_TouchPost(CBaseEntity *pOther)
+void SDKHooksHookRecord::Hook_TouchPost(CBaseEntity *pOther)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_TouchPost, pOther);
+	pParent->Call(pEntity, SDKHook_TouchPost, pOther);
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__Touch.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__Touch.create_return(MRES_IGNORED);
 	return;
 }
 
 #if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_PVKII
-void SDKHooks::Hook_TraceAttack(CTakeDamageInfo*info2,Vector *vecDir_, trace_t *ptr, CDmgAccumulator *pAccumulator)
+void SDKHooksHookRecord::Hook_TraceAttack(CTakeDamageInfo*info2,Vector *vecDir_, trace_t *ptr, CDmgAccumulator *pAccumulator)
 #else
-void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr)
+void SDKHooksHookRecord::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr)
 #endif
 {
 	const Vector& vecDir = *vecDir_;
 	auto& info = getcast(*info2);
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
+	CBaseEntity *pEntity = pEntity;
 
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_TraceAttack];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_TraceAttack];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1701,7 +1678,7 @@ void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir,
 					{
 						callback->GetParentContext()->BlamePluginError(callback, "Callback-provided entity %d for attacker is invalid", attacker);
 						// nRETURN_META(MRES_IGNORED);
-						g_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
+						pEntity->GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
 						return;
 					}
 					CBaseEntity *pEntInflictor = gamehelpers->ReferenceToEntity(inflictor);
@@ -1709,7 +1686,7 @@ void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir,
 					{
 						callback->GetParentContext()->BlamePluginError(callback, "Callback-provided entity %d for inflictor is invalid", inflictor);
 						// RETURN_META(MRES_IGNORED);
-						g_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
+						pEntity->GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
 						return;
 					}
 					
@@ -1725,14 +1702,14 @@ void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir,
 		if(ret >= Pl_Handled)
 		{
 			// RETURN_META(MRES_SUPERCEDE);
-			g_SMGlue_P4__TraceAttack.create_return(MRES_SUPERCEDE);
+			pEntity->GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.create_return(MRES_SUPERCEDE);
 			return;
 		}
 
 		if(ret == Pl_Changed)
 		{
 			// RETURN_META(MRES_HANDLED);
-			g_SMGlue_P4__TraceAttack.create_return(MRES_HANDLED);
+			pEntity->GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.create_return(MRES_HANDLED);
 			return;
 		}
 
@@ -1740,26 +1717,25 @@ void SDKHooks::Hook_TraceAttack(CTakeDamageInfoHack &info, const Vector &vecDir,
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
 	return;
 }
 
 #if SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_TF2 \
 	|| SOURCE_ENGINE == SE_BMS || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_PVKII
-void SDKHooks::Hook_TraceAttackPost(CTakeDamageInfo*info2, Vector *vecDir_, trace_t *ptr, CDmgAccumulator *pAccumulator)
+void SDKHooksHookRecord::Hook_TraceAttackPost(CTakeDamageInfo*info2, Vector *vecDir_, trace_t *ptr, CDmgAccumulator *pAccumulator)
 #else
-void SDKHooks::Hook_TraceAttackPost(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr)
+void SDKHooksHookRecord::Hook_TraceAttackPost(CTakeDamageInfoHack &info, const Vector &vecDir, trace_t *ptr)
 #endif
 {
 	const Vector& vecDir = *vecDir_;
 	auto& info = getcast(*info2);
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
+	CBaseEntity *pEntity = pEntity;
 
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_TraceAttackPost];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_TraceAttackPost];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1786,19 +1762,18 @@ void SDKHooks::Hook_TraceAttackPost(CTakeDamageInfoHack &info, const Vector &vec
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
+void SDKHooksHookRecord::Hook_Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
+	CBaseEntity *pEntity = pEntity;
 
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_Use];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_Use];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1831,7 +1806,7 @@ void SDKHooks::Hook_Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 		if (ret >= Pl_Handled)
 		{
 			// RETURN_META(MRES_SUPERCEDE);
-			g_SMGlue_P4__Use.create_return(MRES_SUPERCEDE);
+			pEntity->GetSourcemodGlue()->l_SMGlue_P4__Use.create_return(MRES_SUPERCEDE);
 			return;
 		}
 
@@ -1839,19 +1814,18 @@ void SDKHooks::Hook_Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P4__Use.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P4__Use.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_UsePost(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
+void SDKHooksHookRecord::Hook_UsePost(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
-	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
+	CBaseEntity *pEntity = pEntity;
 
-	CVTableHook vhook(pEntity);
-	std::vector<CVTableList *> &vtablehooklist = g_HookList[SDKHook_UsePost];
+	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_UsePost];
 	for (size_t entry = 0; entry < vtablehooklist.size(); ++entry)
 	{
-		if (vhook != vtablehooklist[entry]->vtablehook)
+		if (pEntity != vtablehooklist[entry]->pEntity)
 		{
 			continue;
 		}
@@ -1877,7 +1851,7 @@ void SDKHooks::Hook_UsePost(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P4__Use.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P4__Use.create_return(MRES_IGNORED);
 	return;
 }
 
@@ -1894,160 +1868,160 @@ void SDKHooks::OnEntityDeleted(CBaseEntity *pEntity)
 	HandleEntityDeleted(pEntity);
 }
 
-void SDKHooks::Hook_VPhysicsUpdate(IPhysicsObject *pPhysics)
+void SDKHooksHookRecord::Hook_VPhysicsUpdate(IPhysicsObject *pPhysics)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_VPhysicsUpdate);
+	pParent->Call(pEntity, SDKHook_VPhysicsUpdate);
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__VPhysicsUpdate.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_VPhysicsUpdatePost(IPhysicsObject *pPhysics)
+void SDKHooksHookRecord::Hook_VPhysicsUpdatePost(IPhysicsObject *pPhysics)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_VPhysicsUpdatePost);
+	pParent->Call(pEntity, SDKHook_VPhysicsUpdatePost);
 }
 
-void SDKHooks::Hook_Blocked(CBaseEntity *pOther)
+void SDKHooksHookRecord::Hook_Blocked(CBaseEntity *pOther)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_Blocked, pOther);
+	cell_t result = pParent->Call(pEntity, SDKHook_Blocked, pOther);
 
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_P1__Blocked.create_return(MRES_SUPERCEDE);
+		pEntity->GetSourcemodGlue()->l_SMGlue_P1__Blocked.create_return(MRES_SUPERCEDE);
 		return;
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__Blocked.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__Blocked.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_BlockedPost(CBaseEntity *pOther)
+void SDKHooksHookRecord::Hook_BlockedPost(CBaseEntity *pOther)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_BlockedPost, pOther);
+	pParent->Call(pEntity, SDKHook_BlockedPost, pOther);
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__Blocked.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__Blocked.create_return(MRES_IGNORED);
 	return;
 }
 
-bool SDKHooks::Hook_WeaponCanSwitchTo(CBaseCombatWeapon *pWeapon)
+bool SDKHooksHookRecord::Hook_WeaponCanSwitchTo(CBaseCombatWeapon *pWeapon)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponCanSwitchTo, pWeapon);
+	cell_t result = pParent->Call(pEntity, SDKHook_WeaponCanSwitchTo, pWeapon);
 
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META_VALUE(MRES_SUPERCEDE, false);
-		g_SMGlue_P1__Weapon_CanSwitchTo.create_return(MRES_SUPERCEDE, {false});
+		pEntity->GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.create_return(MRES_SUPERCEDE, {false});
 		return false;
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_P1__Weapon_CanSwitchTo.create_return(MRES_IGNORED, {true});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.create_return(MRES_IGNORED, {true});
 	return true;
 }
 
-bool SDKHooks::Hook_WeaponCanSwitchToPost(CBaseCombatWeapon *pWeapon)
+bool SDKHooksHookRecord::Hook_WeaponCanSwitchToPost(CBaseCombatWeapon *pWeapon)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponCanSwitchToPost, pWeapon);
+	pParent->Call(pEntity, SDKHook_WeaponCanSwitchToPost, pWeapon);
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_P1__Weapon_CanSwitchTo.create_return(MRES_IGNORED, {true});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.create_return(MRES_IGNORED, {true});
 	return true;
 }
 
-bool SDKHooks::Hook_WeaponCanUse(CBaseCombatWeapon *pWeapon)
+bool SDKHooksHookRecord::Hook_WeaponCanUse(CBaseCombatWeapon *pWeapon)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponCanUse, pWeapon);
+	cell_t result = pParent->Call(pEntity, SDKHook_WeaponCanUse, pWeapon);
 
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META_VALUE(MRES_SUPERCEDE, false);
-		g_SMGlue_P1__Weapon_CanUse.create_return(MRES_SUPERCEDE, {false});
+		pEntity->GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.create_return(MRES_SUPERCEDE, {false});
 		return false;
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_P1__Weapon_CanUse.create_return(MRES_IGNORED, {true});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.create_return(MRES_IGNORED, {true});
 	return true;
 }
 
-bool SDKHooks::Hook_WeaponCanUsePost(CBaseCombatWeapon *pWeapon)
+bool SDKHooksHookRecord::Hook_WeaponCanUsePost(CBaseCombatWeapon *pWeapon)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponCanUsePost, pWeapon);
+	pParent->Call(pEntity, SDKHook_WeaponCanUsePost, pWeapon);
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_P1__Weapon_CanUse.create_return(MRES_IGNORED, {true});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.create_return(MRES_IGNORED, {true});
 	return true;
 }
 
-void SDKHooks::Hook_WeaponDrop(CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity)
+void SDKHooksHookRecord::Hook_WeaponDrop(CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponDrop, pWeapon);
+	cell_t result = pParent->Call(pEntity, SDKHook_WeaponDrop, pWeapon);
 
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_P3__Weapon_Drop.create_return(MRES_SUPERCEDE);
+		pEntity->GetSourcemodGlue()->l_SMGlue_P3__Weapon_Drop.create_return(MRES_SUPERCEDE);
 		return;
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P3__Weapon_Drop.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P3__Weapon_Drop.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_WeaponDropPost(CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity)
+void SDKHooksHookRecord::Hook_WeaponDropPost(CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponDropPost, pWeapon);
+	pParent->Call(pEntity, SDKHook_WeaponDropPost, pWeapon);
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P3__Weapon_Drop.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P3__Weapon_Drop.create_return(MRES_IGNORED);
 	return;
 }
 
-void SDKHooks::Hook_WeaponEquip(CBaseCombatWeapon *pWeapon)
+void SDKHooksHookRecord::Hook_WeaponEquip(CBaseCombatWeapon *pWeapon)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponEquip, pWeapon);
+	cell_t result = pParent->Call(pEntity, SDKHook_WeaponEquip, pWeapon);
 
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META(MRES_SUPERCEDE);
-		g_SMGlue_P1__Weapon_Equip.create_return(MRES_SUPERCEDE);
+		pEntity->GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.create_return(MRES_SUPERCEDE);
 		return; 
 	}
 
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__Weapon_Equip.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.create_return(MRES_IGNORED);
 	return; 
 }
 
-void SDKHooks::Hook_WeaponEquipPost(CBaseCombatWeapon *pWeapon)
+void SDKHooksHookRecord::Hook_WeaponEquipPost(CBaseCombatWeapon *pWeapon)
 {
-	Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponEquipPost, pWeapon);
+	pParent->Call(pEntity, SDKHook_WeaponEquipPost, pWeapon);
 	// RETURN_META(MRES_IGNORED);
-	g_SMGlue_P1__Weapon_Equip.create_return(MRES_IGNORED);
+	pEntity->GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.create_return(MRES_IGNORED);
 	return; 
 }
 
-bool SDKHooks::Hook_WeaponSwitch(CBaseCombatWeapon *pWeapon, int viewmodelindex)
+bool SDKHooksHookRecord::Hook_WeaponSwitch(CBaseCombatWeapon *pWeapon, int viewmodelindex)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponSwitch, pWeapon);
+	cell_t result = pParent->Call(pEntity, SDKHook_WeaponSwitch, pWeapon);
 
 	if(result >= Pl_Handled)
 	{
 		// RETURN_META_VALUE(MRES_SUPERCEDE, false);
-		g_SMGlue_P2__Weapon_Switch.create_return(MRES_SUPERCEDE, {false});
+		pEntity->GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.create_return(MRES_SUPERCEDE, {false});
 		return false;
 	}
 
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_P2__Weapon_Switch.create_return(MRES_IGNORED, {true});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.create_return(MRES_IGNORED, {true});
 	return true;
 }
 
-bool SDKHooks::Hook_WeaponSwitchPost(CBaseCombatWeapon *pWeapon, int viewmodelindex)
+bool SDKHooksHookRecord::Hook_WeaponSwitchPost(CBaseCombatWeapon *pWeapon, int viewmodelindex)
 {
-	cell_t result = Call(META_IFACEPTR(CBaseEntity), SDKHook_WeaponSwitchPost, pWeapon);
+	cell_t result = pParent->Call(pEntity, SDKHook_WeaponSwitchPost, pWeapon);
 	// RETURN_META_VALUE(MRES_IGNORED, true);
-	g_SMGlue_P2__Weapon_Switch.create_return(MRES_IGNORED, {true});
+	pEntity->GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.create_return(MRES_IGNORED, {true});
 	return true;
 }
 

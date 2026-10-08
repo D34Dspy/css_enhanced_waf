@@ -32,10 +32,12 @@
 #include "extension.h"
 #include "output.h"
 #include "am-string.h"
+#include "glue.hpp"
 
 ISourcePawnEngine *spengine = NULL;
 EntityOutputManager g_OutputManager;
-CDetour *fireOutputDetour = NULL;
+bool fireOutputDetour = false;
+int fireOutputDetourHook = -1;
 
 EntityOutputManager::EntityOutputManager()
 {
@@ -53,7 +55,8 @@ void EntityOutputManager::Shutdown()
 	}
 
 	ClassNames->Destroy();
-	fireOutputDetour->Destroy();
+	// fireOutputDetour->Destroy();
+	g_SMGlue_COutputEvent__FireOutput.remove(fireOutputDetourHook, 0);
 }
 
 void EntityOutputManager::Init()
@@ -86,21 +89,21 @@ DETOUR_DECL_MEMBER8(FireOutput, void, int, what, int, the, int, hell, int, msvc,
 	DETOUR_MEMBER_CALL(FireOutput)(what, the, hell, msvc, variant_t, pActivator, pCaller, fDelay);
 }
 #else
-DETOUR_DECL_MEMBER4(FireOutput, void, void *, variant_t, CBaseEntity *, pActivator, CBaseEntity *, pCaller, float, fDelay)
+void FireOutput(CBaseEntityOutput* pOutput, CBaseEntity * pActivator, CBaseEntity * pCaller, float fDelay)
 {
-	bool fireOutput = g_OutputManager.FireEventDetour((void *)this, pActivator, pCaller, fDelay);
+	bool fireOutput = g_OutputManager.FireEventDetour((void *)pOutput, pActivator, pCaller, fDelay);
 
 	if (!fireOutput)
 	{
-		return;
+		g_SMGlue_COutputEvent__FireOutput.create_return(MRES_SUPERCEDE);
 	}
 
-	DETOUR_MEMBER_CALL(FireOutput)(variant_t, pActivator, pCaller, fDelay);
 }
 #endif
 
 bool EntityOutputManager::CreateFireEventDetour()
 {
+	/*
 	fireOutputDetour = DETOUR_CREATE_MEMBER(FireOutput, "FireOutput");
 
 	if (fireOutputDetour)
@@ -108,7 +111,10 @@ bool EntityOutputManager::CreateFireEventDetour()
 		return true;
 	}
 
-	return false;
+	return false;*/
+	fireOutputDetourHook = g_SMGlue_COutputEvent__FireOutput.add(FireOutput,nullptr);
+
+	return true;
 }
 
 bool EntityOutputManager::FireEventDetour(void *pOutput, CBaseEntity *pActivator, CBaseEntity *pCaller, float fDelay)
@@ -235,7 +241,7 @@ void EntityOutputManager::OnHookAdded()
 	if (HookCount == 1)
 	{
 		// This is the first hook created
-		fireOutputDetour->EnableDetour();
+		fireOutputDetour = true;
 	}
 }
 
@@ -245,7 +251,7 @@ void EntityOutputManager::OnHookRemoved()
 
 	if (HookCount == 0)
 	{
-		fireOutputDetour->DisableDetour();
+		fireOutputDetour = false;
 	}
 }
 
