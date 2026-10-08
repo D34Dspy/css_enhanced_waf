@@ -222,7 +222,7 @@ DETOUR_DECL_MEMBER3(DetourTerminateRound, void, int, reason, int, unknown, int, 
 #if SOURCE_ENGINE == SE_CSGO
 DETOUR_DECL_MEMBER3(DetourCSWeaponDrop, void, CBaseEntity *, weapon, bool, bThrowForward, bool, bDonated)
 #else
-void DetourCSWeaponDrop(CCSPlayer* pOwner, CBaseCombatWeapon * weapon, bool bDropShield, bool bThrowForward)
+bool DetourCSWeaponDrop(CCSPlayer* pOwner, CBaseCombatWeapon * weapon, bool bDropShield, bool bThrowForward)
 #endif
 {
 	if (g_pIgnoreCSWeaponDropDetour)
@@ -236,7 +236,7 @@ void DetourCSWeaponDrop(CCSPlayer* pOwner, CBaseCombatWeapon * weapon, bool bDro
         g_SMGlue_CCSPlayer__CSWeaponDrop.create_return(MRES_IGNORED);
         
 #endif
-		return;
+		return false;
 	}
 
 	int client = gamehelpers->EntityToBCompatRef(pOwner);
@@ -260,12 +260,12 @@ void DetourCSWeaponDrop(CCSPlayer* pOwner, CBaseCombatWeapon * weapon, bool bDro
 #else
 		// DETOUR_MEMBER_CALL(DetourCSWeaponDrop)(weapon, bDropShield, bThrowForward);
         g_SMGlue_CCSPlayer__CSWeaponDrop.create_return(MRES_OVERRIDE);
-        return;
+        return false;
 #endif
 	}
 
     g_SMGlue_CCSPlayer__CSWeaponDrop.create_return(MRES_SUPERCEDE);
-	return;
+	return false;
 }
 
 bool g_pTerminateRoundDetoured = false;

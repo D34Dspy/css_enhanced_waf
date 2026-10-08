@@ -626,7 +626,11 @@ void CServerPlugin::OnEdictFreed( const edict_t *edict )
 void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValues *data, IServerPluginCallbacks *plugin )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke(this, pEntity, type, data, plugin);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke(this, pEntity, type, data, plugin);
+	if (GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( !pEntity )
 	{

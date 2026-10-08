@@ -4292,7 +4292,11 @@ ConVar cl_autohelp(
 	void CCSGameRules::TerminateRound(float tmDelay, int iReason )
 	{
 		#ifdef WAF_USE_SOURCEMOD
-		g_SMGlue_CCSGameRules__TerminateRound.invoke(this, this, tmDelay, iReason);
+		auto sm_result = g_SMGlue_CCSGameRules__TerminateRound.invoke(this, this, tmDelay, iReason);
+		if (g_SMGlue_CCSGameRules__TerminateRound.skip_original())
+		{
+			return sm_result.unwrap();
+		}
 		#endif
 
 		TerminateRoundOriginal(tmDelay, iReason);

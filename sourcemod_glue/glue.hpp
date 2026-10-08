@@ -68,7 +68,7 @@ extern SourcemodRouter< fastdelegate::FastDelegate2<CCSPlayer*,const char*>, CCS
 // CCSGameRules::TerminateRound
 extern SourcemodRouter< fastdelegate::FastDelegate3<CCSGameRules*, float, int>, CCSGameRules > g_SMGlue_CCSGameRules__TerminateRound;
 // bool CCSPlayer::CSWeaponDrop( CBaseCombatWeapon *pWeapon, bool bDropShield, bool bThrowForward )
-extern SourcemodRouter< fastdelegate::FastDelegate4<CCSPlayer*,CBaseCombatWeapon*,bool,bool>, CCSPlayer > g_SMGlue_CCSPlayer__CSWeaponDrop;
+extern SourcemodRouter< fastdelegate::FastDelegate4<CCSPlayer*,CBaseCombatWeapon*,bool,bool,bool>, CCSPlayer > g_SMGlue_CCSPlayer__CSWeaponDrop;
 
 template <typename T> inline int SMGlue_MkHook4_ConCommand__Dispatch ( fastdelegate::FastDelegate1<CCommand *> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_ConCommand__Dispatch(delegate, instance, post);}
 template <typename T> inline int SMGlue_MkHook4_IBaseFileSystem__FileExists ( fastdelegate::FastDelegate2<const char*, const char*, bool> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_IBaseFileSystem__FileExists(delegate,instance,post);}

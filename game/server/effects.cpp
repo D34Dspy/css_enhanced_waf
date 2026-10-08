@@ -416,7 +416,11 @@ void CGibShooter::Precache ( void )
 void CGibShooter::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	SetThink( &CGibShooter::ShootThink );
 	SetNextThink( gpGlobals->curtime );
@@ -961,7 +965,11 @@ void CTestEffect::Precache( void )
 void CTestEffect::Think( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+	if (GetSourcemodGlue()->l_SMGlue_P0__Think.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	int i;
 	float t = (gpGlobals->curtime - m_flStartTime);
@@ -1021,7 +1029,11 @@ void CTestEffect::Think( void )
 void CTestEffect::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	SetNextThink( gpGlobals->curtime + 0.1f );
 	m_flStartTime = gpGlobals->curtime;
@@ -1284,7 +1296,11 @@ void CEnvFunnel::Precache ( void )
 void CEnvFunnel::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	CBroadcastRecipientFilter filter;
 	te->LargeFunnel( filter, 0.0,
@@ -1357,7 +1373,11 @@ bool CEnvBeverage::KeyValue( const char *szKeyName, const char *szValue )
 void CEnvBeverage::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( m_CanInDispenser || m_iHealth <= 0 )
 	{

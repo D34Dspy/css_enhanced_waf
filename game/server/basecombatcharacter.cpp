@@ -2078,7 +2078,11 @@ void CBaseCombatCharacter::SetLightingOriginRelative( CBaseEntity *pLightingOrig
 void CBaseCombatCharacter::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// Add the weapon to my weapon inventory
 	for (int i=0;i<MAX_WEAPONS;i++) 
@@ -2295,7 +2299,11 @@ CBaseCombatWeapon *CBaseCombatCharacter::Weapon_GetWpnForAmmo( int iAmmoIndex )
 bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke(this, pWeapon);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke(this, pWeapon);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	acttable_t *pTable		= pWeapon->ActivityList();
 	int			actCount	= pWeapon->ActivityListCount();
@@ -2568,7 +2576,11 @@ Vector CBaseCombatCharacter::BodyDirection3D( void )
 void CBaseCombatCharacter::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// Skip this work if we're already marked for transmission.
 	if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
@@ -3037,7 +3049,11 @@ ConVar	phys_stressbodyweights( "phys_stressbodyweights", "5.0" );
 void CBaseCombatCharacter::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	ApplyStressDamage( pPhysics, false );
 	BaseClass::VPhysicsUpdate( pPhysics );

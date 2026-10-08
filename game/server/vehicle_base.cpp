@@ -253,7 +253,11 @@ void CPropVehicle::Think()
 void CPropVehicle::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( IsMarkedForDeletion() )
 		return;
@@ -558,7 +562,11 @@ void CPropVehicleDriveable::VehicleAngleVectors( const QAngle &angles, Vector *p
 void CPropVehicleDriveable::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	if ( !pPlayer )
@@ -978,7 +986,11 @@ int CPropVehicleDriveable::VPhysicsGetObjectList( IPhysicsObject **pList, int li
 void CPropVehicleDriveable::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// If we've just been zapped by the physcannon, try and right ourselves
 	if ( info.GetDamageType() & DMG_PHYSGUN )

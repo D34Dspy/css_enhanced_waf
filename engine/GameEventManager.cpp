@@ -367,7 +367,11 @@ IGameEvent *CGameEventManager::CreateEvent( const char *name, bool bForce )
 bool CGameEventManager::FireEvent( IGameEvent *event, bool bServerOnly )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke(this, event, bServerOnly);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke(this, event, bServerOnly);
+	if (GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	return FireEventIntern( event, bServerOnly, false );
 }

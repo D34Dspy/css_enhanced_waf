@@ -83,7 +83,11 @@ void C_PlantedC4::SetDormant( bool bDormant )
 void C_PlantedC4::Spawn( void )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke(this);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke(this);
+	if (GetSourcemodGlue()->l_SMGlue_P0__Spawn.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	BaseClass::Spawn();
 

@@ -5,4 +5,4 @@ SourcemodRouter< fastdelegate::FastDelegate4<CBaseEntityOutput*,CBaseEntity*, CB
 SourcemodRouter< fastdelegate::FastDelegate1<CCSWeaponInfo*, int>, CCSWeaponInfo > g_SMGlue_CCSWeaponInfo__GetWeaponPrice;
 SourcemodRouter< fastdelegate::FastDelegate2<CCSPlayer*,const char*>, CCSPlayer > g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal;
 SourcemodRouter< fastdelegate::FastDelegate3<CCSGameRules*, float, int>, CCSGameRules > g_SMGlue_CCSGameRules__TerminateRound;
-SourcemodRouter< fastdelegate::FastDelegate4<CCSPlayer*,CBaseCombatWeapon*,bool,bool>, CCSPlayer > g_SMGlue_CCSPlayer__CSWeaponDrop;
+SourcemodRouter< fastdelegate::FastDelegate4<CCSPlayer*,CBaseCombatWeapon*,bool,bool,bool>, CCSPlayer > g_SMGlue_CCSPlayer__CSWeaponDrop;

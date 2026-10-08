@@ -139,7 +139,11 @@ void CTriggerPortal::SetRemotePortal(const char *strRemotePortalName )
 void CTriggerPortal::EndTouch(CBaseEntity *pOther)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	BaseClass::EndTouch(pOther);
 
@@ -161,7 +165,11 @@ void CTriggerPortal::EndTouch(CBaseEntity *pOther)
 void CTriggerPortal::Touch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// If we are enabled, and allowed to react to the touched entity
 	if ( PassesTriggerFilters(pOther) )

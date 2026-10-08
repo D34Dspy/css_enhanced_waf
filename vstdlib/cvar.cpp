@@ -309,7 +309,11 @@ CVarDLLIdentifier_t CCvar::AllocateDLLIdentifier()
 void CCvar::RegisterConCommand( ConCommandBase *variable )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke(this, variable);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke(this, variable);
+	if (GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// Already registered
 	if ( variable->IsRegistered() )
@@ -425,7 +429,11 @@ void CCvar::RegisterConCommand( ConCommandBase *variable )
 void CCvar::UnregisterConCommand( ConCommandBase *pCommandToRemove )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.invoke(this, pCommandToRemove);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.invoke(this, pCommandToRemove);
+	if (GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// Not registered? Don't bother
 	if ( !pCommandToRemove->IsRegistered() )

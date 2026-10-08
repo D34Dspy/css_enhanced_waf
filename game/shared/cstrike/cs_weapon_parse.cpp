@@ -296,7 +296,11 @@ int	CCSWeaponInfo::GetWeaponPrice( void ) const
 {
 #ifdef WAF_USE_SOURCEMOD == 1
 	auto this_ = const_cast<CCSWeaponInfo*>(this);
-	g_SMGlue_CCSWeaponInfo__GetWeaponPrice.invoke(this_, this_);
+	auto sm_result = g_SMGlue_CCSWeaponInfo__GetWeaponPrice.invoke(this_, this_);
+	if (g_SMGlue_CCSWeaponInfo__GetWeaponPrice.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	return GetWeaponPriceOriginal();
 }

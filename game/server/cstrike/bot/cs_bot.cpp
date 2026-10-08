@@ -108,7 +108,11 @@ bool CCSBot::Jump( bool mustJump )
 int CCSBot::OnTakeDamage( const CTakeDamageInfo &info )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke(this, (FireBulletsInfo_t*)const_cast<CTakeDamageInfo*>(&info));
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke(this, (FireBulletsInfo_t*)const_cast<CTakeDamageInfo*>(&info));
+	if (GetSourcemodGlue()->l_SMGlue_P1__FireBullets.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	CBaseEntity *attacker = info.GetInflictor();
 
@@ -258,7 +262,11 @@ extern void UTIL_DrawBox( Extent *extent, int lifetime, int red, int green, int 
 void CCSBot::Touch( CBaseEntity *other )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, other);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, other);
+	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// EXTEND
 	BaseClass::Touch( other );

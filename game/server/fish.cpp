@@ -195,7 +195,11 @@ void CFish::Event_Killed( const CTakeDamageInfo &info )
 void CFish::Touch( CBaseEntity *other )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, other);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, other);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if (other && other->IsPlayer())
 	{

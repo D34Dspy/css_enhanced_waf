@@ -847,7 +847,11 @@ void CBasePlayer::Weapon_SetLast( CBaseCombatWeapon *pWeapon )
 bool CBasePlayer::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex /*=0*/ ) 
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke(this, pWeapon, viewmodelindex);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke(this, pWeapon, viewmodelindex);
+	if (GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	CBaseCombatWeapon *pLastWeapon = GetActiveWeapon();
 

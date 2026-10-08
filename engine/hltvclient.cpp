@@ -130,7 +130,11 @@ bool CHLTVClient::ProcessSaveReplay( CLC_SaveReplay *msg )
 bool CHLTVClient::ProcessVoiceData(CLC_VoiceData *msg)
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, msg);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, msg);
+	if (GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// HLTV clients can't speak
 	return true;

@@ -529,7 +529,11 @@ void CAmbientGeneric::Activate( void )
 void CAmbientGeneric::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// Ambient generics never transmit; this is just a way for us to ensure
 	// the sound source gets transmitted; that's why we don't call pInfo->m_pTransmitEdict->Set

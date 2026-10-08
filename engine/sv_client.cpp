@@ -249,7 +249,11 @@ bool CGameClient::ProcessMove(CLC_Move *msg)
 bool CGameClient::ProcessVoiceData( CLC_VoiceData *msg )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, msg);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, msg);
+	if (GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	char voiceDataBuffer[4096];
 	int bitsRead = msg->m_DataIn.ReadBitsClamped( voiceDataBuffer, msg->m_nLength );

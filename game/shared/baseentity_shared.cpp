@@ -2637,7 +2637,11 @@ void CBaseEntity::InputAddOutput( inputdata_t &inputdata )
 bool CBaseEntity::ShouldCollide( int collisionGroup, int contentsMask ) const
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.invoke(const_cast<CBaseEntity*>(this), collisionGroup, contentsMask);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.invoke(const_cast<CBaseEntity*>(this), collisionGroup, contentsMask);
+	if (GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( m_CollisionGroup == COLLISION_GROUP_DEBRIS )
 	{
@@ -2650,7 +2654,11 @@ bool CBaseEntity::ShouldCollide( int collisionGroup, int contentsMask ) const
 void CBaseEntity::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	Vector vecOrigin = ptr->endpos - vecDir * 4;
 
@@ -2680,7 +2688,11 @@ void CBaseEntity::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke(this, const_cast<FireBulletsInfo_t*>(&info));
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke(this, const_cast<FireBulletsInfo_t*>(&info));
+	if (GetSourcemodGlue()->l_SMGlue_P1__FireBullets.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	static int	tracerCount;
 	trace_t		tr;

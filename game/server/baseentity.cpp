@@ -2104,7 +2104,11 @@ int CBaseEntity::ObjectCaps( void )
 void CBaseEntity::StartTouch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// notify parent
 	if ( m_pParent != NULL )
@@ -2114,7 +2118,11 @@ void CBaseEntity::StartTouch( CBaseEntity *pOther )
 void CBaseEntity::Touch( CBaseEntity *pOther )
 { 
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( m_pfnTouch ) 
 		(this->*m_pfnTouch)( pOther );
@@ -2127,7 +2135,11 @@ void CBaseEntity::Touch( CBaseEntity *pOther )
 void CBaseEntity::EndTouch( CBaseEntity *pOther )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	// notify parent
 	if ( m_pParent != NULL )
@@ -2147,7 +2159,11 @@ void CBaseEntity::EndTouch( CBaseEntity *pOther )
 void CBaseEntity::Blocked( CBaseEntity *pOther )
 { 
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+	if (GetSourcemodGlue()->l_SMGlue_P0__Think.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( m_pfnBlocked )
 	{
@@ -2174,7 +2190,11 @@ void CBaseEntity::Blocked( CBaseEntity *pOther )
 void CBaseEntity::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) 
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	if ( m_pfnUse != NULL ) 
 	{
@@ -3568,7 +3588,11 @@ int CBaseEntity::ShouldTransmit( const CCheckTransmitInfo *pInfo )
 void CBaseEntity::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
 #ifdef WAF_USE_SOURCEMOD == 1
-	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
+	{
+		return sm_result.unwrap();
+	}
 #endif
 	int index = entindex();
 
