@@ -4,9 +4,6 @@
 
 from __future__ import print_function
 from waflib import Logs, Context, Configure
-from waflib.Tools import cxx
-from waflib.TaskGen import feature, after_method
-
 import sys
 import os
 
@@ -47,161 +44,160 @@ int main () { return 0; }
 Context.Context.line_just = 55 # should fit for everything on 80x26
 
 projects={
-    'game': [
-        'appframework',
-        'bitmap',
-        'choreoobjects',
-        'datacache',
-        'datamodel',
-        'dmxloader',
-        'engine',
-        'engine/voice_codecs/minimp3',
-        'filesystem',
-        'game/client',
-        'game/server',
-        'gameui',
-        'inputsystem',
-        'ivp/havana',
-        'ivp/havana/havok/hk_base',
-        'ivp/havana/havok/hk_math',
-        'ivp/ivp_compact_builder',
-        'ivp/ivp_physics',
-        'launcher',
-        'launcher_main',
-        'materialsystem',
+	'game': [
+		'appframework',
+		'bitmap',
+		'choreoobjects',
+		'datacache',
+		'datamodel',
+		'dmxloader',
+		'engine',
+		'engine/voice_codecs/minimp3',
+		'filesystem',
+		'game/client',
+		'game/server',
+		'gameui',
+		'inputsystem',
+		'ivp/havana',
+		'ivp/havana/havok/hk_base',
+		'ivp/havana/havok/hk_math',
+		'ivp/ivp_compact_builder',
+		'ivp/ivp_physics',
+		'launcher',
+		'launcher_main',
+		'materialsystem',
 #		'materialsystem/shaderapiempty',
-        'materialsystem/shaderapidx9',
-        'materialsystem/shaderlib',
-        'materialsystem/stdshaders',
-        'mathlib',
-        'particles',
-        'scenefilecache',
-        'serverbrowser',
-        'soundemittersystem',
-        'studiorender',
-        'stub_steam',
-        'tier0',
-        'tier1',
-        'tier2',
-        'tier3',
-        'vgui2/matsys_controls',
-        'vgui2/src',
-        'vgui2/vgui_controls',
-        'vgui2/vgui_surfacelib',
-        'vguimatsurface',
-        'video',
-        'vphysics',
-        'vpklib',
-        'vstdlib',
-        'vtf',
-        'utils/vtex',
-        'unicode',
-        'video'
-    ],
-    'tests': [
-        'appframework',
-        'tier0',
-        'tier1',
-        'tier2',
-        'tier3',
-        'unitlib',
-        'mathlib',
-        'vstdlib',
-        'filesystem',
-        'vpklib',
-        'unittests/tier0test',
-        'unittests/tier1test',
-        'unittests/tier2test',
-        'unittests/tier3test',
-        'unittests/mathlibtest',
-        'utils/unittest'
-    ],
-    'dedicated': [
-        'appframework',
-        'bitmap',
-        'choreoobjects',
-        'datacache',
-        'dedicated',
-        'dedicated_main',
-        'dmxloader',
-        'engine',
-        'game/server',
-        'ivp/havana',
-        'ivp/havana/havok/hk_base',
-        'ivp/havana/havok/hk_math',
-        'ivp/ivp_compact_builder',
-        'ivp/ivp_physics',
-        'materialsystem',
-        'mathlib',
-        'particles',
-        'scenefilecache',
-        'materialsystem/shaderapiempty',
-        'materialsystem/shaderlib',
-        'soundemittersystem',
-        'studiorender',
-        'tier0',
-        'tier1',
-        'tier2',
-        'tier3',
-        'vgui2/vgui_controls',
-        'vphysics',
-        'vpklib',
-        'vstdlib',
-        'vtf',
-        'stub_steam',
+		'materialsystem/shaderapidx9',
+		'materialsystem/shaderlib',
+		'materialsystem/stdshaders',
+		'mathlib',
+		'particles',
+		'scenefilecache',
+		'serverbrowser',
+		'soundemittersystem',
+		'studiorender',
+		'stub_steam',
+		'tier0',
+		'tier1',
+		'tier2',
+		'tier3',
+		'vgui2/matsys_controls',
+		'vgui2/src',
+		'vgui2/vgui_controls',
+		'vgui2/vgui_surfacelib',
+		'vguimatsurface',
+		'video',
+		'vphysics',
+		'vpklib',
+		'vstdlib',
+		'vtf',
+		'utils/vtex',
+		'unicode',
+		'video'
+	],
+	'tests': [
+		'appframework',
+		'tier0',
+		'tier1',
+		'tier2',
+		'tier3',
+		'unitlib',
+		'mathlib',
+		'vstdlib',
+		'filesystem',
+		'vpklib',
+		'unittests/tier0test',
+		'unittests/tier1test',
+		'unittests/tier2test',
+		'unittests/tier3test',
+		'unittests/mathlibtest',
+		'utils/unittest'
+	],
+	'dedicated': [
+		'appframework',
+		'bitmap',
+		'choreoobjects',
+		'datacache',
+		'dedicated',
+		'dedicated_main',
+		'dmxloader',
+		'engine',
+		'game/server',
+		'ivp/havana',
+		'ivp/havana/havok/hk_base',
+		'ivp/havana/havok/hk_math',
+		'ivp/ivp_compact_builder',
+		'ivp/ivp_physics',
+		'materialsystem',
+		'mathlib',
+		'particles',
+		'scenefilecache',
+		'materialsystem/shaderapiempty',
+		'materialsystem/shaderlib',
+		'soundemittersystem',
+		'studiorender',
+		'tier0',
+		'tier1',
+		'tier2',
+		'tier3',
+		'vgui2/vgui_controls',
+		'vphysics',
+		'vpklib',
+		'vstdlib',
+		'vtf',
+		'stub_steam',
 
-        'sourcemod_glue',
-        'sourcemod_curl_dep',
-        'sourcemod_core',
-        'sourcemod_logic',
-        'sourcemod_cstrike',
-        'sourcemod_sqlite',
-        'sourcemod_curl',
-        'sourcemod_sdktools',
-        'sourcemod_bintools',
-        'sourcemod_clientprefs',
-        'sourcemod_regex',
-        'sourcemod_topmenus',
-        'sourcemod_structs',
-        'sourcemod_geoip',
-        'sourcemod_sdkhooks',
-        'sourcemod_metamod_core',
-        'sourcemod_metamod_loader',
-        'sourcemod_metamod_versionlib',
-        'sourcemod_dhooks',
-        'sourcemod_sourcepawn_vm',
-    ]
+		'sourcemod_glue',
+		'sourcemod_curl_dep',
+		'sourcemod_core',
+		'sourcemod_logic',
+		'sourcemod_cstrike',
+		'sourcemod_sqlite',
+		'sourcemod_curl',
+		'sourcemod_sdktools',
+		'sourcemod_bintools',
+		'sourcemod_clientprefs',
+		'sourcemod_regex',
+		'sourcemod_topmenus',
+		'sourcemod_structs',
+		'sourcemod_geoip',
+		'sourcemod_sdkhooks',
+		'sourcemod_metamod_core',
+		'sourcemod_metamod_loader',
+		'sourcemod_metamod_versionlib',
+		'sourcemod_dhooks',
+		'sourcemod_sourcepawn_vm',
+	]
 }
 
 @Configure.conf
 def check_pkg(conf, package, uselib_store, fragment, *k, **kw):
-    errormsg = '{0} not available! Install {0} development package. Also you may need to set PKG_CONFIG_PATH environment variable'.format(package)
-    confmsg = 'Checking for \'{0}\' sanity'.format(package)
-    errormsg2 = '{0} isn\'t installed correctly. Make sure you installed proper development package for target architecture'.format(package)
+	errormsg = '{0} not available! Install {0} development package. Also you may need to set PKG_CONFIG_PATH environment variable'.format(package)
+	confmsg = 'Checking for \'{0}\' sanity'.format(package)
+	errormsg2 = '{0} isn\'t installed correctly. Make sure you installed proper development package for target architecture'.format(package)
 
-    try:
-        conf.check_cfg(package=package, args='--cflags --libs', uselib_store=uselib_store, *k, **kw )
-    except conf.errors.ConfigurationError:
-        conf.fatal(errormsg)
+	try:
+		conf.check_cfg(package=package, args='--cflags --libs', uselib_store=uselib_store, *k, **kw )
+	except conf.errors.ConfigurationError:
+		conf.fatal(errormsg)
 
-    try:
-        conf.check_cxx(fragment=fragment, use=uselib_store, msg=confmsg, *k, **kw)
-    except conf.errors.ConfigurationError:
-        conf.fatal(errormsg2)
+	try:
+		conf.check_cxx(fragment=fragment, use=uselib_store, msg=confmsg, *k, **kw)
+	except conf.errors.ConfigurationError:
+		conf.fatal(errormsg2)
 
 @Configure.conf
 def get_taskgen_count(self):
-    try: idx = self.tg_idx_count
-    except: idx = 0 # don't set tg_idx_count to not increase counter
-    return idx
+	try: idx = self.tg_idx_count
+	except: idx = 0 # don't set tg_idx_count to not increase counter
+	return idx
 
 @Configure.conf
 def run_test(self, fragment, msg):
-    result = self.check_cxx(fragment=fragment, msg=msg, mandatory = False)
-    return False if result == None else True
+	result = self.check_cxx(fragment=fragment, msg=msg, mandatory = False)
+	return False if result == None else True
 
 def define_platform(conf):
-<<<<<<< HEAD
 	if conf.options.DEDICATED:
 		conf.options.SDL = False
 		conf.options.DXVK = False
@@ -215,64 +211,44 @@ def define_platform(conf):
 	conf.env.TOGLES = conf.options.TOGLES
 	conf.env.GL = conf.options.GL and not conf.options.TESTS and not conf.options.DEDICATED and not conf.options.DXVK
 	conf.env.OPUS = conf.options.OPUS
-=======
-    conf.env.DEDICATED = conf.options.DEDICATED
-    conf.env.TESTS = conf.options.TESTS
-    conf.env.TOGLES = conf.options.TOGLES
-    conf.env.GL = conf.options.GL and not conf.options.TESTS and not conf.options.DEDICATED
-    conf.env.OPUS = conf.options.OPUS
->>>>>>> 23b092ac (authored sourcemod cstrike to stop using CDetour,)
 
-    arch32 = conf.run_test(CPP_32BIT_CHECK, 'Testing 32bit support')
-    arch64 = conf.run_test(CPP_64BIT_CHECK, 'Testing 64bit support')
+	arch32 = conf.run_test(CPP_32BIT_CHECK, 'Testing 32bit support')
+	arch64 = conf.run_test(CPP_64BIT_CHECK, 'Testing 64bit support')
 
-    if not (arch32 ^ arch64):
-        conf.fatal('Your compiler sucks')
+	if not (arch32 ^ arch64):
+		conf.fatal('Your compiler sucks')
 
-<<<<<<< HEAD
 	if conf.options.DXVK:
 		conf.define('DXVK_ENABLED', 1)
 
 	conf.env.USE_DXVK = conf.options.DXVK
-	if conf.options.DEDICATED:
-		conf.options.SDL = False
-		conf.define('DEDICATED', 1)
 	
 	if conf.options.SOURCEMOD:
 		conf.define('WAF_USE_SOURCEMOD', 1)
-=======
-    if conf.options.DEDICATED:
-        conf.options.SDL = False
-        conf.define('DEDICATED', 1)
-    
-    if conf.options.SOURCEMOD:
-        conf.define('WAF_USE_SOURCEMOD', 1)
->>>>>>> 23b092ac (authored sourcemod cstrike to stop using CDetour,)
 
-    if conf.options.TESTS:
-        conf.define('UNITTESTS', 1)
+	if conf.options.TESTS:
+		conf.define('UNITTESTS', 1)
 
-    if conf.env.GL:
-        conf.env.append_unique('DEFINES', [
-            'DX_TO_GL_ABSTRACTION',
-            'GL_GLEXT_PROTOTYPES',
-            'BINK_VIDEO'
-        ])
+	if conf.env.GL:
+		conf.env.append_unique('DEFINES', [
+			'DX_TO_GL_ABSTRACTION',
+			'GL_GLEXT_PROTOTYPES',
+			'BINK_VIDEO'
+		])
 
-    if conf.options.TOGLES:
-        conf.env.append_unique('DEFINES', ['TOGLES'])
+	if conf.options.TOGLES:
+		conf.env.append_unique('DEFINES', ['TOGLES'])
 
-    if conf.options.TESTS:
-        conf.define('UNITTESTS', 1)
+	if conf.options.TESTS:
+		conf.define('UNITTESTS', 1)
 
-    if conf.options.SDL and not conf.options.TESTS:
-        conf.env.SDL = 1
-        conf.define('USE_SDL', 1)
+	if conf.options.SDL and not conf.options.TESTS:
+		conf.env.SDL = 1
+		conf.define('USE_SDL', 1)
 
-    if arch64:
-        conf.define('PLATFORM_64BITS', 1)
+	if arch64:
+		conf.define('PLATFORM_64BITS', 1)
 
-<<<<<<< HEAD
 	if conf.env.DEST_OS == 'linux':
 		# conf.define('_GLIBCXX_USE_CXX11_ABI',0)
 		conf.env.append_unique('DEFINES', [
@@ -314,144 +290,85 @@ def define_platform(conf):
 			'NO_HOOK_MALLOC',
 			'_DLL_EXT=.dylib'
 		])
-=======
-    if conf.env.DEST_OS == 'linux':
-        conf.define('_GLIBCXX_USE_CXX11_ABI',0)
-        conf.env.append_unique('DEFINES', [
-            'LINUX=1', '_LINUX=1',
-            'POSIX=1', '_POSIX=1', 'PLATFORM_POSIX=1',
-            'GNUC',
-            'NO_HOOK_MALLOC',
-            '_DLL_EXT=.so'
-        ])
-        conf.env.append_unique('CFLAGS', '-U_FORTIFY_SOURCE')
-        conf.env.append_unique('CXXFLAGS', '-U_FORTIFY_SOURCE')
-    elif conf.env.DEST_OS == 'android':
-        conf.env.append_unique('DEFINES', [
-            'ANDROID=1', '_ANDROID=1',
-            'LINUX=1', '_LINUX=1',
-            'POSIX=1', '_POSIX=1',
-            'GNUC',
-            'NO_HOOK_MALLOC',
-            '_DLL_EXT=.so'
-        ])
-        
-    elif conf.env.DEST_OS == 'win32':
-        conf.env.append_unique('DEFINES', [
-            'WIN32=1', '_WIN32=1',
-            '_WINDOWS',
-            '_DLL_EXT=.dll',
-            '_CRT_SECURE_NO_DEPRECATE',
-            '_CRT_NONSTDC_NO_DEPRECATE',
-            '_ALLOW_RUNTIME_LIBRARY_MISMATCH',
-            '_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH',
-            '_ALLOW_MSC_VER_MISMATCH',
-            'NO_X360_XDK'
-        ])
-    elif conf.env.DEST_OS == 'darwin':
-        conf.env.append_unique('DEFINES', [
-            'OSX=1', '_OSX=1',
-            'POSIX=1', '_POSIX=1', 'PLATFORM_POSIX=1',
-            'GNUC',
-            'NO_HOOK_MALLOC',
-            '_DLL_EXT=.dylib'
-        ])
->>>>>>> 23b092ac (authored sourcemod cstrike to stop using CDetour,)
 
-    elif conf.env.DEST_OS in ['freebsd', 'openbsd', 'netbsd', 'dragonflybsd']: # Tested only in freebsd
-        conf.env.append_unique('DEFINES', [
-            'POSIX=1', '_POSIX=1', 'PLATFORM_POSIX=1',
-            'GNUC', # but uses clang
-            'PLATFORM_BSD=1',
-            '_DLL_EXT=.so'
-        ])
+	elif conf.env.DEST_OS in ['freebsd', 'openbsd', 'netbsd', 'dragonflybsd']: # Tested only in freebsd
+		conf.env.append_unique('DEFINES', [
+			'POSIX=1', '_POSIX=1', 'PLATFORM_POSIX=1',
+			'GNUC', # but uses clang
+			'PLATFORM_BSD=1',
+			'_DLL_EXT=.so'
+		])
 
-    # Let people use LD_PRELOAD for custom allocators
-    conf.define('NO_MEMOVERRIDE_NEW_DELETE', 1)
-    conf.define('NO_MALLOC_OVERRIDE', 1)
+	# Let people use LD_PRELOAD for custom allocators
+	conf.define('NO_MEMOVERRIDE_NEW_DELETE', 1)
+	conf.define('NO_MALLOC_OVERRIDE', 1)
 
-    conf.define('MEMALLOC_SUPPORTS_ALIGNED_ALLOCATIONS', 1)
+	conf.define('MEMALLOC_SUPPORTS_ALIGNED_ALLOCATIONS', 1)
 
-    if conf.options.DEBUG_ENGINE:
-        conf.env.append_unique('DEFINES', [
-            'DEBUG', '_DEBUG'
-        ])
-    else:
-        conf.env.append_unique('DEFINES', [
-            'NDEBUG'
-        ])
+	if conf.options.DEBUG_ENGINE:
+		conf.env.append_unique('DEFINES', [
+			'DEBUG', '_DEBUG'
+		])
+	else:
+		conf.env.append_unique('DEFINES', [
+			'NDEBUG'
+		])
 
-    conf.define('GIT_COMMIT_HASH', conf.env.GIT_VERSION)
+	conf.define('GIT_COMMIT_HASH', conf.env.GIT_VERSION)
 
 def options(opt):
-    grp = opt.add_option_group('Common options')
+	grp = opt.add_option_group('Common options')
 
-    grp.add_option('-P', '--profiling', dest='PROFILING', type = int, default = 0, action='store', help='Add profiling support (0 to 4)')
+	grp.add_option('-P', '--profiling', dest='PROFILING', type = int, default = 0, action='store', help='Add profiling support (0 to 4)')
 
-    grp.add_option('-4', '--32bits', action = 'store_true', dest = 'TARGET32', default = False,
-        help = 'allow targetting 32-bit engine(Linux/Windows/OSX x86 only) [default: %(default)r]')
+	grp.add_option('-4', '--32bits', action = 'store_true', dest = 'TARGET32', default = False,
+		help = 'allow targetting 32-bit engine(Linux/Windows/OSX x86 only) [default: %(default)r]')
 
-    grp.add_option('-d', '--dedicated', action = 'store_true', dest = 'DEDICATED', default = False,
-        help = 'build dedicated server [default: %(default)r]')
+	grp.add_option('-d', '--dedicated', action = 'store_true', dest = 'DEDICATED', default = False,
+		help = 'build dedicated server [default: %(default)r]')
 
-    grp.add_option('-sm', '--sourcemod', action = 'store_true', dest = 'SOURCEMOD', default = False,
-        help = 'build sourcemod [default: %(default)r]')
+	grp.add_option('-sm', '--sourcemod', action = 'store_true', dest = 'SOURCEMOD', default = False,
+		help = 'build sourcemod [default: %(default)r]')
 
-    grp.add_option('--tests', action = 'store_true', dest = 'TESTS', default = False,
-        help = 'build unit tests [default: %(default)r]')
+	grp.add_option('--tests', action = 'store_true', dest = 'TESTS', default = False,
+		help = 'build unit tests [default: %(default)r]')
 
-    grp.add_option('-D', '--debug-engine', action = 'store_true', dest = 'DEBUG_ENGINE', default = False,
-        help = 'build with -DDEBUG [default: %(default)r]')
+	grp.add_option('-D', '--debug-engine', action = 'store_true', dest = 'DEBUG_ENGINE', default = False,
+		help = 'build with -DDEBUG [default: %(default)r]')
 
-    grp.add_option('--use-sdl', action = 'store', dest = 'SDL', type = int, default = sys.platform != 'win32',
-        help = 'build engine with SDL [default: %(default)r]')
+	grp.add_option('--use-sdl', action = 'store', dest = 'SDL', type = int, default = sys.platform != 'win32',
+		help = 'build engine with SDL [default: %(default)r]')
 
-    grp.add_option('--use-togl', action = 'store', dest = 'GL', type = int, default = sys.platform != 'win32',
-        help = 'build engine with ToGL [default: %(default)r]')
+	grp.add_option('--use-togl', action = 'store', dest = 'GL', type = int, default = sys.platform != 'win32',
+		help = 'build engine with ToGL [default: %(default)r]')
 
-    grp.add_option('--build-games', action = 'store', dest = 'GAMES', type = str, default = 'cstrike',
-        help = 'build games [default: %(default)s]')
+	grp.add_option('--build-games', action = 'store', dest = 'GAMES', type = str, default = 'cstrike',
+		help = 'build games [default: %(default)s]')
 
-    grp.add_option('--use-ccache', action = 'store_true', dest = 'CCACHE', default = False,
-        help = 'build using ccache [default: %(default)r]')
+	grp.add_option('--use-ccache', action = 'store_true', dest = 'CCACHE', default = False,
+		help = 'build using ccache [default: %(default)r]')
 
-    grp.add_option('--disable-warns', action = 'store_true', dest = 'DISABLE_WARNS', default = False,
-        help = 'build without warnings [default: %(default)r]')
+	grp.add_option('--disable-warns', action = 'store_true', dest = 'DISABLE_WARNS', default = False,
+		help = 'build without warnings [default: %(default)r]')
 
-    grp.add_option('--togles', action = 'store_true', dest = 'TOGLES', default = False,
-        help = 'build engine with ToGLES [default: %(default)r]')
+	grp.add_option('--togles', action = 'store_true', dest = 'TOGLES', default = False,
+		help = 'build engine with ToGLES [default: %(default)r]')
 
-<<<<<<< HEAD
 	grp.add_option('--dxvk', dest = 'DXVK', default = 'true',
 		help = 'build engine with DXVK (true/false) [default: %(default)s]')
 
 	# TODO(nillerusr): add wscript for opus building
 	grp.add_option('--enable-opus', action = 'store_true', dest = 'OPUS', default = False,
 		help = 'build engine with Opus voice codec [default: %(default)r]')
-=======
-    # TODO(nillerusr): add wscript for opus building
-    grp.add_option('--enable-opus', action = 'store_true', dest = 'OPUS', default = False,
-        help = 'build engine with Opus voice codec [default: %(default)r]')
->>>>>>> 23b092ac (authored sourcemod cstrike to stop using CDetour,)
 
-    grp.add_option('--distcc', action = 'store_true', dest = 'DISTCC', default = False,
-        help = 'build using distcc [default: %(default)r]')
-
-    grp.add_option('--distcc-debug', action = 'store_true', dest = 'DISTCC_DEBUG', default = False,
-        help = 'build using distcc debug options [default: %(default)r]')
-
-    grp.add_option('-abs', '--absolute-path', action = 'store_true', dest = 'ABS', default = False,
-        help = 'build using absolute filenames [default: %(default)r]')
-
-    grp.add_option('--sanitize', action = 'store_true', dest = 'SANITIZE', default = False,
-        help = 'build with sanitizers [default: %(default)r]')
-    opt.load('xcompile compiler_cxx compiler_c compiler_optimizations sdl2 clang_compilation_database waf_unit_test subproject')
-    if sys.platform == 'win32':
-        opt.load('msvc msdev msvs')
-    opt.load('reconfigure')
+	grp.add_option('--sanitize', action = 'store_true', dest = 'SANITIZE', default = False,
+		help = 'build with sanitizers [default: %(default)r]')
+	opt.load('xcompile compiler_cxx compiler_c compiler_optimizations sdl2 clang_compilation_database waf_unit_test subproject')
+	if sys.platform == 'win32':
+		opt.load('msvc msdev msvs')
+	opt.load('reconfigure')
 
 def check_deps(conf):
-<<<<<<< HEAD
 	if conf.env.DEST_OS != 'win32':
 		conf.check_cc(lib='dl', mandatory=False)
 		conf.check_cc(lib='bz2', mandatory=True)
@@ -459,63 +376,55 @@ def check_deps(conf):
 		conf.check_cc(lib='zstd', mandatory=True)
 		if conf.options.DXVK:
 			conf.check(lib='dxvk_d3d9', uselib_store='DXVK', mandatory=True)
-=======
-    if conf.env.DEST_OS != 'win32':
-        conf.check_cc(lib='dl', mandatory=False)
-        conf.check_cc(lib='bz2', mandatory=True)
-        conf.check_cc(lib='rt', mandatory=False)
-        conf.check_cc(lib='zstd', mandatory=True)
->>>>>>> 23b092ac (authored sourcemod cstrike to stop using CDetour,)
 
-        if not conf.env.LIB_M: # HACK: already added in xcompile!
-            conf.check_cc(lib='m')
-    else:
-        # Common Win32 libraries
-        # Don't check them more than once, to save time
-        # Usually, they are always available
-        # but we need them in uselib
-        a = [
-            'user32',
-            'shell32',
-            'gdi32',
-            'advapi32',
-            'dbghelp',
-            'psapi',
-            'ws2_32',
-            'rpcrt4',
-            'winmm',
-            'wininet',
-            'ole32',
-            'shlwapi',
-            'imm32'
-        ]
+		if not conf.env.LIB_M: # HACK: already added in xcompile!
+			conf.check_cc(lib='m')
+	else:
+		# Common Win32 libraries
+		# Don't check them more than once, to save time
+		# Usually, they are always available
+		# but we need them in uselib
+		a = [
+			'user32',
+			'shell32',
+			'gdi32',
+			'advapi32',
+			'dbghelp',
+			'psapi',
+			'ws2_32',
+			'rpcrt4',
+			'winmm',
+			'wininet',
+			'ole32',
+			'shlwapi',
+			'imm32'
+		]
 
-        if conf.env.COMPILER_CC == 'msvc':
-            for i in a:
-                conf.check_lib_msvc(i)
-        else:
-            for i in a:
-                conf.check_cc(lib = i)
+		if conf.env.COMPILER_CC == 'msvc':
+			for i in a:
+				conf.check_lib_msvc(i)
+		else:
+			for i in a:
+				conf.check_cc(lib = i)
 
-    if conf.env.DEST_OS == "darwin":
-        conf.check(lib='iconv', uselib_store='ICONV')
-        conf.env.FRAMEWORK_APPKIT = "AppKit"
-        conf.env.FRAMEWORK_IOKIT = "IOKit"
-        conf.env.FRAMEWORK_FOUNDATION = "Foundation"
-        conf.env.FRAMEWORK_COREFOUNDATION = "CoreFoundation"
-        conf.env.FRAMEWORK_COREGRAPHICS = "CoreGraphics"
-        conf.env.FRAMEWORK_OPENGL = "OpenGL"
-        conf.env.FRAMEWORK_CARBON = "Carbon"
-        conf.env.FRAMEWORK_APPLICATIONSERVICES = "ApplicationServices"
-        conf.env.FRAMEWORK_CORESERVICES = "CoreServices"
-        conf.env.FRAMEWORK_COREAUDIO = "CoreAudio"
-        conf.env.FRAMEWORK_AUDIOTOOLBOX = "AudioToolbox"
-        conf.env.FRAMEWORK_SYSTEMCONFIGURATION = "SystemConfiguration"
+	if conf.env.DEST_OS == "darwin":
+		conf.check(lib='iconv', uselib_store='ICONV')
+		conf.env.FRAMEWORK_APPKIT = "AppKit"
+		conf.env.FRAMEWORK_IOKIT = "IOKit"
+		conf.env.FRAMEWORK_FOUNDATION = "Foundation"
+		conf.env.FRAMEWORK_COREFOUNDATION = "CoreFoundation"
+		conf.env.FRAMEWORK_COREGRAPHICS = "CoreGraphics"
+		conf.env.FRAMEWORK_OPENGL = "OpenGL"
+		conf.env.FRAMEWORK_CARBON = "Carbon"
+		conf.env.FRAMEWORK_APPLICATIONSERVICES = "ApplicationServices"
+		conf.env.FRAMEWORK_CORESERVICES = "CoreServices"
+		conf.env.FRAMEWORK_COREAUDIO = "CoreAudio"
+		conf.env.FRAMEWORK_AUDIOTOOLBOX = "AudioToolbox"
+		conf.env.FRAMEWORK_SYSTEMCONFIGURATION = "SystemConfiguration"
 
-    if conf.options.TESTS:
-        return
+	if conf.options.TESTS:
+		return
 
-<<<<<<< HEAD
 	if conf.env.DEST_OS != 'android':
 		if conf.env.DEST_OS != 'win32':
 			if conf.options.SDL:
@@ -578,85 +487,30 @@ def check_deps(conf):
 			conf.check(lib='opus', uselib_store='OPUS')
 
 		# conf.multicheck(*a, run_all_tests = True, mandatory = True)
-=======
-    if conf.env.DEST_OS != 'android':
-        if conf.env.DEST_OS != 'win32':
-            if conf.options.SDL:
-                conf.check_cfg(package='sdl2', uselib_store='SDL2', args=['--cflags', '--libs'])
-            if conf.options.DEDICATED:
-                conf.check_cfg(package='libedit', uselib_store='EDIT', args=['--cflags', '--libs'])
-            else:
-                conf.check_pkg('freetype2', 'FT2', FT2_CHECK)
-                conf.check_pkg('fontconfig', 'FC', FC_CHECK)
-                if conf.env.DEST_OS == "darwin":
-                    conf.env.FRAMEWORK_OPENAL = "OpenAL"
-                else:
-                    conf.check_cfg(package='openal', uselib_store='OPENAL', args=['--cflags', '--libs'])
-                conf.check_cfg(package='libjpeg', uselib_store='JPEG', args=['--cflags', '--libs'])
-                conf.check_cfg(package='libpng', uselib_store='PNG', args=['--cflags', '--libs'])
-                conf.check_cfg(package='libcurl', uselib_store='CURL', args=['--cflags', '--libs'])
-            conf.check_cfg(package='zlib', uselib_store='ZLIB', args=['--cflags', '--libs'])
-
-            if conf.options.OPUS:
-                conf.check_cfg(package='opus', uselib_store='OPUS', args=['--cflags', '--libs'])
-    else:
-        conf.check(lib='SDL2', uselib_store='SDL2')
-        conf.check(lib='freetype2', uselib_store='FT2')
-        conf.check(lib='jpeg', uselib_store='JPEG', define_name='HAVE_JPEG')
-        conf.check(lib='png', uselib_store='PNG', define_name='HAVE_PNG')
-        conf.check(lib='curl', uselib_store='CURL', define_name='HAVE_CURL')
-        conf.check(lib='z', uselib_store='ZLIB', define_name='HAVE_ZLIB')
-        if conf.env.DEST_CPU != 'aarch64':
-            conf.check(lib='unwind', uselib_store='UNWIND')
-            conf.check(lib='crypto', uselib_store='CRYPTO')
-            conf.check(lib='ssl', uselib_store='SSL')
-        conf.check(lib='android_support', uselib_store='ANDROID_SUPPORT')
-        conf.check(lib='opus', uselib_store='OPUS')
-
-    if conf.env.DEST_OS == 'win32':
-        conf.check(lib='libz', uselib_store='ZLIB', define_name='USE_ZLIB')
-        conf.check(lib='libzstd', uselib_store='ZSTD')
-        # conf.check(lib='nvtc', uselib_store='NVTC')
-        # conf.check(lib='ati_compress_mt_vc10', uselib_store='ATI_COMPRESS_MT_VC10')
-        conf.check(lib='SDL2', uselib_store='SDL2')
-        conf.check(lib='libjpeg', uselib_store='JPEG', define_name='HAVE_JPEG')
-        conf.check(lib='libpng', uselib_store='PNG', define_name='HAVE_PNG')
-        conf.check(lib='d3dx9', uselib_store='D3DX9')
-        conf.check(lib='d3d9', uselib_store='D3D9')
-        conf.check(lib='dsound', uselib_store='DSOUND')
-        conf.check(lib='dxguid', uselib_store='DXGUID')
-        if conf.options.OPUS:
-            conf.check(lib='opus', uselib_store='OPUS')
-        # conf.multicheck(*a, run_all_tests = True, mandatory = True)
->>>>>>> 23b092ac (authored sourcemod cstrike to stop using CDetour,)
 
 def configure(conf):
-    if conf.options.ABS:
-        old_run = cxx.cxx.run
-        def absolute_run(self):
-            for node in self.inputs:
-                node.path_from = lambda launch_node: node.abspath()
-            return old_run(self)
-        cxx.cxx.run = absolute_run
+	conf.load('fwgslib reconfigure compiler_optimizations')
+	# Force XP compability, all build targets should add
+	# subsystem=bld.env.MSVC_SUBSYSTEM
+	# TODO: wrapper around bld.stlib, bld.shlib and so on?
+	conf.env.MSVC_SUBSYSTEM = 'WINDOWS,5.01'
+	conf.env.MSVC_TARGETS = ['x64'] # explicitly request x86 target for MSVC
+	if conf.options.TARGET32:
+		conf.env.MSVC_TARGETS = ['x86']
 
-    conf.load('fwgslib reconfigure compiler_optimizations')
-    # Force XP compability, all build targets should add
-    # subsystem=bld.env.MSVC_SUBSYSTEM
-    # TODO: wrapper around bld.stlib, bld.shlib and so on?
-    conf.env.MSVC_SUBSYSTEM = 'WINDOWS,5.01'
-    conf.env.MSVC_TARGETS = ['x64'] # explicitly request x86 target for MSVC
-    if conf.options.TARGET32:
-        conf.env.MSVC_TARGETS = ['x86']
+	if sys.platform == 'win32':
+		conf.load('msvc_pdb_ext msdev msvs msvcdeps')
+	conf.load('subproject xcompile compiler_c compiler_cxx gccdeps gitversion clang_compilation_database waf_unit_test enforce_pic')
+	if conf.env.DEST_OS == 'win32' and conf.env.DEST_CPU == 'amd64':
+		conf.load('masm')
+	elif conf.env.DEST_OS == 'darwin':
+		conf.load('mm_hook')
 
-    if sys.platform == 'win32':
-        conf.load('msvc_pdb_ext msdev msvs msvcdeps')
-    conf.load('subproject xcompile compiler_c compiler_cxx gccdeps gitversion clang_compilation_database waf_unit_test enforce_pic')
-    if conf.env.DEST_OS == 'win32' and conf.env.DEST_CPU == 'amd64':
-        conf.load('masm')
-    elif conf.env.DEST_OS == 'darwin':
-        conf.load('mm_hook')
+	conf.env.BIT32_MANDATORY = conf.options.TARGET32
+	if conf.env.BIT32_MANDATORY:
+		Logs.info('WARNING: will build engine for 32-bit target')
+		conf.load('force_32bit')
 
-<<<<<<< HEAD
 	# Convert DXVK option string to boolean
 	if isinstance(conf.options.DXVK, str):
 		conf.options.DXVK = conf.options.DXVK.lower() == 'true'
@@ -669,61 +523,53 @@ def configure(conf):
 		projects['game'] += ['togles']
 	elif conf.env.GL:
 		projects['game'] += ['togl']
-=======
-    conf.env.BIT32_MANDATORY = conf.options.TARGET32
-    if conf.env.BIT32_MANDATORY:
-        Logs.info('WARNING: will build engine for 32-bit target')
-        conf.load('force_32bit')
 
-    define_platform(conf)
->>>>>>> 23b092ac (authored sourcemod cstrike to stop using CDetour,)
+	if conf.env.DEST_OS == 'win32':
+		projects['game'] += ['utils/bzip2']
+		projects['dedicated'] += ['utils/bzip2']
+	if conf.options.OPUS or conf.env.DEST_OS == 'android':
+		projects['game'] += ['engine/voice_codecs/opus']
 
-    if conf.env.TOGLES:
-        projects['game'] += ['togles']
-    elif conf.env.GL:
-        projects['game'] += ['togl']
+	if conf.options.DISABLE_WARNS:
+		compiler_optional_flags = ['-w']
+	else:
+		compiler_optional_flags = [
+			'-Wall',
+			'-fdiagnostics-color=always',
+			'-Wcast-align',
+			'-Wuninitialized',
+			'-Winit-self',
+			'-Wstrict-aliasing',
+			'-Wno-reorder',
+			'-Wno-unknown-pragmas',
+			'-Wno-unused-function',
+			'-Wno-unused-but-set-variable',
+			'-Wno-unused-value',
+			'-Wno-unused-variable',
+			'-faligned-new',
+		]
 
-    if conf.env.DEST_OS == 'win32':
-        projects['game'] += ['utils/bzip2']
-        projects['dedicated'] += ['utils/bzip2']
-    if conf.options.OPUS or conf.env.DEST_OS == 'android':
-        projects['game'] += ['engine/voice_codecs/opus']
+	if conf.options.PROFILING > 0:
+		if conf.env.COMPILER_CC != 'msvc':
+			compiler_optional_flags += ['-finstrument-functions', '-g']
+		conf.define('VPROF_LEVEL', conf.options.PROFILING)
+		conf.define('VPROF_ENABLED', 1)
 
-    if conf.options.DISABLE_WARNS:
-        compiler_optional_flags = ['-w']
-    else:
-        compiler_optional_flags = [
-            '-Wall',
-            '-fdiagnostics-color=always',
-            '-Wcast-align',
-            '-Wuninitialized',
-            '-Winit-self',
-            '-Wstrict-aliasing',
-            '-Wno-reorder',
-            '-Wno-unknown-pragmas',
-            '-Wno-unused-function',
-            '-Wno-unused-but-set-variable',
-            '-Wno-unused-value',
-            '-Wno-unused-variable',
-            '-faligned-new',
-        ]
+	c_compiler_optional_flags = [
+		'-fnonconst-initializers' # owcc
+	]
 
-    if conf.options.PROFILING > 0:
-        if conf.env.COMPILER_CC != 'msvc':
-            compiler_optional_flags += ['-finstrument-functions', '-g']
-        conf.define('VPROF_LEVEL', conf.options.PROFILING)
-        conf.define('VPROF_ENABLED', 1)
+	cflags, linkflags = conf.get_optimization_flags()
 
-    c_compiler_optional_flags = [
-        '-fnonconst-initializers' # owcc
-    ]
+	flags = []
 
-    cflags, linkflags = conf.get_optimization_flags()
+	if conf.options.SANITIZE:
+		flags += ['-fsanitize=%s'%conf.options.SANITIZE, '-fno-sanitize=vptr']
 
-    flags = []
-
-    if conf.options.SANITIZE:
-        flags += ['-fsanitize=%s'%conf.options.SANITIZE, '-fno-sanitize=vptr']
+	if conf.env.DEST_OS != 'win32':
+		flags += ['-pipe', '-fPIC', '-L'+os.path.abspath('.')+'/lib/'+conf.env.DEST_OS+'/'+conf.env.DEST_CPU+'/']
+	if conf.env.COMPILER_CC != 'msvc':
+		flags += ['-pthread']
 
 	if conf.env.DEST_OS == 'android':
 		flags += [
@@ -736,35 +582,22 @@ def configure(conf):
 			'-llog',
 			'-lz'
 		]
-    if conf.env.DEST_OS != 'win32':
-        flags += ['-pipe', '-fPIC', '-L'+os.path.abspath('.')+'/lib/'+conf.env.DEST_OS+'/'+conf.env.DEST_CPU+'/']
-    if conf.env.COMPILER_CC != 'msvc':
-        flags += ['-pthread']
 
-    if conf.env.DEST_OS == 'android':
-        flags += [
-            '-I'+os.path.abspath('.')+'/thirdparty/curl/include',
-            '-I'+os.path.abspath('.')+'/thirdparty/SDL',
-            '-I'+os.path.abspath('.')+'/thirdparty/openal-soft/include/',
-            '-I'+os.path.abspath('.')+'/thirdparty/fontconfig',
-            '-I'+os.path.abspath('.')+'/thirdparty/freetype/include',
-            '-llog',
-            '-lz'
-        ]
+		flags += ['-funwind-tables', '-g']
+	elif conf.env.COMPILER_CC != 'msvc' and conf.env.DEST_OS != 'darwin' and conf.env.DEST_CPU in ['x86', 'x86_64']:
+		flags += ['-march=core2']
 
-        flags += ['-funwind-tables', '-g']
-    elif conf.env.COMPILER_CC != 'msvc' and conf.env.DEST_OS != 'darwin' and conf.env.DEST_CPU in ['x86', 'x86_64']:
-        flags += ['-march=core2']
+	if conf.env.DEST_CPU in ['x86', 'x86_64']:
+		flags += ['-mfpmath=sse']
+	elif conf.env.DEST_CPU in ['arm', 'aarch64']:
+		flags += ['-fsigned-char']
 
-    if conf.env.DEST_CPU in ['x86', 'x86_64']:
-        flags += ['-mfpmath=sse']
-    elif conf.env.DEST_CPU in ['arm', 'aarch64']:
-        flags += ['-fsigned-char']
+	if conf.env.DEST_CPU == 'arm':
+		flags += ['-march=armv7-a', '-mfpu=neon-vfpv4']
 
-    if conf.env.DEST_CPU == 'arm':
-        flags += ['-march=armv7-a', '-mfpu=neon-vfpv4']
+	if conf.env.DEST_OS == 'freebsd':
+		linkflags += ['-lexecinfo']
 
-<<<<<<< HEAD
 	if conf.env.DEST_OS != 'win32':
 		cflags += flags
 		linkflags += flags
@@ -825,88 +658,33 @@ def configure(conf):
 		cxxflags += ['-std=c++26','-fpermissive']
 	else:
 		cxxflags += ['/std:c++latest']
-=======
-    if conf.env.DEST_OS == 'freebsd':
-        linkflags += ['-lexecinfo']
 
-    if conf.env.DEST_OS != 'win32':
-        cflags += flags
-        linkflags += flags
-    else:
-        cflags += [
-            '/I'+os.path.abspath('.')+'/thirdparty/zstd/include',
-            '/I'+os.path.abspath('.')+'/thirdparty/SDL',
-            '/arch:SSE' if conf.env.DEST_CPU == 'x86' else '/arch:AVX',
-            '/GF',
-            '/Gy',
-            '/fp:precise',
-            '/Zc:forScope',
-            '/Zc:wchar_t',
-            '/GR',
-            '/TP',
-            '/EHsc'
-        ]
-        
-        if conf.options.BUILD_TYPE == 'debug':
-            linkflags += [
-                '/FORCE:MULTIPLE',
-                '/INCREMENTAL:NO',
-                '/NODEFAULTLIB:libc',
-                '/NODEFAULTLIB:libcd',
-                '/NODEFAULTLIB:libcmt',
-                '/LARGEADDRESSAWARE'
-            ]
-        else:
-            linkflags += [
-                '/FORCE:MULTIPLE',
-                '/INCREMENTAL',
-                '/NODEFAULTLIB:libc',
-                '/NODEFAULTLIB:libcd',
-                '/NODEFAULTLIB:libcmtd',
-                '/LARGEADDRESSAWARE'
-            ]
+	if conf.env.COMPILER_CC == 'gcc':
+		conf.define('COMPILER_GCC', 1)
+	elif conf.env.COMPILER_CC == 'msvc':
+		conf.define('COMPILER_MSVC', 1)
+		conf.define('MSVC', 1)
+		if conf.env.DEST_CPU == 'x86':
+			conf.define('COMPILER_MSVC32', 1)
+		elif conf.env.DEST_CPU in ['x86_64', 'amd64']:
+			conf.define('COMPILER_MSVC64', 1)
 
-        linkflags += [
-            '/LIBPATH:'+os.path.abspath('.')+'/lib/win32/'+conf.env.DEST_CPU+'/',
-            '/LIBPATH:'+os.path.abspath('.')+'/dx9sdk/lib/'+conf.env.DEST_CPU+'/',
-            '/STACK:0x10000000'
-        ]
+	if conf.env.COMPILER_CC != 'msvc':
+		conf.check_cc(cflags=cflags, linkflags=linkflags, msg='Checking for required C flags')
+		conf.check_cxx(cxxflags=cxxflags, linkflags=linkflags, msg='Checking for required C++ flags')
 
-    # Causes issues with AddSequenceLayers for pLayer->start != end, those are a lot of times, sadly, NaN values which is undefined behavior.
-    # We might want precision too.
-    if conf.env.DEST_OS != 'win32':
-        cflags += ['-fno-finite-math-only', '-fno-fast-math', '-ftrapping-math']
->>>>>>> 23b092ac (authored sourcemod cstrike to stop using CDetour,)
+		conf.env.append_unique('CFLAGS', cflags)
+		conf.env.append_unique('CXXFLAGS', cxxflags)
+		conf.env.append_unique('LINKFLAGS', linkflags)
 
-    # And here C++ flags starts to be treated separately
-    cxxflags = list(cflags)
-    if conf.env.DEST_OS != 'win32':
-        cxxflags += ['-std=c++11','-fpermissive']
+		cxxflags += conf.filter_cxxflags(compiler_optional_flags, cflags)
+		cflags += conf.filter_cflags(compiler_optional_flags + c_compiler_optional_flags, cflags)
 
-    if conf.env.COMPILER_CC == 'gcc':
-        conf.define('COMPILER_GCC', 1)
-    elif conf.env.COMPILER_CC == 'msvc':
-        conf.define('COMPILER_MSVC', 1)
-        conf.define('MSVC', 1)
-        if conf.env.DEST_CPU == 'x86':
-            conf.define('COMPILER_MSVC32', 1)
-        elif conf.env.DEST_CPU in ['x86_64', 'amd64']:
-            conf.define('COMPILER_MSVC64', 1)
+	conf.env.append_unique('CFLAGS', cflags)
+	conf.env.append_unique('CXXFLAGS', cxxflags)
+	conf.env.append_unique('LINKFLAGS', linkflags)
+	conf.env.append_unique('INCLUDES', [os.path.abspath('common/')])
 
-    if conf.env.COMPILER_CC != 'msvc':
-        Logs.info(cflags)
-        Logs.info(cxxflags)
-        conf.check_cc(cflags=cflags, linkflags=linkflags, msg='Checking for required C flags')
-        conf.check_cxx(cxxflags=cxxflags, linkflags=linkflags, msg='Checking for required C++ flags')
-
-        conf.env.append_unique('CFLAGS', cflags)
-        conf.env.append_unique('CXXFLAGS', cxxflags)
-        conf.env.append_unique('LINKFLAGS', linkflags)
-
-        cxxflags += conf.filter_cxxflags(compiler_optional_flags, cflags)
-        cflags += conf.filter_cflags(compiler_optional_flags + c_compiler_optional_flags, cflags)
-
-<<<<<<< HEAD
 	# DEBUG: print critical configuration before dependency checks
 	print("DEBUG: DEST_OS =", conf.env.DEST_OS)
 	print("DEBUG: DEST_CPU =", conf.env.DEST_CPU)
@@ -916,122 +694,94 @@ def configure(conf):
 	print("DEBUG: Expected lib/win32 path =", expected_path)
 
 	check_deps(conf)
-=======
-    conf.env.append_unique('CFLAGS', cflags)
-    conf.env.append_unique('CXXFLAGS', cxxflags)
-    conf.env.append_unique('LINKFLAGS', linkflags)
-    conf.env.append_unique('INCLUDES', [os.path.abspath('common/')])
->>>>>>> 23b092ac (authored sourcemod cstrike to stop using CDetour,)
 
-    check_deps( conf )
+	# indicate if we are packaging for Linux/BSD
+	if conf.env.DEST_OS != 'android':
+		conf.env.LIBDIR = conf.env.PREFIX+'/bin/'
+		conf.env.TESTDIR = conf.env.PREFIX+'/tests/'
+		conf.env.BINDIR = conf.env.PREFIX
+	else:
+		conf.env.LIBDIR = conf.env.BINDIR = conf.env.PREFIX
 
-    # indicate if we are packaging for Linux/BSD
-    if conf.env.DEST_OS != 'android':
-        conf.env.LIBDIR = conf.env.PREFIX+'/bin/'
-        conf.env.TESTDIR = conf.env.PREFIX+'/tests/'
-        conf.env.BINDIR = conf.env.PREFIX
-    else:
-        conf.env.LIBDIR = conf.env.BINDIR = conf.env.PREFIX
+	if conf.options.CCACHE:
+		conf.env.CC.insert(0, 'ccache')
+		conf.env.CXX.insert(0, 'ccache')
 
-    if conf.options.DISTCC:
-        conf.env.CC.insert(0, 'distcc')
-        conf.env.CXX.insert(0, 'distcc')
-        conf.env.CC.insert(0, 'pump')
-        conf.env.CXX.insert(0, 'pump')
+	if conf.options.SOURCEMOD and conf.options.DEDICATED:
+		conf.add_subproject('sourcemod_glue')
+		conf.add_subproject('sourcemod_core')
+		conf.add_subproject('sourcemod_logic')
+		conf.add_subproject('sourcemod_cstrike')
+		conf.add_subproject('sourcemod_curl_dep')
+		conf.add_subproject('sourcemod_curl')
+		conf.add_subproject('sourcemod_sdktools')
+		conf.add_subproject('sourcemod_bintools')
+		conf.add_subproject('sourcemod_clientprefs')
+		conf.add_subproject('sourcemod_regex')
+		conf.add_subproject('sourcemod_topmenus')
+		conf.add_subproject('sourcemod_structs')
+		conf.add_subproject('sourcemod_geoip')
+		conf.add_subproject('sourcemod_sdkhooks')
+		conf.add_subproject('sourcemod_metamod_core')
+		conf.add_subproject('sourcemod_metamod_loader')
+		conf.add_subproject('sourcemod_metamod_versionlib')
+		conf.add_subproject('sourcemod_dhooks')
+		conf.add_subproject('sourcemod_sqlite')
+		conf.define('FASTDELEGATE_USESTATICFUNCTIONHACK', '1') # prevent crashing
 
-    if conf.options.CCACHE:
-        conf.env.CC.insert(0, 'ccache')
-        conf.env.CXX.insert(0, 'ccache')
-
-    if conf.options.DISTCC_DEBUG:
-        conf.env.append_unique('DISTCC_FALLBACK', '0')
-        conf.env.append_unique('DISTCC_IO_TIMEOUT', '2000')
-        conf.env.append_unique('DISTCC_VERBOSE', '1')
-        Logs.info('below is cpp runstr')
-        Logs.info(cxx.cxx.run_str)
-        
-
-    if conf.options.SOURCEMOD and conf.options.DEDICATED:
-        conf.add_subproject('sourcemod_glue')
-        conf.add_subproject('sourcemod_core')
-        conf.add_subproject('sourcemod_logic')
-        conf.add_subproject('sourcemod_cstrike')
-        conf.add_subproject('sourcemod_curl_dep')
-        conf.add_subproject('sourcemod_curl')
-        conf.add_subproject('sourcemod_sdktools')
-        conf.add_subproject('sourcemod_bintools')
-        conf.add_subproject('sourcemod_clientprefs')
-        conf.add_subproject('sourcemod_regex')
-        conf.add_subproject('sourcemod_topmenus')
-        conf.add_subproject('sourcemod_structs')
-        conf.add_subproject('sourcemod_geoip')
-        conf.add_subproject('sourcemod_sdkhooks')
-        conf.add_subproject('sourcemod_metamod_core')
-        conf.add_subproject('sourcemod_metamod_loader')
-        conf.add_subproject('sourcemod_metamod_versionlib')
-        conf.add_subproject('sourcemod_dhooks')
-        conf.add_subproject('sourcemod_sqlite')
-        conf.define('FASTDELEGATE_USESTATICFUNCTIONHACK', '1') # prevent crashing
-
-    if conf.options.TESTS:
-        conf.add_subproject(projects['tests'])
-    elif conf.options.DEDICATED:
-        conf.add_subproject(projects['dedicated'])
-    else:
-        conf.add_subproject(projects['game'])
+	if conf.options.TESTS:
+		conf.add_subproject(projects['tests'])
+	elif conf.options.DEDICATED:
+		conf.add_subproject(projects['dedicated'])
+	else:
+		conf.add_subproject(projects['game'])
 
 def build(bld):
-    os.environ["CCACHE_DIR"] = os.path.abspath('.ccache/'+bld.env.COMPILER_CC+'/'+bld.env.DEST_OS+'/'+bld.env.DEST_CPU)
+	os.environ["CCACHE_DIR"] = os.path.abspath('.ccache/'+bld.env.COMPILER_CC+'/'+bld.env.DEST_OS+'/'+bld.env.DEST_CPU)
 
-    if bld.options.SOURCEMOD and bld.env.DEDICATED:
-        bld.add_subproject('sourcemod_glue')
-        bld.add_subproject('sourcemod_core')
-        bld.add_subproject('sourcemod_logic')
-        bld.add_subproject('sourcemod_cstrike')
-        bld.add_subproject('sourcemod_curl_dep')
-        bld.add_subproject('sourcemod_curl')
-        bld.add_subproject('sourcemod_sdktools')
-        bld.add_subproject('sourcemod_clientprefs')
-        bld.add_subproject('sourcemod_regex')
-        bld.add_subproject('sourcemod_topmenus')
-        bld.add_subproject('sourcemod_structs')
-        bld.add_subproject('sourcemod_geoip')
-        bld.add_subproject('sourcemod_sdkhooks')
-        bld.add_subproject('sourcemod_metamod_core')
-        bld.add_subproject('sourcemod_metamod_loader')
-        bld.add_subproject('sourcemod_metamod_versionlib')
-        bld.add_subproject('sourcemod_dhooks')
-        bld.add_subproject('sourcemod_sourcepawn_vm')
-        bld.add_subproject('sourcemod_sqlite')
+	if bld.options.SOURCEMOD and bld.env.DEDICATED:
+		bld.add_subproject('sourcemod_glue')
+		bld.add_subproject('sourcemod_core')
+		bld.add_subproject('sourcemod_logic')
+		bld.add_subproject('sourcemod_cstrike')
+		bld.add_subproject('sourcemod_curl_dep')
+		bld.add_subproject('sourcemod_curl')
+		bld.add_subproject('sourcemod_sdktools')
+		bld.add_subproject('sourcemod_clientprefs')
+		bld.add_subproject('sourcemod_regex')
+		bld.add_subproject('sourcemod_topmenus')
+		bld.add_subproject('sourcemod_structs')
+		bld.add_subproject('sourcemod_geoip')
+		bld.add_subproject('sourcemod_sdkhooks')
+		bld.add_subproject('sourcemod_metamod_core')
+		bld.add_subproject('sourcemod_metamod_loader')
+		bld.add_subproject('sourcemod_metamod_versionlib')
+		bld.add_subproject('sourcemod_dhooks')
+		bld.add_subproject('sourcemod_sourcepawn_vm')
+		bld.add_subproject('sourcemod_sqlite')
 
-    if bld.env.DEST_OS in ['win32', 'android']:
-        sdl_name = 'SDL2.dll' if bld.env.DEST_OS == 'win32' else 'libSDL2.so'
-        sdl_path = os.path.join('lib', bld.env.DEST_OS, bld.env.DEST_CPU, sdl_name)
-        bld.install_files(bld.env.LIBDIR, [sdl_path])
+	if bld.env.DEST_OS in ['win32', 'android']:
+		sdl_name = 'SDL2.dll' if bld.env.DEST_OS == 'win32' else 'libSDL2.so'
+		sdl_path = os.path.join('lib', bld.env.DEST_OS, bld.env.DEST_CPU, sdl_name)
+		bld.install_files(bld.env.LIBDIR, [sdl_path])
 
-<<<<<<< HEAD
 	if bld.env.DEST_OS == 'win32':
 		projects['game'] += ['utils/bzip2']
 		projects['dedicated'] += ['utils/bzip2']
 		libcurl_path = os.path.join('lib', bld.env.DEST_OS, bld.env.DEST_CPU, 'libcurl.dll')
 		bld.install_files(bld.env.LIBDIR, [libcurl_path])
-=======
-    if bld.env.DEST_OS == 'win32':
-        projects['game'] += ['utils/bzip2']
-        projects['dedicated'] += ['utils/bzip2']
->>>>>>> 23b092ac (authored sourcemod cstrike to stop using CDetour,)
 
-    if bld.env.OPUS or bld.env.DEST_OS == 'android':
-        projects['game'] += ['engine/voice_codecs/opus']
+	if bld.env.OPUS or bld.env.DEST_OS == 'android':
+		projects['game'] += ['engine/voice_codecs/opus']
 
-    if bld.env.TESTS:
-        bld.add_subproject(projects['tests'])
-    elif bld.env.DEDICATED:
-        bld.add_subproject(projects['dedicated'])
-    else:
-        if bld.env.TOGLES:
-            projects['game'] += ['togles']
-        elif bld.env.GL:
-            projects['game'] += ['togl']
+	if bld.env.TESTS:
+		bld.add_subproject(projects['tests'])
+	elif bld.env.DEDICATED:
+		bld.add_subproject(projects['dedicated'])
+	else:
+		if bld.env.TOGLES:
+			projects['game'] += ['togles']
+		elif bld.env.GL:
+			projects['game'] += ['togl']
 
-        bld.add_subproject(projects['game'])
+		bld.add_subproject(projects['game'])
