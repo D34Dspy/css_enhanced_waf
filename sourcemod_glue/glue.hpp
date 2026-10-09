@@ -64,7 +64,7 @@ template <typename T> inline void SMGlue_RmHook4_FireOutput ( int hk, T * instan
 // CCSWeaponInfo::GetWeaponPrice
 extern SourcemodRouter< fastdelegate::FastDelegate1<CCSWeaponInfo*, int>, CCSWeaponInfo > g_SMGlue_CCSWeaponInfo__GetWeaponPrice;
 // CCSPlayer::HandleCommand_Buy_Internal
-extern SourcemodRouter< fastdelegate::FastDelegate2<CCSPlayer*,const char*>, CCSPlayer > g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal;
+extern SourcemodRouter< fastdelegate::FastDelegate2<CCSPlayer*,const char*, int>, CCSPlayer > g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal;
 // CCSGameRules::TerminateRound
 extern SourcemodRouter< fastdelegate::FastDelegate3<CCSGameRules*, float, int>, CCSGameRules > g_SMGlue_CCSGameRules__TerminateRound;
 // bool CCSPlayer::CSWeaponDrop( CBaseCombatWeapon *pWeapon, bool bDropShield, bool bThrowForward )
@@ -122,7 +122,7 @@ template <typename T> inline int SMGlue_MkHook4_P0__Spawn ( fastdelegate::FastDe
 template <typename T> inline int SMGlue_MkHook4_P0__Think ( fastdelegate::FastDelegate0<void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P0__Think(delegate,instance,post);}
 template <typename T> inline int SMGlue_MkHook4_P1__Blocked ( fastdelegate::FastDelegate1<CBaseEntity *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__Blocked(delegate,instance,post);}
 template <typename T> inline int SMGlue_MkHook4_P1__EndTouch ( fastdelegate::FastDelegate1<CBaseEntity *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__EndTouch(delegate,instance,post);}
-template <typename T> inline int SMGlue_MkHook4_P1__FireBullets ( fastdelegate::FastDelegate1<FireBulletsInfo_t *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__FireBullets(delegate,instance,post);}
+template <typename T> inline int SMGlue_MkHook4_P1__FireBullets ( fastdelegate::FastDelegate1<FireBulletsInfo_t *, int> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__FireBullets(delegate,instance,post);}
 template <typename T> inline int SMGlue_MkHook4_P1__GroundEntChanged ( fastdelegate::FastDelegate1<void *, void> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__GroundEntChanged(delegate,instance,post);}
 template <typename T> inline int SMGlue_MkHook4_P1__OnTakeDamage ( fastdelegate::FastDelegate1<CTakeDamageInfo *, int> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__OnTakeDamage(delegate,instance,post);}
 template <typename T> inline int SMGlue_MkHook4_P1__OnTakeDamage_Alive ( fastdelegate::FastDelegate1<CTakeDamageInfo *, int> delegate , T * instance, bool post = false ) {return instance->GetSourcemodGlue()->SMGlue_MkHook4_P1__OnTakeDamage_Alive(delegate,instance,post);}

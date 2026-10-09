@@ -188,7 +188,7 @@ public:
 	bool Hook_CanBeAutobalanced();
 	void Hook_EndTouch(CBaseEntity *pOther);
 	void Hook_EndTouchPost(CBaseEntity *pOther);
-	void Hook_FireBulletsPost(FireBulletsInfo_t *info);
+	int Hook_FireBulletsPost(FireBulletsInfo_t *info);
 #ifdef GETMAXHEALTH_IS_VIRTUAL
 	int Hook_GetMaxHealth();
 #endif

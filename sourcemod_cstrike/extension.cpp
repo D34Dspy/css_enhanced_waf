@@ -119,7 +119,7 @@ bool CStrike::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool 
 {
 	GET_V_IFACE_CURRENT(GetEngineFactory, gameevents, IGameEventManager2, INTERFACEVERSION_GAMEEVENTSMANAGER2);
 	GET_V_IFACE_CURRENT(GetEngineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
-	GET_V_IFACE_CURRENT(GetEngineFactory, g_pGameDLL, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
+	GET_V_IFACE_CURRENT(GetServerFactory, g_pGameDLL, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
 	gpGlobals = ismm->GetCGlobals();
 
 #if SOURCE_ENGINE == SE_CSGO

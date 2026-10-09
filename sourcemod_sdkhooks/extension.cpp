@@ -1061,7 +1061,7 @@ void SDKHooksHookRecord::Hook_EndTouchPost(CBaseEntity *pOther)
 	pEntity->GetSourcemodGlue()->l_SMGlue_P1__EndTouch.create_return(MRES_IGNORED);
 }
 
-void SDKHooksHookRecord::Hook_FireBulletsPost(FireBulletsInfo_t *info_)
+int SDKHooksHookRecord::Hook_FireBulletsPost(FireBulletsInfo_t *info_)
 {
 	const FireBulletsInfo_t& info = *info_;
 	CBaseEntity *pEntity = pEntity;
@@ -1072,7 +1072,7 @@ void SDKHooksHookRecord::Hook_FireBulletsPost(FireBulletsInfo_t *info_)
 	{
 		// RETURN_META(MRES_IGNORED);
 		pEntity->GetSourcemodGlue()->l_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
-		return;
+		return 0;
 	}
 
 	IPlayerInfo *pInfo = pPlayer->GetPlayerInfo();
@@ -1080,7 +1080,7 @@ void SDKHooksHookRecord::Hook_FireBulletsPost(FireBulletsInfo_t *info_)
 	{
 		// RETURN_META(MRES_IGNORED);
 		pEntity->GetSourcemodGlue()->l_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
-		return;
+		return 0;
 	}
 
 	std::vector<SDKHooksHookRecord *> &vtablehooklist = g_HookList[SDKHook_FireBulletsPost];
@@ -1109,7 +1109,7 @@ void SDKHooksHookRecord::Hook_FireBulletsPost(FireBulletsInfo_t *info_)
 
 	// RETURN_META(MRES_IGNORED);
 	pEntity->GetSourcemodGlue()->l_SMGlue_P1__FireBullets.create_return(MRES_IGNORED);
-	return;
+	return 0;
 }
 
 #ifdef GETMAXHEALTH_IS_VIRTUAL
