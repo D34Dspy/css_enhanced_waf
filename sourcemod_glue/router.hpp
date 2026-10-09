@@ -1,6 +1,5 @@
 #pragma once
 
-#include "vphysics_interface.h"
 #ifndef ROUTER_HPP
 #define ROUTER_HPP
 
@@ -129,6 +128,7 @@ private:
             routes.Element(j).keyCode = keyCode;
             routes.Element(j).keyIface = i;
             routes.Element(j).delegate = d;
+            if(routes.Element(j).delegate.GetMemento())
             return j;
         }
 
@@ -178,23 +178,25 @@ private:
     }
 
     void sorted() {
-        for(int i = 0; i < routers.Count(); i++) {
-            int k = -1;
-            for(int j = 0; j < routers.Count(); j++) {
-                if(routers.Element(j).overload < routers.Element(i).overload)
-                    k = j;
+        for(int i = 0; i < routers.Count() - 1; i++) {
+            int minIdx = i;
+            for(int j = i + 1; j < routers.Count(); j++) {
+                if(routers.Element(j).overload < routers.Element(minIdx).overload) {
+                    minIdx = j;
+                }
             }
-
-            if(k == -1)
-                break;
-
-            Routes& l = routers.Element(i);
-            Routes& r = routers.Element(k);
-            int overload = l.overload;
-            l.overload = r.overload;
-            r.overload = overload;
-            l.routes.Swap(r.routes);
+            if(minIdx != i) {
+                Routes& l = routers.Element(i);
+                Routes& r = routers.Element(minIdx);
+                
+                int tempOverload = l.overload;
+                l.overload = r.overload;
+                r.overload = tempOverload;
+                
+                l.routes.Swap(r.routes);
+            }
         }
+
     }
 
     Stack& before_ownership_update_param() {

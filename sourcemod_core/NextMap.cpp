@@ -157,12 +157,6 @@ void NextMapManager::HookChangeLevel(const char *map, const char *unknown, const
 #if SOURCE_ENGINE != SE_DARKMESSIAH
 	// RETURN_META_NEWPARAMS(MRES_IGNORED, &IVEngineServer::ChangeLevel, (newmap, unknown));
 	engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.create_return(MRES_IGNORED);
-	auto sm_result = engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.invoke(
-					if (engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.skip_original())
-				{
-				return sm_result.unwrap();
-			}
-		engine, newmap, unknown);
 	return;
 #else
 	RETURN_META_NEWPARAMS(MRES_IGNORED, &IVEngineServer::ChangeLevel, (newmap, unknown, video, bLongLoading));

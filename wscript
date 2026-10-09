@@ -971,6 +971,7 @@ def configure(conf):
         conf.add_subproject('sourcemod_metamod_versionlib')
         conf.add_subproject('sourcemod_dhooks')
         conf.add_subproject('sourcemod_sqlite')
+        conf.define('FASTDELEGATE_USESTATICFUNCTIONHACK', '1') # prevent crashing
 
     if conf.options.TESTS:
         conf.add_subproject(projects['tests'])

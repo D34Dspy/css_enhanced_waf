@@ -76,7 +76,7 @@ DETOUR_DECL_MEMBER4(DetourHandleBuy, int, int, iLoadoutSlot, void *, pWpnDataRef
 	return ret;
 }
 #else
-void DetourHandleBuy(CCSPlayer* pEntity, const char * weapon)
+int DetourHandleBuy(CCSPlayer* pEntity, const char * weapon)
 {
 	int client = gamehelpers->EntityToBCompatRef(pEntity);
 
@@ -91,12 +91,13 @@ void DetourHandleBuy(CCSPlayer* pEntity, const char * weapon)
 	if (result != Pl_Continue)
 	{
 		lastclient = -1;
-		g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.create_return(MRES_SUPERCEDE);
-		return;
+		g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.create_return(MRES_SUPERCEDE, {result});
+		return 0;
 	}
 
 	lastclient = -1;
 	g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.create_return(MRES_HANDLED);
+	return 0;
 }
 #endif
 
