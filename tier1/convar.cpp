@@ -11,7 +11,6 @@
 #include <string.h>
 #include "basetypes.h"
 #include "tier1/convar.h"
-#include "glue.hpp"
 #include "tier1/strtools.h"
 #include "tier1/characterset.h"
 #include "tier1/utlbuffer.h"
@@ -108,7 +107,9 @@ ConCommandBase::ConCommandBase( void )
 	m_nFlags = 0;
 	m_pNext  = NULL;
 
+#ifdef WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -120,7 +121,9 @@ ConCommandBase::ConCommandBase( void )
 ConCommandBase::ConCommandBase( const char *pName, const char *pHelpString /*=0*/, int flags /*= 0*/ )
 {
 	CreateBase( pName, pHelpString, flags );
+#ifdef WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -449,6 +449,8 @@ def check_deps(conf):
 
 			if conf.options.DXVK:
 				conf.check_cfg(package='dxvk-d3d9', uselib_store='DXVK', args=['--cflags', '--libs'])
+				if len(conf.env.INCLUDES_DXVK) == 1 and not os.path.exists(conf.env.INCLUDES_DXVK[0]):
+					conf.env.INCLUDES_DXVK = ['/usr/include/dxvk']
 				conf.env.INCLUDES += conf.env.INCLUDES_DXVK
 	else:
 		conf.check(lib='SDL2', uselib_store='SDL2')

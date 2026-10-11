@@ -10,7 +10,6 @@
 #include "cs_player.h"
 #include "cs_gamerules.h"
 #include "dt_send.h"
-#include "glue.hpp"
 #include "mathlib/mathlib.h"
 #include "trains.h"
 #include "vcollide_parse.h"

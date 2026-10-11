@@ -154,7 +154,9 @@ public:
 	//  "command" - (string) client command to run if selected
 	//  "msg" - (string) button text for this option
 	//
+#ifdef WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+#endif
 
 	virtual void CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValues *data, IServerPluginCallbacks *plugin ) = 0;
 	virtual void ClientCommand( edict_t *pEntity, const char *cmd ) = 0;

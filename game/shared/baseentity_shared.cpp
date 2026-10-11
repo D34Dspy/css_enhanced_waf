@@ -6,7 +6,9 @@
 //=============================================================================//
 
 #include "cbase.h"
+#ifdef WAF_USE_SOURCEMOD == 1
 #include "baseentity.h"
+#endif
 
 #include "decals.h"
 #include "effect_dispatch_data.h"

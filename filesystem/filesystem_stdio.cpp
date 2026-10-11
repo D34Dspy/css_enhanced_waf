@@ -1607,13 +1607,17 @@ char *CWin32ReadOnlyFile::FS_fgets( char *dest, int destSize )
 
 #endif // _WIN32
 
+#ifdef WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
+#endif
 //-----------------------------------------------------------------------------
 // constructor
 //-----------------------------------------------------------------------------
 CFileSystem_Stdio::CFileSystem_Stdio()
 {
+#ifdef WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
 	m_bMounted = false;
 	m_bCanAsync = true;
 #ifdef POSIX

@@ -7,4 +7,5 @@ typedef struct _GLYPHMETRICSFLOAT GLYPHMETRICSFLOAT, *PGLYPHMETRICSFLOAT, *LPGLY
 typedef struct tagTEXTMETRICA TEXTMETRICA, *PTEXTMETRICA, *NPTEXTMETRICA, *LPTEXTMETRICA;
 typedef struct tagTEXTMETRICW TEXTMETRICW, *PTEXTMETRICW, *NPTEXTMETRICW, *LPTEXTMETRICW;
 
-#include "windows_base.h"
+// #include "windows_base.h" on >2.7.1 windows_base.h doenst exist anymore
+#include "windows.h"

@@ -32,8 +32,6 @@
 #ifndef _INCLUDE_LUMPMANAGER_H_
 #define _INCLUDE_LUMPMANAGER_H_
 
-#include <am-unique.h>
-
 #include <vector>
 #include <memory>
 #include <string>

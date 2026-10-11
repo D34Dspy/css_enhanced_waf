@@ -7,7 +7,6 @@
 #include "cbase.h"
 #include "edict.h"
 #include "globalstate.h"
-#include "glue.hpp"
 #include "isaverestore.h"
 #include "client.h"
 #include "decals.h"
@@ -2163,9 +2162,6 @@ void CBaseEntity::EndTouch( CBaseEntity *pOther )
 // Purpose: Dispatches blocked events to this entity's blocked handler, set via SetBlocked.
 // Input  : pOther - The entity that is blocking us.
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
-#include <glue.hpp>
-#endif
 void CBaseEntity::Blocked( CBaseEntity *pOther )
 { 
 #ifdef WAF_USE_SOURCEMOD == 1

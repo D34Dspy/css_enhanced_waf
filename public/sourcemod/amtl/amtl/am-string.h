@@ -30,8 +30,6 @@
 #ifndef _include_amtl_string_h_
 #define _include_amtl_string_h_
 
-#include <am-unique.h>
-
 #define __STDC_FORMAT_MACROS
 #if !defined(KE_WINDOWS)
 #    include <inttypes.h>

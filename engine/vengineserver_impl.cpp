@@ -278,13 +278,17 @@ class CVEngineServer : public IVEngineServer
 	CSourcemodGlueInterface* m_pSourcemodGlue;
 public:
 	CVEngineServer() {
+#ifdef WAF_USE_SOURCEMOD == 1
     	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
 	}
 
+#ifdef WAF_USE_SOURCEMOD == 1
 	CSourcemodGlueInterface* GetSourcemodGlue( )
 	{ 
 		return m_pSourcemodGlue;
 	}
+#endif
 
 	virtual void ChangeLevel( const char* s1, const char* s2)
 	{

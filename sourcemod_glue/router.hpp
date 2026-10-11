@@ -128,7 +128,6 @@ private:
             routes.Element(j).keyCode = keyCode;
             routes.Element(j).keyIface = i;
             routes.Element(j).delegate = d;
-            if(routes.Element(j).delegate.GetMemento())
             return j;
         }
 

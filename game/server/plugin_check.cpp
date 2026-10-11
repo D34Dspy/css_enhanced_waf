@@ -9,7 +9,9 @@
 
 #include "cbase.h"
 #include "eiface.h"
+#ifdef WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: An implementation 

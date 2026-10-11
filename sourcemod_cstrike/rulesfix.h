@@ -32,6 +32,7 @@
 #pragma once
 
 #include <steam_gameserver.h>
+#include "tier1/strtools.h" // 4 Q_strncpy
 
 class ConVar;
 

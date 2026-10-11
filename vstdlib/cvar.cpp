@@ -8,7 +8,6 @@
 
 #include "vstdlib/cvar.h"
 #include <ctype.h>
-#include "glue.hpp"
 #include "tier0/icommandline.h"
 #include "tier1/utlrbtree.h"
 #include "tier1/strtools.h"
@@ -226,7 +225,9 @@ CreateInterfaceFn VStdLib_GetICVarFactory()
 //-----------------------------------------------------------------------------
 CCvar::CCvar() : m_TempConsoleBuffer( 0, 1024 )
 {
+#ifdef WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
+#endif
 	m_nNextDLLIdentifier = 0;
 	m_pConCommandList = NULL;
 

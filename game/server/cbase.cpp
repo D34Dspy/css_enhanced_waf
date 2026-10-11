@@ -244,7 +244,9 @@ CBaseEntityOutput::~CBaseEntityOutput()
 	}
 }
 
+#ifdef WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Fires the event, causing a sequence of action to occur in other ents.

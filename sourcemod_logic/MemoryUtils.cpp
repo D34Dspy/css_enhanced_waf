@@ -28,7 +28,6 @@
  */
 
 #include "MemoryUtils.h"
-#include "am-unique.h"
 #ifdef PLATFORM_LINUX
 #include <fcntl.h>
 #include <link.h>

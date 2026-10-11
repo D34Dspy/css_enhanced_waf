@@ -43,7 +43,6 @@
 #include <memory>
 #include <vector>
 #include <utility>
-#include <am-unique.h>
 
 // ============================================================================
 // >> DataType_t
