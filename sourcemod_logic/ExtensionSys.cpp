@@ -554,7 +554,7 @@ void CExtensionManager::TryAutoload()
 }
 
 IExtension *CExtensionManager::LoadAutoExtension(const char *name, const char* fallback, bool bErrorOnMissing) {
-	logger->LogError("auto loading %s with fallback %s", name, fallback);
+	// logger->LogError("auto loading %s with fallback %s", name, fallback);
 	if(libsys->PathExists(name)) 
 	{
 		return LoadAutoExtension(name, bErrorOnMissing);
@@ -568,7 +568,7 @@ IExtension *CExtensionManager::LoadAutoExtension(const char *name, const char* f
 
 IExtension *CExtensionManager::LoadAutoExtension(const char *path, bool bErrorOnMissing)
 {
-	logger->LogError("auto loading %s", path);
+	// logger->LogError("auto loading %s", path);
 	
 	if (strcmp(path, "clientprefs.ext") == 0 || strcmp(path, "clientprefs.ext.so") == 0)
 		return LoadAutoExtension("./bin/sourcemodclientprefs.so", "./bin/libsourcemodclientprefs.so");
@@ -603,6 +603,7 @@ IExtension *CExtensionManager::LoadAutoExtension(const char *path, bool bErrorOn
 	 */
 	m_Libs.push_back(p);
 
+	logger->LogError("[SM] Loading extension \"%s\"", path);
 	if (!p->Load(error, sizeof(error)) || !p->IsLoaded())
 	{
 		if (bErrorOnMissing || libsys->IsPathFile(p->GetPath()))
@@ -664,13 +665,13 @@ IExtension *CExtensionManager::FindExtensionByFile(const char *file)
 		pExt = (*iter);
 		if (pExt->IsSameFile(lookup) || pExt->IsSameFile(file))
 		{
-			logger->LogMessage("[SM] FindExtensionByFile \"%s\": match against \"%s\" \"%s\" \"%s\" succeeded", lookup, pExt->m_File.c_str(), pExt->m_Path.c_str(), pExt->m_RealFile.c_str());
+			// logger->LogMessage("[SM] FindExtensionByFile \"%s\": match against \"%s\" \"%s\" \"%s\" succeeded", lookup, pExt->m_File.c_str(), pExt->m_Path.c_str(), pExt->m_RealFile.c_str());
 			return pExt;
 		}
-		else logger->LogMessage("[SM] FindExtensionByFile \"%s\": match against \"%s\" \"%s\" \"%s\" failed", lookup, pExt->m_File.c_str(), pExt->m_Path.c_str(), pExt->m_RealFile.c_str());
+		// else logger->LogMessage("[SM] FindExtensionByFile \"%s\": match against \"%s\" \"%s\" \"%s\" failed", lookup, pExt->m_File.c_str(), pExt->m_Path.c_str(), pExt->m_RealFile.c_str());
 	}
 
-	logger->LogError("[SM] FindExtensionByFile \"%s\": nothing found", lookup);
+	// logger->LogError("[SM] FindExtensionByFile \"%s\": nothing found", lookup);
 
 	return NULL;
 }

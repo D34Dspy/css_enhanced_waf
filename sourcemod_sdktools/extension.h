@@ -165,6 +165,7 @@ extern ISpatialPartition *partition;
 extern IEngineSound *engsound;
 extern INetworkStringTableContainer *netstringtables;
 extern IServerPluginHelpers *pluginhelpers;
+extern IServerGameDLL *g_pGameDLL;
 extern IServerGameClients *serverClients;
 extern IVoiceServer *voiceserver;
 extern IPlayerInfoManager *playerinfomngr;

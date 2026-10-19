@@ -38,6 +38,8 @@
 
 #include "cs_weapon_parse.h"
 
+#include "glue.hpp"
+
 #if SOURCE_ENGINE == SE_CSGO
 #include "itemdef-hash.h"
 #endif
@@ -144,103 +146,28 @@ unsigned int strncopy(char *dest, const char *src, size_t count)
 
 static cell_t CS_RespawnPlayer(IPluginContext *pContext, const cell_t *params)
 {
-	static ICallWrapper *pWrapper = NULL;
-	if (!pWrapper)
-	{
-		REGISTER_NATIVE_ADDR("RoundRespawn", 
-			pWrapper = g_pBinTools->CreateCall(addr, CallConv_ThisCall, NULL, NULL, 0));
-	}
-
 	CBaseEntity *pEntity;
 	if (!(pEntity=GetCBaseEntity(params[1], true)))
 	{
 		return pContext->ThrowNativeError("Client index %d is not valid", params[1]);
 	}
-	pWrapper->Execute(&pEntity, NULL);
-
+	g_pGameDLL->GetSourcemodBridge()->CCSPlayer__RoundRespawn((CCSPlayer*)pContext);
 	return 1;
 }
 
 static cell_t CS_SwitchTeam(IPluginContext *pContext, const cell_t *params)
 {
-#if SOURCE_ENGINE != SE_CSGO || !defined(WIN32)
-	static ICallWrapper *pWrapper = NULL;
-	if (!pWrapper)
-	{
-		REGISTER_NATIVE_ADDR("SwitchTeam", 
-			PassInfo pass[1]; \
-			pass[0].flags = PASSFLAG_BYVAL; \
-			pass[0].size = sizeof(int); \
-			pass[0].type = PassType_Basic; \
-			pWrapper = g_pBinTools->CreateCall(addr, CallConv_ThisCall, NULL, pass, 1))
-	}
-
 	CBaseEntity *pEntity;
 	if (!(pEntity=GetCBaseEntity(params[1], true)))
 	{
 		return pContext->ThrowNativeError("Client index %d is not valid", params[1]);
 	}
-
-	ArgBuffer<CBaseEntity*, int> vstk(pEntity, params[2]);
-
-	pWrapper->Execute(vstk, NULL);
-#else
-	if (g_pSDKTools == NULL)
-	{
-		return pContext->ThrowNativeError("SDKTools interface not found. SwitchTeam native disabled.");
-	}
-
-	static void *addr = NULL;
-	if(!addr)
-	{
-		GET_MEMSIG("SwitchTeam");
-	}
-
-	void *gamerules = g_pSDKTools->GetGameRules();
-	if (gamerules == NULL)
-	{
-		return pContext->ThrowNativeError("GameRules not available. SwitchTeam native disabled.");
-	}
-
-	CBaseEntity *pEntity;
-	if (!(pEntity=GetCBaseEntity(params[1], true)))
-	{
-		return pContext->ThrowNativeError("Client index %d is not valid", params[1]);
-	}
-
-	int team = params[2];
-
-	__asm
-	{
-		push team
-		mov ecx, pEntity
-		mov ebx, gamerules
- 
-		call addr
-	}
-#endif
-
+	g_pGameDLL->GetSourcemodBridge()->CCSPlayer__SwitchTeam((CCSPlayer*)pEntity, params[2]);
 	return 1;
 }
 
 static cell_t CS_DropWeapon(IPluginContext *pContext, const cell_t *params)
 {
-	static ICallWrapper *pWrapper = NULL;
-	if (!pWrapper)
-	{
-		REGISTER_NATIVE_ADDR(WEAPONDROP_GAMEDATA_NAME,
-			PassInfo pass[3]; \
-			pass[0].flags = PASSFLAG_BYVAL; \
-			pass[0].type  = PassType_Basic; \
-			pass[0].size  = sizeof(CBaseEntity *); \
-			pass[1].flags = PASSFLAG_BYVAL; \
-			pass[1].type  = PassType_Basic; \
-			pass[1].size  = sizeof(bool); \
-			pass[2].flags = PASSFLAG_BYVAL; \
-			pass[2].type  = PassType_Basic; \
-			pass[2].size  = sizeof(bool); \
-			pWrapper = g_pBinTools->CreateCall(addr, CallConv_ThisCall, NULL, pass, 3))
-	}
 
 	CBaseEntity *pEntity;
 	if (!(pEntity = GetCBaseEntity(params[1], true)))
@@ -275,13 +202,7 @@ static cell_t CS_DropWeapon(IPluginContext *pContext, const cell_t *params)
 	if (params[4] == 1 && g_pCSWeaponDropDetoured)
 		g_pIgnoreCSWeaponDropDetour = true;
 
-#if SOURCE_ENGINE == SE_CSGO
-	ArgBuffer<CBaseEntity*, CBaseEntity*, bool, bool> vstk(pEntity, pWeapon, !!params[3], false);
-#else
-	ArgBuffer<CBaseEntity*, CBaseEntity*, bool, bool> vstk(pEntity, pWeapon, false, !!params[3]);
-#endif
-
-	pWrapper->Execute(vstk, NULL);
+	g_pGameDLL->GetSourcemodBridge()->CCSPlayer__CSWeaponDrop((CCSPlayer*)pEntity, (CBaseCombatWeapon*)pWeapon, nullptr, nullptr);
 	return 1;
 }
 
@@ -305,84 +226,9 @@ static cell_t CS_TerminateRound(IPluginContext *pContext, const cell_t *params)
 
 	int reason = params[2];
 	
-#if SOURCE_ENGINE == SE_CSGO
-	reason++;
-#endif
-	
-#if SOURCE_ENGINE == SE_CSS
-	static ICallWrapper *pWrapper = NULL;
-
-	if (!pWrapper)
-	{
-		REGISTER_NATIVE_ADDR("TerminateRound",
-			PassInfo pass[2]; \
-			pass[0].flags = PASSFLAG_BYVAL; \
-			pass[0].type = PassType_Float; \
-			pass[0].size = sizeof(float); \
-			pass[1].flags = PASSFLAG_BYVAL; \
-			pass[1].type = PassType_Basic; \
-			pass[1].size = sizeof(int); \
-			pWrapper = g_pBinTools->CreateCall(addr, CallConv_ThisCall, NULL, pass, 2))
-	}
-
 	if (params[3] == 1 && g_pTerminateRoundDetoured)
 		g_pIgnoreTerminateDetour = true;
-
-	ArgBuffer<void*, float, int> vstk(gamerules, sp_ctof(params[1]), reason);
-
-	pWrapper->Execute(vstk, NULL);
-#elif SOURCE_ENGINE == SE_CSGO && !defined(WIN32)
-	static ICallWrapper *pWrapper = NULL;
-
-	if (!pWrapper)
-	{
-		REGISTER_NATIVE_ADDR("TerminateRound",
-			PassInfo pass[4]; \
-			pass[0].flags = PASSFLAG_BYVAL; \
-			pass[0].type = PassType_Float; \
-			pass[0].size = sizeof(float); \
-			pass[1].flags = PASSFLAG_BYVAL; \
-			pass[1].type = PassType_Basic; \
-			pass[1].size = sizeof(int); \
-			pass[2].flags = PASSFLAG_BYVAL; \
-			pass[2].type = PassType_Basic; \
-			pass[2].size = sizeof(int); \
-			pass[3].flags = PASSFLAG_BYVAL; \
-			pass[3].type = PassType_Basic; \
-			pass[3].size = sizeof(int); \
-			pWrapper = g_pBinTools->CreateCall(addr, CallConv_ThisCall, NULL, pass, 4))
-	}
-
-	if (params[3] == 1 && g_pTerminateRoundDetoured)
-		g_pIgnoreTerminateDetour = true;
-
-	ArgBuffer<void*, float, int, int, int> vstk(gamerules, sp_ctof(params[1]), reason, 0, 0);
-
-	pWrapper->Execute(vstk, NULL);
-#else // CSGO Win32
-	static void *addr = NULL;
-
-	if(!addr)
-	{
-		GET_MEMSIG("TerminateRound");
-	}
-
-	if (params[3] == 1 && g_pTerminateRoundDetoured)
-		g_pIgnoreTerminateDetour = true;
-
-	float delay = sp_ctof(params[1]);
-	
-	__asm
-	{
-		push 0
-		push 0
-		push reason
-		movss xmm1, delay
-		mov ecx, gamerules
-		call addr
-	}
-
-#endif
+	g_pGameDLL->GetSourcemodBridge()->CCSGameRules__TerminateRoundOriginal((CCSGameRules*)gamerules, sp_ctof(params[1]), reason);
 	return 1;
 }
 
@@ -837,18 +683,6 @@ static cell_t CS_SetClientClanTag(IPluginContext *pContext, const cell_t *params
 #if SOURCE_ENGINE == SE_CSGO
 	return SetPlayerStringVar(pContext, params, "ClanTag");
 #else
-	static ICallWrapper *pWrapper = NULL;
-
-	if (!pWrapper)
-	{
-		REGISTER_NATIVE_ADDR("SetClanTag",
-			PassInfo pass[1]; \
-			pass[0].flags = PASSFLAG_BYVAL; \
-			pass[0].type = PassType_Basic; \
-			pass[0].size = sizeof(char *); \
-			pWrapper = g_pBinTools->CreateCall(addr, CallConv_ThisCall, NULL, pass, 1))
-	}
-
 	CBaseEntity *pEntity;
 	if (!(pEntity = GetCBaseEntity(params[1], true)))
 	{
@@ -858,9 +692,7 @@ static cell_t CS_SetClientClanTag(IPluginContext *pContext, const cell_t *params
 	char *szNewTag;
 	pContext->LocalToString(params[2], &szNewTag);
 
-	ArgBuffer<CBaseEntity*, char*> vstk(pEntity, szNewTag);
-
-	pWrapper->Execute(vstk, NULL);
+	g_pGameDLL->GetSourcemodBridge()->CCSPlayer__SetClanTag((CCSPlayer*)pEntity, szNewTag);
 	return 1;
 #endif
 }
@@ -913,20 +745,13 @@ static cell_t CS_GetClientAssists(IPluginContext *pContext, const cell_t *params
 
 static cell_t CS_UpdateClientModel(IPluginContext *pContext, const cell_t *params)
 {
-	static ICallWrapper *pWrapper = NULL;
-	if (!pWrapper)
-	{
-		REGISTER_NATIVE_ADDR("SetModelFromClass", 
-			pWrapper = g_pBinTools->CreateCall(addr, CallConv_ThisCall, NULL, NULL, 0));
-	}
-
 	CBaseEntity *pEntity;
 	if (!(pEntity=GetCBaseEntity(params[1], true)))
 	{
 		return pContext->ThrowNativeError("Client index %d is not valid", params[1]);
 	}
 
-	pWrapper->Execute(&pEntity, NULL);
+	g_pGameDLL->GetSourcemodBridge()->CCSPlayer__SetModelFromClass((CCSPlayer*)pEntity);
 
 	return 1;
 }

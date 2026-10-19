@@ -585,6 +585,156 @@ class CGlobalSourcemodGlueBridge : public IGlobalSourcemodGlueInterface {
 	{
 		gEntList.RemoveListenerEntity(pEntityListener);
 	}
+
+	virtual void CCSPlayer__RoundRespawn(CCSPlayer* pPlayer) 
+	{
+		return SM_CCSPlayer__RoundRespawn(pPlayer);
+	}
+	virtual void CCSPlayer__Weapon_Equip(CCSPlayer* pPlayer, CBaseCombatWeapon* pWeapon)
+	{
+		return SM_CCSPlayer__WeaponEquip(pPlayer,pWeapon);
+	}
+	virtual void CCSPlayer__SwitchTeam(CCSPlayer* pPlayer, int team) 
+	{
+		return SM_CCSPlayer__SwitchTeam(pPlayer, team);
+	}
+	virtual void CCSPlayer__CSWeaponDrop(CCSPlayer* pPlayer, CBaseCombatWeapon* pWeapon, const Vector *pvecTarget, const Vector *pVelocity) 
+	{
+		return SM_CCSPlayer__CSWeaponDrop(pPlayer, pWeapon, pvecTarget, pVelocity);
+	}
+	virtual void CCSPlayer__SetModelFromClass(CCSPlayer* pPlayer) 
+	{
+		return SM_CCSPlayer__SetModelFromClass(pPlayer);
+	}
+	virtual void CCSPlayer__SetClanTag(CCSPlayer* pPlayer, const char* pClanTag) {
+		return SM_CCSPlayer__SetClanTag(pPlayer, pClanTag);
+	}
+	virtual void CCSPlayer__CommitSuicide(CCSPlayer* pPlayer, bool explode, bool force) 
+	{
+		return ((CBasePlayer*)pPlayer)->CommitSuicide(explode, force);
+	}
+	virtual void CCSPlayer__CommitSuicide(CCSPlayer* pPlayer, const Vector& vecForce, bool explode, bool force) 
+	{
+		return ((CBasePlayer*)pPlayer)->CommitSuicide(vecForce, explode, force);
+	}
+	virtual int AliasToWeaponID(const char* weaponName) 
+	{
+		return ::AliasToWeaponID(weaponName);
+	}
+	virtual const char* WeaponIDToAlias(int weaponId) 
+	{
+		return SM_WeaponIDToAlias(weaponId);
+	}
+	virtual const char* GetTranslatedWeaponAlias(const char* weaponName) 
+	{
+		return SM_GetTranslatedWeaponAlias(weaponName);
+	}
+	virtual CCSWeaponInfo * GetWeaponInfo( int weaponID )
+	{
+		return SM_GetWeaponInfo(weaponID);
+	}
+	virtual bool CBaseEntity__AcceptInput( CBaseEntity* pEntity, const char *szInputName, CBaseEntity *pActivator, CBaseEntity *pCaller, variant_t Value, int outputID )
+	{
+		return pEntity->AcceptInput(szInputName, pActivator, pCaller, Value, outputID);
+	}
+	virtual void CBaseEntityOutput__FireOutput(CBaseEntityOutput* pOutput, variant_t Value, CBaseEntity *pActivator, CBaseEntity *pCaller, float fDelay) 
+	{
+		return pOutput->FireOutput(Value, pActivator, pCaller, fDelay);
+	}
+	virtual ServerClass* CBaseEntity__GetServerClass(CBaseEntity* pEntity)
+	{
+		return pEntity->GetServerClass();
+	}
+	virtual void CBaseEntity__Teleport(CBaseEntity *pEntity, Vector *origin, QAngle *ang, Vector *velocity)
+	{
+		return pEntity->Teleport(origin, ang, velocity);
+	}
+	virtual void CBaseEntity__GetVelocity(CBaseEntity* pEntity, Vector* pVec, Vector* pVec2) 
+	{
+		return pEntity->GetVelocity(pVec, pVec2);
+	}
+	virtual const QAngle& CBaseEntity__GetEyeAngles(CBaseEntity* pEntity) 
+	{
+		return pEntity->EyeAngles();
+	}
+	virtual void CBaseEntity__SetOwnerEntity(CBaseEntity* pDest, CBaseEntity* pOwner)
+	{
+		return pDest->SetOwnerEntity(pOwner);
+	}
+	virtual void CBaseEntity__SetModel( CBaseEntity* pEntity, const char *szName ) 
+	{
+		return pEntity->SetModel(szName);
+	}
+	virtual int CBaseAnimating__LookupAttachment( CBaseAnimating* pAnim, const char *szName )
+	{
+		return pAnim->LookupAttachment(szName);
+	}
+	virtual bool CBaseAnimating__GetAttachment( CBaseAnimating* pAnim, int number, matrix3x4_t &matrix )
+	{
+		return pAnim->GetAttachment(number, matrix);
+	}
+	virtual void CBaseAnimating__Extinguish( CBaseAnimating* pAnim ) 
+	{
+		pAnim->Extinguish();
+	}
+	virtual int CBaseEntity__OnTakeDamage( CBaseEntity* pEntity, const CTakeDamageInfo &info )
+	{
+		return pEntity->OnTakeDamage(info);
+	}
+	virtual int CBaseEntity__OnTakeDamageOrig( CBaseEntity* pEntity, const CTakeDamageInfo &info )
+	{
+		return pEntity->OnTakeDamageOrig(info);
+	}
+
+	virtual bool CCSPlayer__RemovePlayerItem( CCSPlayer* pEntity, CBaseCombatWeapon* pWeapon)
+	{
+		return ((CBasePlayer*)pEntity)->RemovePlayerItem(pWeapon);
+	}
+	virtual CBaseEntity* CCSPlayer__GetWeaponSlot(CCSPlayer* pPlayer, int slot) 
+	{
+		return ((CBasePlayer*)pPlayer)->GetWeapon(slot);
+	}
+	virtual CBaseEntity* CCSPlayer__GiveNamedItem(CCSPlayer* pPlayer, const char* name)
+	{
+		return ((CBasePlayer*)pPlayer)->GiveNamedItem(name);
+	}
+	virtual void CBaseEntity__Activate( CBaseEntity* pEntity) 
+	{
+		return pEntity->Activate();
+	}
+	virtual edict_t* CBaseEntity__GetEdict( CBaseEntity* pEntity) 
+	{
+		return pEntity->edict();
+	}
+	virtual void CBaseClient__SetClientName( CBaseClient* pEntity, const char* szName) 
+	{
+		return engine->SM_CBaseClient__SetClientName(pEntity, szName);
+	}
+	virtual void CBaseClient__SetUserCvar( CBaseClient* pEntity, const char* szKey, const char* szVal) 
+	{
+		return engine->SM_CBaseClient__SetUserCvar(pEntity, szKey, szVal);
+	}
+
+	virtual CBaseClient* IClient2CBaseClient( IClient* pCl ) 
+	{
+		return engine->SM_CBaseClient__FromIClient(pCl);
+	}
+	virtual edict_t* CBaseClient2Edict( CBaseClient* pCl ) 
+	{
+		return engine->SM_CBaseClient__ToEdict(pCl);
+	}
+	virtual int CCSPlayer__GiveAmmo( CCSPlayer* pEntity, int count, int ammo, bool suppress) 
+	{
+		return ((CBasePlayer*)pEntity)->GiveAmmo(count,ammo,suppress);
+	}
+	virtual void CBaseAnimating__Ignite( CBaseAnimating* pAnim ,float flFlameLifetime, bool bNPCOnly, float flSize, bool bCalledByLevelDesigner ) 
+	{
+		pAnim->Ignite(flFlameLifetime,bNPCOnly,flSize,bCalledByLevelDesigner);
+	}
+	virtual CBaseEntity *CGlobalEntityList__FindEntityByClassname( CGlobalEntityList* pList, CBaseEntity *pStartEntity, const char *szName ) 
+	{
+		return pList->FindEntityByClassname(pStartEntity, szName);
+	}
 };
 CSourcemodGlueInterface* CServerGameDLL::GetSourcemodGlue() 
 {

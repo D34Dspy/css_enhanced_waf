@@ -94,6 +94,10 @@ bool DHooks::SDK_OnLoad(char *error, size_t maxlength, bool late)
 	g_pSignatures = new SignatureGameConfig();
 	g_MainThreadId = std::this_thread::get_id();
 
+	SM_GET_LATE_IFACE(SDKTOOLS, g_pSDKTools);
+	SM_GET_LATE_IFACE(BINTOOLS, g_pBinTools);
+	SM_GET_LATE_IFACE(SDKHOOKS, g_pSDKHooks);
+
 	return true;
 }
 
@@ -115,10 +119,6 @@ void DHooks::OnHandleDestroy(HandleType_t type, void *object)
 
 void DHooks::SDK_OnAllLoaded()
 {
-	SM_GET_LATE_IFACE(SDKTOOLS, g_pSDKTools);
-	SM_GET_LATE_IFACE(BINTOOLS, g_pBinTools);
-	SM_GET_LATE_IFACE(SDKHOOKS, g_pSDKHooks);
-
 	if (g_pSDKHooks)
 	{
 		g_pSDKHooks->AddEntityListener(g_pEntityListener);

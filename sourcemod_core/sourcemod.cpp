@@ -548,11 +548,11 @@ void SourceModBase::DoGlobalPluginLoads()
 	// }
 
 	const char* smext[] = {
-		"sourcemodcstrike", 
 		"sourcemodsqlite", 
 		"sourcemodclientprefs", 
 		"sourcemodbintools", 
 		"sourcemodsdktools", 
+		"sourcemodcstrike", 
 		"sourcemodcurl", 
 		"sourcemodsdkhooks", 
 		"sourcemoddhooks", 

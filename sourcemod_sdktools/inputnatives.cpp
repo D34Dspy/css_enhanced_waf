@@ -34,7 +34,7 @@
 #include <datamap.h>
 #include <sm_argbuffer.h>
 
-ICallWrapper *g_pAcceptInput = NULL;
+#include "glue.hpp"
 
 #define ENTINDEX_TO_CBASEENTITY(ref, buffer) \
 	buffer = gamehelpers->ReferenceToEntity(ref); \
@@ -46,37 +46,6 @@ ICallWrapper *g_pAcceptInput = NULL;
 
 static cell_t AcceptEntityInput(IPluginContext *pContext, const cell_t *params)
 {
-	if (!g_pAcceptInput)
-	{
-		int offset;
-		if (!g_pGameConf->GetOffset("AcceptInput", &offset))
-		{
-			return pContext->ThrowNativeError("\"AcceptEntityInput\" not supported by this mod");
-		}
-
-		PassInfo pass[6];
-		pass[0].type = PassType_Basic;
-		pass[0].flags = PASSFLAG_BYVAL;
-		pass[0].size = sizeof(const char *);
-		pass[1].type = pass[2].type = PassType_Basic;
-		pass[1].flags = pass[2].flags = PASSFLAG_BYVAL;
-		pass[1].size = pass[2].size = sizeof(CBaseEntity *);
-		pass[3].type = PassType_Object;
-		pass[3].flags = PASSFLAG_BYVAL|PASSFLAG_OCTOR|PASSFLAG_ODTOR|PASSFLAG_OASSIGNOP;
-		pass[3].size = SIZEOF_VARIANT_T;
-		pass[4].type = PassType_Basic;
-		pass[4].flags = PASSFLAG_BYVAL;
-		pass[4].size = sizeof(int);
-		pass[5].type = PassType_Basic;
-		pass[5].flags = PASSFLAG_BYVAL;
-		pass[5].size = sizeof(bool);
-
-		if (!(g_pAcceptInput=g_pBinTools->CreateVCall(offset, 0, 0, &pass[5], pass, 5)))
-		{
-			pContext->ThrowNativeError("\"AcceptEntityInput\" wrapper failed to initialized");
-		}
-	}
-
 	CBaseEntity *pActivator, *pCaller, *pDest;
 
 	char *inputname;
@@ -95,10 +64,7 @@ static cell_t AcceptEntityInput(IPluginContext *pContext, const cell_t *params)
 		ENTINDEX_TO_CBASEENTITY(params[4], pCaller);
 	}
 
-	ArgBuffer<void*, const char*, CBaseEntity*, CBaseEntity*, decltype(g_Variant_t), int> vstk(pDest, inputname, pActivator, pCaller, g_Variant_t, params[5]);
-
-	bool ret = false;
-	g_pAcceptInput->Execute(vstk, &ret);
+	bool ret = g_pGameDLL->GetSourcemodBridge()->CBaseEntity__AcceptInput(pDest, inputname, pActivator, pCaller, g_Variant_t, params[5]);
 
 	_init_variant_t();
 

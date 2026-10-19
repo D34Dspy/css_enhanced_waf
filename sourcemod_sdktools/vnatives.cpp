@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <sh_string.h>
 #include "extension.h"
+#include "sourcemod_sourcepawn/include/sp_vm_api.h"
 #include "vcallbuilder.h"
 #include "vnatives.h"
 #include "vhelpers.h"
@@ -42,6 +43,8 @@
 #include "iserver.h"
 #include "am-string.h"
 #include <sm_argbuffer.h>
+
+#include "glue.hpp"
 
 SourceHook::List<ValveCall *> g_RegCalls;
 SourceHook::List<ICallWrapper *> g_CallWraps;
@@ -132,481 +135,120 @@ bool CreateBaseCall(const char *name,
 
 static cell_t RemovePlayerItem(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[2];
-		InitPass(pass[0], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("RemovePlayerItem", ValveCall_Player, &pass[1], pass, 1, &pCall))
-		{
-			return pContext->ThrowNativeError("\"RemovePlayerItem\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"RemovePlayerItem\" wrapper failed to initialize");
-		}
-	}
-
-	bool ret;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	FINISH_CALL_SIMPLE(&ret);
-	return ret ? 1 : 0;
+	CBaseEntity *pVictim = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pVictim)
+		return pContext->ThrowNativeError("Invalid entity index %d for victim", params[1]);
+	CBaseEntity *pWeapon = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pWeapon)
+		return pContext->ThrowNativeError("Invalid entity index %d for victim", params[1]);
+	return g_pGameDLL->GetSourcemodBridge()->CCSPlayer__RemovePlayerItem((CCSPlayer*)pVictim, (CBaseCombatWeapon*)pWeapon);
 }
 
-#if SOURCE_ENGINE == SE_CSGO
-class CEconItemView;
-static cell_t GiveNamedItem(IPluginContext *pContext, const cell_t *params)
-{
-	if (g_SdkTools.ShouldFollowCSGOServerGuidelines())
-	{
-		char *pWeaponName;
-		pContext->LocalToString(params[2], &pWeaponName);
-
-		// Don't allow knives other than weapon_knife, weapon_knifegg, and weapon_knife_t.
-		// Others follow pattern weapon_knife_*
-		size_t len = strlen(pWeaponName);
-		if ((len >= 14 && strnicmp(pWeaponName, "weapon_knife_", 13) == 0 && !(pWeaponName[13] == 't' && pWeaponName[14] == '\0')) || (len == 14 && stricmp(pWeaponName, "weapon_bayonet") == 0))
-		{
-			return pContext->ThrowNativeError("Blocked giving of %s due to core.cfg option FollowCSGOServerGuidelines", pWeaponName);
-		}
-	}
-
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[6];
-		InitPass(pass[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_Object, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[3], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[4], Valve_Vector, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[5], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("GiveNamedItem", ValveCall_Player, &pass[5], pass, 5, &pCall))
-		{
-			return pContext->ThrowNativeError("\"GiveNamedItem\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"GiveNamedItem\" wrapper failed to initialize");
-		}
-	}
-
-	CBaseEntity *pEntity = NULL;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	*(CEconItemView **)(vptr + pCall->vparams[2].offset) = NULL;
-	*(bool *)(vptr + pCall->vparams[3].offset) = false;
-	*(void **)(vptr + pCall->vparams[4].offset) = NULL;
-	FINISH_CALL_SIMPLE(&pEntity);
-
-	return gamehelpers->EntityToBCompatRef(pEntity);
-}
-#elif SOURCE_ENGINE == SE_BLADE || SOURCE_ENGINE == SE_MCV
-class CEconItemView;
-static cell_t GiveNamedItem(IPluginContext *pContext, const cell_t *params)
-{
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[5];
-		InitPass(pass[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_Object, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[3], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[4], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("GiveNamedItem", ValveCall_Player, &pass[4], pass, 4, &pCall))
-		{
-			return pContext->ThrowNativeError("\"GiveNamedItem\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"GiveNamedItem\" wrapper failed to initialize");
-		}
-	}
-
-	CBaseEntity *pEntity = NULL;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	*(CEconItemView **)(vptr + pCall->vparams[2].offset) = NULL;
-	*(bool *)(vptr + pCall->vparams[3].offset) = false;
-	FINISH_CALL_SIMPLE(&pEntity);
-
-	return gamehelpers->EntityToBCompatRef(pEntity);
-}
-#elif SOURCE_ENGINE == SE_BMS
-// CBaseEntity	*GiveNamedItem( const char *szName, int iSubType = 0, int iPrimaryAmmo = -1, int iSecondaryAmmo = -1 )
-static cell_t GiveNamedItem(IPluginContext *pContext, const cell_t *params)
-{
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[5];
-		InitPass(pass[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[3], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[4], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("GiveNamedItem", ValveCall_Player, &pass[4], pass, 4, &pCall))
-		{
-			return pContext->ThrowNativeError("\"GiveNamedItem\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"GiveNamedItem\" wrapper failed to initialize");
-		}
-	}
-
-	CBaseEntity *pEntity = NULL;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	*(int *)(vptr + pCall->vparams[2].offset) = -1;
-	*(int *)(vptr + pCall->vparams[3].offset) = -1;
-	FINISH_CALL_SIMPLE(&pEntity);
-
-	return gamehelpers->EntityToBCompatRef(pEntity);
-}
-#elif SOURCE_ENGINE == SE_LEFT4DEAD2
-// CBaseEntity *CTerrorPlayer::GiveNamedItem( const char *pchName, int iSubType, bool bForce, CBaseEntity *pUnk)
-static cell_t GiveNamedItem(IPluginContext *pContext, const cell_t *params)
-{
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[5];
-		InitPass(pass[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[3], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[4], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		
-		if (!CreateBaseCall("GiveNamedItem", ValveCall_Player, &pass[4], pass, 4, &pCall)) {
-			return pContext->ThrowNativeError("\"GiveNamedItem\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"GiveNamedItem\" wrapper failed to initialize");
-		}
-	}
-
-	CBaseEntity *pEntity = NULL;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	*(bool *)(vptr + pCall->vparams[2].offset) = false;
-	*(void **)(vptr + pCall->vparams[3].offset) = NULL;
-	FINISH_CALL_SIMPLE(&pEntity);
-	
-	return gamehelpers->EntityToBCompatRef(pEntity);
-}
-#else
 // CBaseEntity	*GiveNamedItem( const char *szName, int iSubType = 0 )
 static cell_t GiveNamedItem(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[3];
-		InitPass(pass[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("GiveNamedItem", ValveCall_Player, &pass[2], pass, 2, &pCall))
-		{
-			return pContext->ThrowNativeError("\"GiveNamedItem\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"GiveNamedItem\" wrapper failed to initialize");
-		}
-	}
+	CBaseEntity *pPlayer = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pPlayer)
+		return pContext->ThrowNativeError("Invalid client index %d", params[1]);
 
-	CBaseEntity *pEntity = NULL;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	FINISH_CALL_SIMPLE(&pEntity);
+	char* name;
+	pContext->LocalToString(params[2], &name);
+
+	CBaseEntity *pEntity = g_pGameDLL->GetSourcemodBridge()->CCSPlayer__GiveNamedItem((CCSPlayer*)pPlayer, name);
 
 	return gamehelpers->EntityToBCompatRef(pEntity);
 }
-#endif
 
 static cell_t GetPlayerWeaponSlot(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[2];
-		InitPass(pass[0], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("Weapon_GetSlot", ValveCall_Player, &pass[1], pass, 1, &pCall))
-		{
-			return pContext->ThrowNativeError("\"Weapon_GetSlot\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"Weapon_GetSlot\" wrapper failed to initialize");
-		}
-	}
+	CBaseEntity *pPlayer = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pPlayer)
+		return pContext->ThrowNativeError("Invalid client index %d", params[1]);
 
-	CBaseEntity *pEntity;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	FINISH_CALL_SIMPLE(&pEntity);
+	char* name;
+	pContext->LocalToString(params[2], &name);
 
+	CBaseEntity *pEntity = g_pGameDLL->GetSourcemodBridge()->CCSPlayer__GetWeaponSlot((CCSPlayer*)pPlayer, params[2]);
 	return gamehelpers->EntityToBCompatRef(pEntity);
 }
 
-#if SOURCE_ENGINE != SE_DARKMESSIAH
 static cell_t IgniteEntity(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-#if SOURCE_ENGINE == SE_SDK2013
-		if (!strcmp(g_pSM->GetGameFolderName(), "nmrih"))
-		{
-			ValvePassInfo pass[6];
-			InitPass(pass[0], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-			InitPass(pass[1], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-			InitPass(pass[2], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-			InitPass(pass[3], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-			InitPass(pass[4], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-			InitPass(pass[5], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-			if (!CreateBaseCall("Ignite", ValveCall_Entity, NULL, pass, 6, &pCall))
-			{
-				return pContext->ThrowNativeError("\"Ignite\" not supported by this mod");
-			}
-			else if (!pCall)
-			{
-				return pContext->ThrowNativeError("\"Ignite\" wrapper failed to initialize");
-			}
-		}
-		else if (!strcmp(g_pSM->GetGameFolderName(), "synergy"))
-		{
-			ValvePassInfo pass[5];
-			InitPass(pass[0], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-			InitPass(pass[1], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-			InitPass(pass[2], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-			InitPass(pass[3], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-			InitPass(pass[4], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-			if (!CreateBaseCall("Ignite", ValveCall_Entity, NULL, pass, 5, &pCall))
-			{
-				return pContext->ThrowNativeError("\"Ignite\" not supported by this mod");
-			}
-			else if (!pCall)
-			{
-				return pContext->ThrowNativeError("\"Ignite\" wrapper failed to initialize");
-			}
-		}
-		else
-#endif // SDK2013
-		{
-#if SOURCE_ENGINE == SE_MCV
-			ValvePassInfo pass[6];
-			InitPass(pass[0], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-			InitPass(pass[1], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-			InitPass(pass[2], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-			InitPass(pass[3], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-			InitPass(pass[4], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-			InitPass(pass[5], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-			if (!CreateBaseCall("Ignite", ValveCall_Entity, NULL, pass, 6, &pCall)) {
-				return pContext->ThrowNativeError("\"Ignite\" not supported by this mod");
-			} else if (!pCall) {
-				return pContext->ThrowNativeError("\"Ignite\" wrapper failed to initialize");
-			}
-#else
-			ValvePassInfo pass[4];
-			InitPass(pass[0], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-			InitPass(pass[1], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-			InitPass(pass[2], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-			InitPass(pass[3], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-			if (!CreateBaseCall("Ignite", ValveCall_Entity, NULL, pass, 4, &pCall)) {
-				return pContext->ThrowNativeError("\"Ignite\" not supported by this mod");
-			} else if (!pCall) {
-				return pContext->ThrowNativeError("\"Ignite\" wrapper failed to initialize");
-			}
-#endif // MCV
-		}
-	}
-
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	DECODE_VALVE_PARAM(4, vparams, 2);
-	DECODE_VALVE_PARAM(5, vparams, 3);
-
-#if SOURCE_ENGINE == SE_SDK2013
-	if (!strcmp(g_pSM->GetGameFolderName(), "nmrih"))
-	{
-		*(int *) (vptr + pCall->vparams[4].offset) = 0;
-		*(int *) (vptr + pCall->vparams[5].offset) = 0;
-	}
-	else if (!strcmp(g_pSM->GetGameFolderName(), "synergy"))
-	{
-		*(CBaseEntity **) (vptr + pCall->vparams[4].offset) = nullptr; // pAttacker
-	}
-#elif SOURCE_ENGINE == SE_MCV
-	*(CBaseEntity **) (vptr + pCall->vparams[4].offset) = nullptr; // pAttacker
-	*(string_t *) (vptr + pCall->vparams[5].offset) = NULL_STRING; // sRootWeaponClassname
-#endif // SDK2013
-
-	FINISH_CALL_SIMPLE(NULL);
-
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+		return pContext->ThrowNativeError("Invalid client index %d", params[1]);
+	g_pGameDLL->GetSourcemodBridge()->CBaseAnimating__Ignite((CBaseAnimating*)pEntity, sp_ctof(params[2]), params[3], sp_ctof(params[4]), params[5]);
 	return 1;
 }
-#else
-/* Dark Messiah specific version */
-static cell_t IgniteEntity(IPluginContext *pContext, const cell_t *params)
-{
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[6];
-		InitPass(pass[0], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-		InitPass(pass[3], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[4], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[5], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("Ignite", ValveCall_Entity, NULL, pass, 6, &pCall))
-		{
-			return pContext->ThrowNativeError("\"Ignite\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"Ignite\" wrapper failed to initialize");
-		}
-	}
-
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	DECODE_VALVE_PARAM(4, vparams, 2);
-	DECODE_VALVE_PARAM(5, vparams, 3);
-	/* Not sure what these params do, but they appear to be the default values */
-	*(int *)(vptr + pCall->vparams[4].offset) = 3;
-	*(int *)(vptr + pCall->vparams[5].offset) = 0;
-	FINISH_CALL_SIMPLE(NULL);
-
-	return 1;
-}
-#endif
 
 static cell_t ExtinguishEntity(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		if (!CreateBaseCall("Extinguish", ValveCall_Entity, NULL, NULL, 0, &pCall))
-		{
-			return pContext->ThrowNativeError("\"Extinguish\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"Extinguish\" wrapper failed to initialize");
-		}
-	}
-
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	FINISH_CALL_SIMPLE(NULL);
-
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+		return pContext->ThrowNativeError("Invalid client index %d", params[1]);
+	g_pGameDLL->GetSourcemodBridge()->CBaseAnimating__Extinguish((CBaseAnimating*)pEntity);
 	return 1;
 }
 
 static cell_t TeleportEntity(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
 	{
-#if SOURCE_ENGINE >= SE_PORTAL2
-		constexpr size_t paramCount = 4;
-#else
-		constexpr size_t paramCount = 3;
-#endif
-		ValvePassInfo pass[paramCount];
-		InitPass(pass[0], Valve_Vector, PassType_Basic, PASSFLAG_BYVAL, VDECODE_FLAG_ALLOWNULL);
-		InitPass(pass[1], Valve_QAngle, PassType_Basic, PASSFLAG_BYVAL, VDECODE_FLAG_ALLOWNULL);
-		InitPass(pass[2], Valve_Vector, PassType_Basic, PASSFLAG_BYVAL, VDECODE_FLAG_ALLOWNULL);
-#if SOURCE_ENGINE >= SE_PORTAL2
-		InitPass(pass[3], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-#endif
-		if (!CreateBaseCall("Teleport", ValveCall_Entity, NULL, pass, paramCount, &pCall))
-		{
-			return pContext->ThrowNativeError("\"Teleport\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"Teleport\" wrapper failed to initialize");
-		}
+		return pContext->ThrowNativeError("Invalid entity index %d for weapon", params[6]);
 	}
 
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	DECODE_VALVE_PARAM(4, vparams, 2);
-
-#if SOURCE_ENGINE >= SE_PORTAL2
-	*(bool *)(vptr + pCall->vparams[3].offset) = true;
-#endif
-
-	FINISH_CALL_SIMPLE(NULL);
-
-	return 1;
-}
-
-#if SOURCE_ENGINE >= SE_ORANGEBOX
-static cell_t ForcePlayerSuicide(IPluginContext *pContext, const cell_t *params)
-{
-	static ValveCall *pCall = NULL;
-	if (!pCall)
+	cell_t *addr;
+	int err;
+	if ((err = pContext->LocalToPhysAddr(params[2], &addr)) != SP_ERROR_NONE)
 	{
-		ValvePassInfo pass[2];
-		InitPass(pass[0], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("CommitSuicide", ValveCall_Player, NULL, pass, 2, &pCall))
-		{
-			return pContext->ThrowNativeError("\"CommitSuicide\" not supported by this mod");
-		}
-		else if (!pCall)
-		{
-			return pContext->ThrowNativeError("\"CommitSuicide\" wrapper failed to initialize");
-		}
+		return pContext->ThrowNativeError("Could not read damageForce vector");
 	}
 
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-
-	if (params[0] >= 2)
-	{
-		DECODE_VALVE_PARAM(2, vparams, 0);
-	}
+	Vector vec1;
+	bool useVec1 = true;
+	if (addr != pContext->GetNullRef(SP_NULL_VECTOR))
+		vec1.Init(sp_ctof(addr[0]), sp_ctof(addr[1]), sp_ctof(addr[2]));
 	else
-	{
-		*(bool *)(vptr + pCall->vparams[0].offset) = false;
-	}
-	
-	*(bool *)(vptr + pCall->vparams[1].offset) = true;
+		useVec1 = false;
 
-	FINISH_CALL_SIMPLE(NULL);
+	if ((err = pContext->LocalToPhysAddr(params[3], &addr)) != SP_ERROR_NONE)
+	{
+		return pContext->ThrowNativeError("Could not read damageForce vector");
+	}
+
+	QAngle ang;
+	bool useAng = true;
+	if (addr != pContext->GetNullRef(SP_NULL_VECTOR))
+		ang.Init(sp_ctof(addr[0]), sp_ctof(addr[1]), sp_ctof(addr[2]));
+	else
+		useAng = false;
+
+	if ((err = pContext->LocalToPhysAddr(params[4], &addr)) != SP_ERROR_NONE)
+	{
+		return pContext->ThrowNativeError("Could not read damageForce vector");
+	}
+
+	Vector vec2;
+	bool useVec2 = true;
+	if (addr != pContext->GetNullRef(SP_NULL_VECTOR))
+		vec2.Init(sp_ctof(addr[0]), sp_ctof(addr[1]), sp_ctof(addr[2]));
+	else
+		useVec2 = false;
+
+	g_pGameDLL->GetSourcemodBridge()->CBaseEntity__Teleport(pEntity, useVec1 ? &vec1 : nullptr, useAng ? &ang : nullptr, useVec2 ? &vec2 : nullptr);
 
 	return 1;
 }
-#else
+
 static cell_t ForcePlayerSuicide(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		if (!CreateBaseCall("CommitSuicide", ValveCall_Player, NULL, NULL, 0, &pCall))
-		{
-			return pContext->ThrowNativeError("\"CommitSuicide\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"CommitSuicide\" wrapper failed to initialize");
-		}
-	}
-
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	FINISH_CALL_SIMPLE(NULL);
-
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+		return pContext->ThrowNativeError("Invalid client index %d", params[1]);
+	g_pGameDLL->GetSourcemodBridge()->CCSPlayer__CommitSuicide((CCSPlayer*)pEntity, params[2], params[3]);
 	return 1;
 }
-#endif
 
 static cell_t SetClientViewEntity(IPluginContext *pContext, const cell_t *params)
 {
@@ -664,7 +306,6 @@ static cell_t SlapPlayer(IPluginContext *pContext, const cell_t *params)
 {
 	static bool s_slap_supported = false;
 	static bool s_slap_setup = false;
-	static ICallWrapper *s_teleport = NULL;
 	static int s_health_offs = 0;
 	static int s_sound_count = 0;
 	static int s_frag_offs = 0;
@@ -1002,66 +643,17 @@ static cell_t FindEntityByClassname(IPluginContext *pContext, const cell_t *para
 	}
 #endif
 
-	static ValveCall *pCall = NULL;
-	static bool bProbablyNoFEBC = false;
+	CBaseEntity *pStartEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pStartEntity)
+		return pContext->ThrowNativeError("Invalid client index %d", params[1]);
 
-#if SOURCE_ENGINE >= SE_ORANGEBOX
-	if (bProbablyNoFEBC)
-	{
-		return NativeFindEntityByClassname(pContext, params);
-	}
-#endif // >= SE_ORANGEBOX
+	char *searchname;
+	pContext->LocalToString(params[2], &searchname);
 
-	if (!pCall)
-	{
-		ValvePassInfo pass[3];
-		InitPass(pass[0], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL, VDECODE_FLAG_ALLOWNULL|VDECODE_FLAG_ALLOWWORLD);
-		InitPass(pass[1], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-
-		char error[256];
-		error[0] = '\0';
-		if (!CreateBaseCall("FindEntityByClassname", ValveCall_EntityList, &pass[2], pass, 2, &pCall))
-		{
-			g_pSM->Format(error, sizeof(error), "\"FindEntityByClassname\" not supported by this mod");
-		} else if (!pCall) {
-			g_pSM->Format(error, sizeof(error), "\"FindEntityByClassname\" wrapper failed to initialize");
-		}
-
-		if (error[0] != '\0')
-		{
-#if SOURCE_ENGINE >= SE_ORANGEBOX
-			if (!bProbablyNoFEBC)
-			{
-				bProbablyNoFEBC = true;
-
-				// CreateBaseCall above abstracts all of the gamedata logic, but we need to know if the key was even found.
-				// We don't want to log an error if key isn't present (knowing falling back to native method), only throw
-				// error if signature/symbol was not found.
-				void *dummy;
-				if (g_pGameConf->GetMemSig("FindEntityByClassname", &dummy))
-				{
-					g_pSM->LogError(myself, "%s, falling back to IServerTools method.", error);
-				}
-			}
-			return NativeFindEntityByClassname(pContext, params);
-#else
-			return pContext->ThrowNativeError("%s", error);
-#endif // >= ORANGEBOX
-		}
-	}
-
-	CBaseEntity *pEntity;
-	START_CALL();
-	*(void **)vptr = g_EntList; 
-	DECODE_VALVE_PARAM(1, vparams, 0);
-	DECODE_VALVE_PARAM(2, vparams, 1);
-	FINISH_CALL_SIMPLE(&pEntity);
-
+	CBaseEntity *pEntity = g_pGameDLL->GetSourcemodBridge()->CGlobalEntityList__FindEntityByClassname((CGlobalEntityList*)g_EntList, pStartEntity, searchname);
 	return gamehelpers->EntityToBCompatRef(pEntity);
 }
 
-#if SOURCE_ENGINE >= SE_ORANGEBOX
 static cell_t CreateEntityByName(IPluginContext *pContext, const cell_t *params)
 {
 	if (!g_pSM->IsMapRunning())
@@ -1083,40 +675,7 @@ static cell_t CreateEntityByName(IPluginContext *pContext, const cell_t *params)
 #endif
 	return gamehelpers->EntityToBCompatRef(pEntity);
 }
-#else
-static cell_t CreateEntityByName(IPluginContext *pContext, const cell_t *params)
-{
-	if (!g_pSM->IsMapRunning())
-	{
-		return pContext->ThrowNativeError("Cannot create new entity when no map is running");
-	}
 
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[3];
-		InitPass(pass[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("CreateEntityByName", ValveCall_Static, &pass[2], pass, 2, &pCall))
-		{
-			return pContext->ThrowNativeError("\"CreateEntityByName\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"CreateEntityByName\" wrapper failed to initialize");
-		}
-	}
-
-	CBaseEntity *pEntity = NULL;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, vparams, 0);
-	DECODE_VALVE_PARAM(2, vparams, 1);
-	FINISH_CALL_SIMPLE(&pEntity);
-
-	return gamehelpers->EntityToBCompatRef(pEntity);
-}
-#endif
-
-#if SOURCE_ENGINE >= SE_ORANGEBOX
 static cell_t DispatchSpawn(IPluginContext *pContext, const cell_t *params)
 {
 	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
@@ -1129,33 +688,7 @@ static cell_t DispatchSpawn(IPluginContext *pContext, const cell_t *params)
 
 	return 1;
 }
-#else
-static cell_t DispatchSpawn(IPluginContext *pContext, const cell_t *params)
-{
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[2];
-		InitPass(pass[0], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("DispatchSpawn", ValveCall_Static, &pass[1], pass, 1, &pCall))
-		{
-			return pContext->ThrowNativeError("\"DispatchSpawn\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"DispatchSpawn\" wrapper failed to initialize");
-		}
-	}
 
-	int ret;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, vparams, 0);
-	FINISH_CALL_SIMPLE(&ret);
-
-	return (ret == -1) ? 0 : 1;
-}
-#endif
-
-#if SOURCE_ENGINE >= SE_ORANGEBOX
 static cell_t DispatchKeyValue(IPluginContext *pContext, const cell_t *params)
 {
 	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
@@ -1171,36 +704,7 @@ static cell_t DispatchKeyValue(IPluginContext *pContext, const cell_t *params)
 
 	return (servertools->SetKeyValue(pEntity, key, value) ? 1 : 0);
 }
-#else
-static cell_t DispatchKeyValue(IPluginContext *pContext, const cell_t *params)
-{
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[3];
-		InitPass(pass[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("DispatchKeyValue", ValveCall_Entity, &pass[2], pass, 2, &pCall))
-		{
-			return pContext->ThrowNativeError("\"DispatchKeyValue\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"DispatchKeyValue\" wrapper failed to initialize");
-		}
-	}
 
-	bool ret;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	FINISH_CALL_SIMPLE(&ret);
-
-	return ret ? 1 : 0;
-}
-#endif
-
-#if SOURCE_ENGINE >= SE_ORANGEBOX
 static cell_t DispatchKeyValueFloat(IPluginContext *pContext, const cell_t *params)
 {
 	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
@@ -1216,36 +720,7 @@ static cell_t DispatchKeyValueFloat(IPluginContext *pContext, const cell_t *para
 
 	return (servertools->SetKeyValue(pEntity, key, value) ? 1 : 0);
 }
-#else
-static cell_t DispatchKeyValueFloat(IPluginContext *pContext, const cell_t *params)
-{
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[3];
-		InitPass(pass[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_Float, PassType_Float, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("DispatchKeyValueFloat", ValveCall_Entity, &pass[2], pass, 2, &pCall))
-		{
-			return pContext->ThrowNativeError("\"DispatchKeyValueFloat\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"DispatchKeyValueFloat\" wrapper failed to initialize");
-		}
-	}
 
-	bool ret;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	FINISH_CALL_SIMPLE(&ret);
-
-	return ret ? 1 : 0;
-}
-#endif
-
-#if SOURCE_ENGINE >= SE_ORANGEBOX
 static cell_t DispatchKeyValueVector(IPluginContext *pContext, const cell_t *params)
 {
 	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
@@ -1267,38 +742,6 @@ static cell_t DispatchKeyValueVector(IPluginContext *pContext, const cell_t *par
 
 	return (servertools->SetKeyValue(pEntity, key, *v) ? 1 : 0);
 }
-#else
-static cell_t DispatchKeyValueVector(IPluginContext *pContext, const cell_t *params)
-{
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo pass[3];
-		InitPass(pass[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-#if SOURCE_ENGINE >= SE_ORANGEBOX
-		InitPass(pass[1], Valve_Vector, PassType_Basic, PASSFLAG_BYVAL);
-#else
-		InitPass(pass[1], Valve_Vector, PassType_Object, PASSFLAG_BYVAL|PASSFLAG_OCTOR|PASSFLAG_OASSIGNOP);
-#endif
-		InitPass(pass[2], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("DispatchKeyValueVector", ValveCall_Entity, &pass[2], pass, 2, &pCall))
-		{
-			return pContext->ThrowNativeError("\"DispatchKeyValueVector\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"DispatchKeyValueVector\" wrapper failed to initialize");
-		}
-	}
-
-	bool ret;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	FINISH_CALL_SIMPLE(&ret);
-
-	return ret ? 1 : 0;
-}
-#endif
 
 static cell_t sm_GetClientAimTarget(IPluginContext *pContext, const cell_t *params)
 {
@@ -1318,23 +761,16 @@ static cell_t sm_GetClientAimTarget(IPluginContext *pContext, const cell_t *para
 
 static cell_t sm_SetEntityModel(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
 	{
-		ValvePassInfo pass[1];
-		InitPass(pass[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("SetEntityModel", ValveCall_Entity, NULL, pass, 1, &pCall))
-		{
-			return pContext->ThrowNativeError("\"SetEntityModel\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"SetEntityModel\" wrapper failed to initialize");
-		}
+		return pContext->ThrowNativeError("Entity %d (%d) is invalid", gamehelpers->ReferenceToIndex(params[1]), params[1]);
 	}
 
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	FINISH_CALL_SIMPLE(NULL);
+	char *key;
+	pContext->LocalToString(params[2], &key);
+
+	g_pGameDLL->GetSourcemodBridge()->CBaseEntity__SetModel(pEntity, key);
 
 	return 1;
 }
@@ -1413,45 +849,32 @@ static cell_t GetServerNetStats(IPluginContext *pContext, const cell_t *params)
 
 static cell_t WeaponEquip(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
 	{
-		ValvePassInfo pass[1];
-		InitPass(pass[0], Valve_CBaseEntity, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("WeaponEquip", ValveCall_Player, NULL, pass, 1, &pCall))
-		{
-			return pContext->ThrowNativeError("\"WeaponEquip\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"WeaponEquip\" wrapper failed to initialize");
-		}
+		return pContext->ThrowNativeError("Entity %d (%d) is invalid", gamehelpers->ReferenceToIndex(params[1]), params[1]);
 	}
 
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	FINISH_CALL_SIMPLE(NULL);
+	CBaseEntity *pWeapon = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pWeapon)
+	{
+		return pContext->ThrowNativeError("Entity %d (%d) is invalid", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
+	g_pGameDLL->GetSourcemodBridge()->CCSPlayer__Weapon_Equip((CCSPlayer*)pEntity, (CBaseCombatWeapon*)pWeapon);
 
 	return 1;
 }
 
 static cell_t ActivateEntity(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
 	{
-		if (!CreateBaseCall("Activate", ValveCall_Entity, NULL, NULL, 0, &pCall))
-		{
-			return pContext->ThrowNativeError("\"Activate\" not supported by this mod");
-		}
-		else if (!pCall)
-		{
-			return pContext->ThrowNativeError("\"Activate\" wrapper failed to initialize");
-		}
+		return pContext->ThrowNativeError("Entity %d (%d) is invalid", gamehelpers->ReferenceToIndex(params[1]), params[1]);
 	}
 
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	FINISH_CALL_SIMPLE(NULL);
+	g_pGameDLL->GetSourcemodBridge()->CBaseEntity__Activate(pEntity);
 
 	return 1;
 }
@@ -1475,34 +898,27 @@ static cell_t SetClientName(IPluginContext *pContext, const cell_t *params)
 		return pContext->ThrowNativeError("Client %d is not connected", params[1]);
 	}
 
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo params[1];
-		InitPass(params[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
+/* TODO: Use UpdateUserSettings function for all engines */
+	static int changedOffset = -1;
 
-		if (!CreateBaseCall("SetClientName", ValveCall_Entity, NULL, params, 1, &pCall))
+	if (changedOffset == -1)
+	{	
+		if (!g_pGameConf->GetOffset("InfoChanged", &changedOffset))
 		{
-			return pContext->ThrowNativeError("\"SetClientName\" not supported by this mod");
-		}
-		else if (!pCall)
-		{
-			return pContext->ThrowNativeError("\"SetClientName\" wrapper failed to initialize");
+			return pContext->ThrowNativeError("\"SetUserCvar\" not supported by this mod");
 		}
 	}
 
-	// The IClient vtable is +sizeof(void *) from the CBaseClient vtable due to multiple inheritance.
-	void *pGameClient = (void *)((intptr_t)pClient - sizeof(void *));
+	unsigned char *CGameClient = (unsigned char *)pClient - sizeof(void *);
 
-	// Change the name in the engine.
-	START_CALL();
-	void **ebuf = (void **)vptr;
-	*ebuf = pGameClient;
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	FINISH_CALL_SIMPLE(NULL);
+	char* name;
+	pContext->LocalToString(params[2], &name);
+
+	auto pBaseCl = g_pGameDLL->GetSourcemodBridge()->IClient2CBaseClient(pClient);
+	g_pGameDLL->GetSourcemodBridge()->CBaseClient__SetClientName(pBaseCl, name);
 
 	// Notify the server of the change.
-	serverClients->ClientSettingsChanged(player->GetEdict());
+	serverClients->ClientSettingsChanged(g_pGameDLL->GetSourcemodBridge()->CBaseClient2Edict(pBaseCl));
 
 	return 1;
 }
@@ -1526,38 +942,8 @@ static cell_t SetClientInfo(IPluginContext *pContext, const cell_t *params)
 		return pContext->ThrowNativeError("Client %d is not connected", params[1]);
 	}
 
-	static ValveCall *pCall = NULL;
-	if (!pCall)
-	{
-		ValvePassInfo params[2];
-		InitPass(params[0], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(params[1], Valve_String, PassType_Basic, PASSFLAG_BYVAL);
-
-		if (!CreateBaseCall("SetUserCvar", ValveCall_Entity, NULL, params, 2, &pCall))
-		{
-			return pContext->ThrowNativeError("\"SetUserCvar\" not supported by this mod");
-		}
-		else if (!pCall)
-		{
-			return pContext->ThrowNativeError("\"SetUserCvar\" wrapper failed to initialize");
-		}
-	}
 
 /* TODO: Use UpdateUserSettings function for all engines */
-#if SOURCE_ENGINE == SE_DARKMESSIAH
-	static ValveCall *pUpdateSettings = NULL;
-	if (!pUpdateSettings)
-	{
-		if (!CreateBaseCall("UpdateUserSettings", ValveCall_Entity, NULL, NULL, 0, &pUpdateSettings))
-		{
-			return pContext->ThrowNativeError("\"SetUserCvar\" not supported by this mod");
-		}
-		else if (!pUpdateSettings)
-		{
-			return pContext->ThrowNativeError("\"SetUserCvar\" wrapper failed to initialize");
-		}
-	}
-#else
 	static int changedOffset = -1;
 
 	if (changedOffset == -1)
@@ -1567,27 +953,19 @@ static cell_t SetClientInfo(IPluginContext *pContext, const cell_t *params)
 			return pContext->ThrowNativeError("\"SetUserCvar\" not supported by this mod");
 		}
 	}
-#endif
 
 	unsigned char *CGameClient = (unsigned char *)pClient - sizeof(void *);
 
-	START_CALL();
-	/* Not really a CBaseEntity* but this works */
-	CBaseEntity **ebuf = (CBaseEntity **)vptr;
-	*ebuf = (CBaseEntity *)CGameClient;
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	FINISH_CALL_SIMPLE(NULL);
+	char* key;
+	pContext->LocalToString(params[2], &key);
 
-#if SOURCE_ENGINE == SE_DARKMESSIAH
-	unsigned char *args = pUpdateSettings->stk_get();
-	*(void **)args = CGameClient;
-	pUpdateSettings->call->Execute(args, NULL);
-	pUpdateSettings->stk_put(args);
-#else
-	uint8_t* changed = (uint8_t *)(CGameClient + changedOffset);
-	*changed = 1;
-#endif
+	char* value;
+	pContext->LocalToString(params[3], &value);
+
+	g_pGameDLL->GetSourcemodBridge()->CBaseClient__SetUserCvar((class CBaseClient*)CGameClient, key, value);
+
+	// uint8_t* changed = (uint8_t *)(CGameClient + changedOffset);
+	// *changed = 1;
 
 	return 1;
 }
@@ -1604,30 +982,13 @@ static cell_t GetPlayerResourceEntity(IPluginContext *pContext, const cell_t *pa
 
 static cell_t GivePlayerAmmo(IPluginContext *pContext, const cell_t *params)
 {
-	static ValveCall *pCall = NULL;
-	if (!pCall)
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
 	{
-		ValvePassInfo pass[3];
-		InitPass(pass[0], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[1], Valve_POD, PassType_Basic, PASSFLAG_BYVAL);
-		InitPass(pass[2], Valve_Bool, PassType_Basic, PASSFLAG_BYVAL);
-		if (!CreateBaseCall("GiveAmmo", ValveCall_Player, &pass[0], pass, 3, &pCall))
-		{
-			return pContext->ThrowNativeError("\"GiveAmmo\" not supported by this mod");
-		} else if (!pCall) {
-			return pContext->ThrowNativeError("\"GiveAmmo\" wrapper failed to initialize");
-		}
+		return pContext->ThrowNativeError("Entity %d (%d) is invalid", gamehelpers->ReferenceToIndex(params[1]), params[1]);
 	}
 
-	int ammoGiven;
-	START_CALL();
-	DECODE_VALVE_PARAM(1, thisinfo, 0);
-	DECODE_VALVE_PARAM(2, vparams, 0);
-	DECODE_VALVE_PARAM(3, vparams, 1);
-	DECODE_VALVE_PARAM(4, vparams, 2);
-	FINISH_CALL_SIMPLE(&ammoGiven);
-
-	return ammoGiven;
+	return g_pGameDLL->GetSourcemodBridge()->CCSPlayer__GiveAmmo((CCSPlayer*)pEntity, params[2], params[3], params[4]);
 }
 
 // SetEntityCollisionGroup(int entity, int collisionGroup)
@@ -1678,29 +1039,9 @@ static cell_t SetEntityOwner(IPluginContext *pContext, const cell_t *params)
 	CBaseEntity *pEntity;
 	ENTINDEX_TO_CBASEENTITY(params[1], pEntity);
 
-	static ICallWrapper *pSetOwnerEntity = NULL;
-	if (!pSetOwnerEntity)
-	{
-		int offset = -1;
-		if (!g_pGameConf->GetOffset("SetOwnerEntity", &offset))
-		{
-			return pContext->ThrowNativeError("\"SetOwnerEntity\" not supported by this mod");
-		}
-
-		PassInfo pass[1];
-		pass[0].type = PassType_Basic;
-		pass[0].flags = PASSFLAG_BYVAL;
-		pass[0].size = sizeof(CBaseEntity *);
-
-		if (!(pSetOwnerEntity = g_pBinTools->CreateVCall(offset, 0, 0, nullptr, pass, 1)))
-		{
-			return pContext->ThrowNativeError("\"SetOwnerEntity\" wrapper failed to initialize");
-		}
-	}
-
 	CBaseEntity *pNewOwner = gamehelpers->ReferenceToEntity(params[2]);
-	ArgBuffer<CBaseEntity *, CBaseEntity *> vstk(pEntity, pNewOwner);
-	pSetOwnerEntity->Execute(vstk, nullptr);
+
+	g_pGameDLL->GetSourcemodBridge()->CBaseEntity__SetOwnerEntity(pEntity, pNewOwner);
 
 	return 1;
 }
@@ -1721,39 +1062,10 @@ static cell_t LookupEntityAttachment(IPluginContext* pContext, const cell_t* par
 		return pContext->ThrowNativeError("Entity %d (%d) is not a CBaseAnimating", gamehelpers->ReferenceToIndex(params[1]), params[1]);
 	}
 
-	static ICallWrapper* pLookupAttachment = NULL;
-	if (!pLookupAttachment)
-	{
-		void* addr;
-		if (!g_pGameConf->GetMemSig("LookupAttachment", &addr))
-		{
-			return pContext->ThrowNativeError("\"LookupAttachment\" not supported by this mod");
-		}
-
-		PassInfo retpass;
-		retpass.type = PassType_Basic;
-		retpass.flags = PASSFLAG_BYVAL;
-		retpass.size = sizeof(int);
-
-		PassInfo pass[1];
-		pass[0].type = PassType_Basic;
-		pass[0].flags = PASSFLAG_BYVAL;
-		pass[0].size = sizeof(char*);
-
-		if (!(pLookupAttachment = g_pBinTools->CreateCall(addr, CallConv_ThisCall, &retpass, pass, 1)))
-		{
-			return pContext->ThrowNativeError("\"LookupAttachment\" wrapper failed to initialize");
-		}
-	}
-
 	char* buffer;
 	pContext->LocalToString(params[2], &buffer);
-	ArgBuffer<CBaseEntity*, char*> vstk(pEntity, buffer);
 
-	int ret;
-	pLookupAttachment->Execute(vstk, &ret);
-
-	return ret;
+	return g_pGameDLL->GetSourcemodBridge()->CBaseAnimating__LookupAttachment((CBaseAnimating*)pEntity, buffer);
 }
 
 static cell_t GetEntityAttachment(IPluginContext* pContext, const cell_t* params)
@@ -1772,39 +1084,9 @@ static cell_t GetEntityAttachment(IPluginContext* pContext, const cell_t* params
 		return pContext->ThrowNativeError("Entity %d (%d) is not a CBaseAnimating", gamehelpers->ReferenceToIndex(params[1]), params[1]);
 	}
 
-	static ICallWrapper* pGetAttachment = NULL;
-	if (!pGetAttachment)
-	{
-		int offset = -1;
-		if (!g_pGameConf->GetOffset("GetAttachment", &offset))
-		{
-			return pContext->ThrowNativeError("\"GetAttachment\" not supported by this mod");
-		}
-
-		PassInfo retpass;
-		retpass.type = PassType_Basic;
-		retpass.flags = PASSFLAG_BYVAL;
-		retpass.size = sizeof(bool);
-
-		PassInfo pass[2];
-		pass[0].type = PassType_Basic;
-		pass[0].flags = PASSFLAG_BYVAL;
-		pass[0].size = sizeof(int);
-		pass[1].type = PassType_Basic;
-		pass[1].flags = PASSFLAG_BYVAL;
-		pass[1].size = sizeof(matrix3x4_t*);
-
-		if (!(pGetAttachment = g_pBinTools->CreateVCall(offset, 0, 0, &retpass, pass, 2)))
-		{
-			return pContext->ThrowNativeError("\"GetAttachment\" wrapper failed to initialize");
-		}
-	}
-
 	matrix3x4_t attachmentToWorld;
-	ArgBuffer<CBaseEntity*, int, matrix3x4_t*> vstk(pEntity, params[2], &attachmentToWorld);
 
-	bool ret;
-	pGetAttachment->Execute(vstk, &ret);
+	auto ret = g_pGameDLL->GetSourcemodBridge()->CBaseAnimating__GetAttachment((CBaseAnimating*)pEntity, params[2], attachmentToWorld);
 
 	// GetAttachment returns a matrix3x4_t but plugins can't do anything with this.
 	// Convert it to world origin and world angles.

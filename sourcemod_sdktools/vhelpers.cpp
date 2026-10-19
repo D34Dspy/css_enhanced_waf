@@ -35,6 +35,7 @@
 #include "vglobals.h"
 
 #include "sm_platform.h"
+#include "glue.hpp"
 #ifdef PLATFORM_WINDOWS
 #include "sm_invalidparamhandler.h"
 #endif
@@ -63,6 +64,8 @@ private:
 
 bool SetupTeleport()
 {
+	return true;
+
 	if (s_Teleport.setup)
 	{
 		return s_Teleport.supported;
@@ -92,17 +95,7 @@ bool SetupTeleport()
 
 void Teleport(CBaseEntity *pEntity, Vector *origin, QAngle *ang, Vector *velocity)
 {
-	unsigned char params[sizeof(void *) * 4];
-	unsigned char *vptr = params;
-	*(CBaseEntity **)vptr = pEntity;
-	vptr += sizeof(CBaseEntity *);
-	*(Vector **)vptr = origin;
-	vptr += sizeof(Vector *);
-	*(QAngle **)vptr = ang;
-	vptr += sizeof(QAngle *);
-	*(Vector **)vptr = velocity;
-	
-	s_Teleport.call->Execute(params, NULL);
+	g_pGameDLL->GetSourcemodBridge()->CBaseEntity__Teleport(pEntity, origin, ang, velocity);
 }
 
 bool IsTeleportSupported()
@@ -112,6 +105,7 @@ bool IsTeleportSupported()
 
 bool SetupGetVelocity()
 {
+	return true;
 	if (s_GetVelocity.setup)
 	{
 		return s_GetVelocity.supported;
@@ -140,15 +134,7 @@ bool SetupGetVelocity()
 
 void GetVelocity(CBaseEntity *pEntity, Vector *velocity, AngularImpulse *angvelocity)
 {
-	unsigned char params[sizeof(void *) * 3];
-	unsigned char *vptr = params;
-	*(CBaseEntity **)vptr = pEntity;
-	vptr += sizeof(CBaseEntity *);
-	*(Vector **)vptr = velocity;
-	vptr += sizeof(Vector *);
-	*(AngularImpulse **)vptr = angvelocity;
-
-	s_GetVelocity.call->Execute(params, NULL);
+	g_pGameDLL->GetSourcemodBridge()->CBaseEntity__GetVelocity(pEntity, velocity, angvelocity);
 }
 
 bool IsGetVelocitySupported()
@@ -158,6 +144,7 @@ bool IsGetVelocitySupported()
 
 bool SetupGetEyeAngles()
 {
+	return true;
 	if (s_EyeAngles.setup)
 	{
 		return s_EyeAngles.supported;
@@ -186,6 +173,9 @@ bool SetupGetEyeAngles()
 
 bool GetEyeAngles(CBaseEntity *pEntity, QAngle *pAngles)
 {
+	*pAngles = g_pGameDLL->GetSourcemodBridge()->CBaseEntity__GetEyeAngles(pEntity);
+	return true;
+
 	if (!IsEyeAnglesSupported())
 	{
 		return false;

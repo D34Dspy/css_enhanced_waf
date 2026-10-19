@@ -454,6 +454,11 @@ public:
 
 #if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
+	virtual class CBaseClient* SM_CBaseClient__FromIClient(class IClient* pCl) = 0;
+	virtual edict_t* SM_Index_To_Edict(int i) = 0;
+	virtual edict_t* SM_CBaseClient__ToEdict(CBaseClient* pCl) = 0;
+	virtual void SM_CBaseClient__SetClientName(CBaseClient* pPlayer, const char* szName) = 0;
+	virtual void SM_CBaseClient__SetUserCvar( CBaseClient* pEntity, const char* szKey, const char* szVal) = 0;
 #endif
 };
 

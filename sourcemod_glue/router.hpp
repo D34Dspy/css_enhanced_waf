@@ -69,35 +69,9 @@ private:
         CDelegate delegate;
     };
 
-    struct Routes {
-        int overload;
-        CUtlVector<Endpoint> routes;
-
-        int add(int keyCode, CDelegate d, CInterface* i) {
-            int j = routes.AddToTail();
-            routes.Element(j).keyCode = keyCode;
-            routes.Element(j).keyIface = i;
-            routes.Element(j).delegate = d;
-            return j;
-        }
-
-        void rem(int hk, CInterface* iface) {
-            for(int i = 0; i < routes.Count(); i++) {
-                if(routes.Element(i).keyCode == hk && routes.Element(i).keyIface == iface)
-                {
-                    routes.Remove(i);
-                    return;
-                }
-            }
-        }
-
-        int invalid() {
-            return -1;
-        }
-    };
-    
     int keyCodes;
-    CUtlVector<Routes> routers; // lord forgive me
+    CUtlVector<Endpoint> begin;
+    CUtlVector<Endpoint> end;
 
     CInterface* curr;
     ParamSet param;
@@ -114,46 +88,6 @@ private:
 
     void throw_() {
         *(int*)0 = 0;
-    }
-
-    int establish_routes(int overload) {
-        int i = routers.AddToTail();
-        routers.Element(i).overload = overload;
-        return i;
-    }
-
-    int overload(int value, bool create = true) {
-        for (int i = 0; i < routers.Count(); i++)
-            if(routers.Element(i).overload == value)
-                return i;
-        if (create) {
-            int j = routers.AddToTail();
-            routers.Element(j).overload = value;
-            return j;
-        }
-        return invalid();
-    }
-
-    void sorted() {
-        for(int i = 0; i < routers.Count() - 1; i++) {
-            int minIdx = i;
-            for(int j = i + 1; j < routers.Count(); j++) {
-                if(routers.Element(j).overload < routers.Element(minIdx).overload) {
-                    minIdx = j;
-                }
-            }
-            if(minIdx != i) {
-                Routes& l = routers.Element(i);
-                Routes& r = routers.Element(minIdx);
-                
-                int tempOverload = l.overload;
-                l.overload = r.overload;
-                r.overload = tempOverload;
-                
-                l.routes.Swap(r.routes);
-            }
-        }
-
     }
 
 public:
@@ -180,26 +114,18 @@ public:
 
         rec.stopDelegation = false;
         rec.parametersAltered = false;
-        for(int i = 0; i < routers.Count(); i++) {
-            auto& router = routers.Element(i);
-            if (router.overload != 0)
+        for (int j = 0; j < begin.Count(); j++)
+        {
+            auto& route = begin.Element(j);
+            if(route.keyIface != iface && route.keyIface != nullptr)
                 continue;
-            for (int j = 0; j < router.routes.Count(); j++)
-            {
-                auto& route = router.routes.Element(j);
-                if(route.keyIface != iface && route.keyIface != nullptr)
-                    continue;
-                route.delegate(params...);
-                alter = rec.returnValue;
-                alterSet = true;
-                memcpy(&currentRecord, &rec, sizeof(Invoke));
-                if(rec.stopDelegation)
-                    break;
-                if(paramAltered)
-                    param.unwrap(params...);
-            }
+            route.delegate(params...);
+            alter = rec.returnValue;
+            alterSet = true;
             if(rec.stopDelegation)
                 break;
+            if(paramAltered)
+                param.unwrap(params...);
         }
         rec.recordIsCurrent = true;
         return rec.returnValue;
@@ -216,43 +142,52 @@ public:
 
         rec.stopDelegation = false;
         rec.parametersAltered = false;
-        for(int i = 0; i < routers.Count(); i++) {
-            auto& router = routers.Element(i);
-            if (router.overload != 1)
+        for (int j = 0; j < end.Count(); j++)
+        {
+            if(!end.IsValidIndex(j))
                 continue;
-            for (int j = 0; j < router.routes.Count(); j++)
-            {
-                auto& route = router.routes.Element(j);
-                if(route.keyIface != iface && route.keyIface != nullptr)
-                    continue;
-                route.delegate(params...);
-                alter = rec.returnValue;
-                alterSet = true;
-                if(rec.stopDelegation)
-                    break;
-                if(paramAltered)
-                    param.unwrap(params...);
-            }
+            auto& route = end.Element(j);
+            if(route.keyIface != iface && route.keyIface != nullptr)
+                continue;
+            route.delegate(params...);
+            alter = rec.returnValue;
+            alterSet = true;
             if(rec.stopDelegation)
                 break;
+            if(paramAltered)
+                param.unwrap(params...);
         }
         rec.recordIsCurrent = true;
         return rec.returnValue;
     }
     int add(CDelegate delegate, CInterface* iface, int overload = 0) {
-        auto m = this->overload(overload);
-        int i = routers.Element(m).add(keyCodes++, delegate, iface);
-        sorted();
-        return i;
+        auto& store = (overload ? end : begin);
+        int code = keyCodes++;
+        store.AddToTail(Endpoint {
+                code,
+                iface,
+                delegate
+            }
+        );
+        return code;
     }
     void remove(int hook, CInterface* iface, int overload = 0) {
-        auto m = this->overload(overload, false);
-        if(m == invalid())
-        {
-            m = establish_routes(overload);
-            return;
+        for(int i = 0; i < begin.Count(); i++) {
+            auto& e = begin.Element(i);
+            if(e.keyCode == hook)
+            {
+                begin.Remove(i);
+                return;
+            }
         }
-        routers[m].rem(hook, iface);
+        for(int i = 0; i < end.Count(); i++) {
+            auto& e = end.Element(i);
+            if(e.keyCode == hook)
+            {
+                end.Remove(i);
+                return;
+            }
+        }
     }
 
     int invalid() {

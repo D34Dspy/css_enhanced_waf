@@ -34,13 +34,13 @@
 #include "cbase.h"
 #include "player.h"
 #include "gamerules.h"
-#include "entitylist.h"
-#include "cstrike/cs_player.h"
 #include "extension.h"
 #include "natives.h"
 #include <compat_wrappers.h>
 #include <IBinTools.h>
 #include <sm_argbuffer.h>
+
+#include "glue.hpp"
 
 using namespace SourceMod;
 
@@ -176,49 +176,18 @@ cell_t Native_TakeDamage(IPluginContext *pContext, const cell_t *params)
 	}
 	else
 	{
-		 vecDamagePosition = vec3_origin;
+		vecDamagePosition = vec3_origin;
 	}
 
 	CTakeDamageInfoHack info(pInflictor, pAttacker, flDamage, iDamageType, pWeapon, vecDamageForce, vecDamagePosition);
 
 	if (params[0] < 9 || params[9] != 0)
 	{
-		// SH_MCALL(pVictim, OnTakeDamage)((CTakeDamageInfoHack&)info);
-		// pVictim->OnTakeDamage((CTakeDamageInfoHack&)info);
-		pVictim->OnTakeDamageOrig((CTakeDamageInfoHack&)info);
+		return gamedll->GetSourcemodBridge()->CBaseEntity__OnTakeDamageOrig(pVictim, *reinterpret_cast<CTakeDamageInfo*>(&info));
 	}
 	else
 	{
-		static ICallWrapper *pCall = nullptr;
-		if (!pCall)
-		{
-			int offset;
-			if (!g_pGameConf->GetOffset("OnTakeDamage", &offset))
-			{
-				return pContext->ThrowNativeError("Could not find OnTakeDamage offset");
-			}			
-
-			PassInfo pass[2];
-			pass[0].type = PassType_Object;
-			pass[0].size = sizeof(CTakeDamageInfoHack &);
-			pass[0].flags = PASSFLAG_BYREF | PASSFLAG_OCTOR;
-			pass[1].type = PassType_Basic;
-			pass[1].size = sizeof(int);
-			pass[1].flags = PASSFLAG_BYVAL;
-
-			pCall = g_pBinTools->CreateVCall(offset, 0, 0, &pass[1], &pass[0], 1);
-		}
-
-		// Can't ArgBuffer here until we upgrade our Clang version on the Linux builder
-		unsigned char vstk[sizeof(CBaseEntity *) + sizeof(CTakeDamageInfoHack &)];
-		unsigned char* vptr = vstk;
-
-		*(CBaseEntity **)vptr = pVictim;
-		vptr += sizeof(CBaseEntity *);
-		*(CTakeDamageInfoHack *&)vptr = info;
-
-		int ret;
-		pCall->Execute(vstk, &ret);
+		return gamedll->GetSourcemodBridge()->CBaseEntity__OnTakeDamage(pVictim, *reinterpret_cast<CTakeDamageInfo*>(&info));
 	}
 
 	return 0;

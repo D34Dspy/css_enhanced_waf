@@ -112,6 +112,27 @@ bool CStrike::SDK_OnLoad(char *error, size_t maxlength, bool late)
 	m_HandleBuyDetourEnabled = false;
 	m_CSWeaponDetourEnabled = false;
 
+	SM_GET_LATE_IFACE(SDKTOOLS, g_pSDKTools);
+	if (g_pSDKTools == NULL)
+	{
+		smutils->LogError(myself, "SDKTools interface not found. TerminateRound native disabled.");
+	}
+	else if (g_pSDKTools->GetInterfaceVersion() < 2)
+	{
+		//<psychonic> THIS ISN'T DA LIMBO STICK. LOW IS BAD
+		smutils->LogError(myself, "SDKTools interface is outdated. TerminateRound native disabled.");
+	}
+	gameevents->AddListener(&g_TimeLeftEvents, "round_start", true);
+	gameevents->AddListener(&g_TimeLeftEvents, "round_end", true);
+	SH_ADD_HOOK(IServerGameDLL, LevelInit, gamedll, SH_MEMBER(&g_TimeLeftEvents, &TimeLeftEvents::LevelInit), true);
+	hooked_everything = true;
+
+	SM_GET_LATE_IFACE(BINTOOLS, g_pBinTools);
+
+#if SOURCE_ENGINE == SE_CSGO
+	CreateHashMaps();
+#endif
+
 	return true;
 }
 
@@ -178,26 +199,6 @@ void CStrike::SDK_OnUnload()
 
 void CStrike::SDK_OnAllLoaded()
 {
-	SM_GET_LATE_IFACE(SDKTOOLS, g_pSDKTools);
-	if (g_pSDKTools == NULL)
-	{
-		smutils->LogError(myself, "SDKTools interface not found. TerminateRound native disabled.");
-	}
-	else if (g_pSDKTools->GetInterfaceVersion() < 2)
-	{
-		//<psychonic> THIS ISN'T DA LIMBO STICK. LOW IS BAD
-		smutils->LogError(myself, "SDKTools interface is outdated. TerminateRound native disabled.");
-	}
-	gameevents->AddListener(&g_TimeLeftEvents, "round_start", true);
-	gameevents->AddListener(&g_TimeLeftEvents, "round_end", true);
-	SH_ADD_HOOK(IServerGameDLL, LevelInit, gamedll, SH_MEMBER(&g_TimeLeftEvents, &TimeLeftEvents::LevelInit), true);
-	hooked_everything = true;
-
-	SM_GET_LATE_IFACE(BINTOOLS, g_pBinTools);
-
-#if SOURCE_ENGINE == SE_CSGO
-	CreateHashMaps();
-#endif
 }
 
 bool CStrike::QueryRunning(char *error, size_t maxlength)

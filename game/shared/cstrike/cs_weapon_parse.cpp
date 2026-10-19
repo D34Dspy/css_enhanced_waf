@@ -165,6 +165,10 @@ CCSWeaponInfo * GetWeaponInfo( CSWeaponID weaponID )
 	return pWeaponInfo;
 }
 
+#if WAF_USE_SOURCEMOD == 1
+CCSWeaponInfo * SM_GetWeaponInfo( int weaponID ) { return GetWeaponInfo((CSWeaponID)weaponID); }
+#endif
+
 //--------------------------------------------------------------------------------------------------------
 const char* WeaponClassAsString( CSWeaponType weaponType )
 {

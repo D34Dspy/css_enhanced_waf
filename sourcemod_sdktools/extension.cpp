@@ -76,6 +76,7 @@ IBinTools *g_pBinTools = NULL;
 IGameConfig *g_pGameConf = NULL;
 IGameHelpers *g_pGameHelpers = NULL;
 IServerGameClients *serverClients = NULL;
+IServerGameDLL *g_pGameDLL = NULL;
 IVoiceServer *voiceserver = NULL;
 IPlayerInfoManager *playerinfomngr = NULL;
 ICvar *icvar = NULL;
@@ -237,6 +238,14 @@ bool SDKTools::SDK_OnLoad(char *error, size_t maxlength, bool late)
 	}
 #endif
 
+	SM_GET_LATE_IFACE(BINTOOLS, g_pBinTools);
+
+	if (!g_pBinTools)
+	{
+		return false;
+	}
+
+
 	return true;
 }
 
@@ -272,12 +281,6 @@ void SDKTools::SDK_OnUnload()
 		g_WriteBaselinesDetour = NULL;
 	}
 #endif
-
-	if (g_pAcceptInput)
-	{
-		g_pAcceptInput->Destroy();
-		g_pAcceptInput = NULL;
-	}
 
 	g_TEManager.Shutdown();
 	s_TempEntHooks.Shutdown();
@@ -342,6 +345,7 @@ bool SDKTools::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
 	GET_V_IFACE_ANY(GetServerFactory, servertools, IServerTools, VSERVERTOOLS_INTERFACE_VERSION);
+	GET_V_IFACE_ANY(GetServerFactory, g_pGameDLL, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
 #endif
 	GET_V_IFACE_ANY(GetEngineFactory, soundemitterbase, ISoundEmitterSystemBase, SOUNDEMITTERSYSTEM_INTERFACE_VERSION);
 
@@ -371,13 +375,6 @@ bool SDKTools::SDK_OnMetamodUnload(char *error, size_t maxlen)
 
 void SDKTools::SDK_OnAllLoaded()
 {
-	SM_GET_LATE_IFACE(BINTOOLS, g_pBinTools);
-
-	if (!g_pBinTools)
-	{
-		return;
-	}
-
 	g_TEManager.Initialize();
 	s_TempEntHooks.Initialize();
 	s_SoundHooks.Initialize();
@@ -426,12 +423,6 @@ void SDKTools::NotifyInterfaceDrop(SMInterface *pInterface)
 
 	g_TEManager.Shutdown();
 	s_TempEntHooks.Shutdown();
-
-	if (g_pAcceptInput)
-	{
-		g_pAcceptInput->Destroy();
-		g_pAcceptInput = NULL;
-	}
 }
 
 bool SDKTools::RegisterConCommandBase(ConCommandBase *pVar)

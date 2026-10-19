@@ -34,7 +34,7 @@
 #include "output.h"
 #include <sm_argbuffer.h>
 
-ICallWrapper *g_pFireOutput = NULL;
+#include "glue.hpp"
 
 #define ENTINDEX_TO_CBASEENTITY(ref, buffer) \
 	buffer = gamehelpers->ReferenceToEntity(ref); \
@@ -304,64 +304,6 @@ void *FindOutputPointerByName(CBaseEntity *pEntity, const char *outputname)
 // FireEntityOutput(int ent, const char[] output, int activator, float delay);
 static cell_t FireEntityOutput(IPluginContext *pContext, const cell_t *params)
 {
-	if (!g_pFireOutput)
-	{
-		void *addr;
-		if (!g_pGameConf->GetMemSig("FireOutput", &addr) || !addr)
-		{
-			return pContext->ThrowNativeError("\"FireEntityOutput\" not supported by this mod");
-		}
-#if defined PLATFORM_WINDOWS && defined KE_ARCH_X86
-		int iMaxParam = 8;
-		//Instead of being one param, MSVC broke variant_t param into 5 params..
-		PassInfo pass[8];
-		pass[0].flags = PASSFLAG_BYVAL;
-		pass[0].type = PassType_Basic;
-		pass[0].size = sizeof(int);
-		pass[1].flags = PASSFLAG_BYVAL;
-		pass[1].type = PassType_Basic;
-		pass[1].size = sizeof(int);
-		pass[2].flags = PASSFLAG_BYVAL;
-		pass[2].type = PassType_Basic;
-		pass[2].size = sizeof(int);
-		pass[3].flags = PASSFLAG_BYVAL;
-		pass[3].type = PassType_Basic;
-		pass[3].size = sizeof(int);
-		pass[4].flags = PASSFLAG_BYVAL;
-		pass[4].type = PassType_Basic;
-		pass[4].size = sizeof(int);
-		pass[5].flags = PASSFLAG_BYVAL;
-		pass[5].type = PassType_Basic;
-		pass[5].size = sizeof(CBaseEntity *);
-		pass[6].flags = PASSFLAG_BYVAL;
-		pass[6].type = PassType_Basic;
-		pass[6].size = sizeof(CBaseEntity *);
-		pass[7].flags = PASSFLAG_BYVAL;
-		pass[7].type = PassType_Float;
-		pass[7].size = sizeof(float);
-#else
-		int iMaxParam = 4;
-
-		PassInfo pass[4];
-		pass[0].type = PassType_Object;
-		pass[0].flags = PASSFLAG_BYVAL|PASSFLAG_OCTOR|PASSFLAG_ODTOR|PASSFLAG_OASSIGNOP;
-		pass[0].size = SIZEOF_VARIANT_T;
-		pass[1].flags = PASSFLAG_BYVAL;
-		pass[1].type = PassType_Basic;
-		pass[1].size = sizeof(CBaseEntity *);
-		pass[2].flags = PASSFLAG_BYVAL;
-		pass[2].type = PassType_Basic;
-		pass[2].size = sizeof(CBaseEntity *);
-		pass[3].flags = PASSFLAG_BYVAL;
-		pass[3].type = PassType_Float;
-		pass[3].size = sizeof(float);
-#endif
-		if (!(g_pFireOutput = g_pBinTools->CreateCall(addr, CallConv_ThisCall, NULL, pass, iMaxParam)))
-		{
-			return pContext->ThrowNativeError("\"FireEntityOutput\" wrapper failed to initialize.");
-		}
-	}
-
 	CBaseEntity *pActivator, *pCaller;
 	void *pOutput = NULL;
 	
@@ -380,9 +322,8 @@ static cell_t FireEntityOutput(IPluginContext *pContext, const cell_t *params)
 			ENTINDEX_TO_CBASEENTITY(params[3], pActivator);
 		}
 
-		ArgBuffer<void*, decltype(g_Variant_t), CBaseEntity*, CBaseEntity*, float> vstk(pOutput, g_Variant_t, pActivator, pCaller, sp_ctof(params[4]));
-
-		g_pFireOutput->Execute(vstk, nullptr);
+		g_pGameDLL->GetSourcemodBridge()->CBaseEntityOutput__FireOutput(pOutput, g_Variant_t, pActivator, pCaller, sp_ctof(params[4]));
+		
 
 		_init_variant_t();
 		return 1;

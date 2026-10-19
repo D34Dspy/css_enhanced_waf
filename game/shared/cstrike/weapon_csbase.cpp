@@ -228,6 +228,11 @@ const char *WeaponIDToAlias( int id )
 	return NULL;
 }
 
+#if WAF_USE_SOURCEMOD == 1
+const char* SM_WeaponIDToAlias(int weaponId) { return WeaponIDToAlias(weaponId); }
+const char* SM_GetTranslatedWeaponAlias(const char* weaponName) { return GetTranslatedWeaponAlias(weaponName); }
+#endif 
+
 //--------------------------------------------------------------------------------------------------------
 //
 // Return true if given weapon ID is a primary weapon

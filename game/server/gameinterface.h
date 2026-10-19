@@ -71,8 +71,25 @@ class CSourcemodGlueInterface;
 class IGlobalSourcemodGlueInterface;
 class CCSGameRules;
 class CCSWeaponInfo;
+class CCSPlayer;
+class CBaseClient;
+class IClient;
 void SM_CCSGameRules__TerminateRoundOriginal(CCSGameRules* pGameRules, float delay, int reason);
 int SM_CCSWeaponInfo__GetWeaponPriceOriginal(CCSWeaponInfo* pWeaponInfo);
+void SM_CCSPlayer__RoundRespawn(CCSPlayer* pPlayer);
+void SM_CCSPlayer__SwitchTeam(CCSPlayer* pPlayer, int team);
+void SM_CCSPlayer__CSWeaponDrop(CCSPlayer* pPlayer, CBaseCombatWeapon* pWeapon, const Vector *pvecTarget, const Vector *pVelocity);
+void SM_CCSPlayer__SetModelFromClass(CCSPlayer* pPlayer);
+void SM_CCSPlayer__SetClanTag(CCSPlayer* pPlayer, const char* pClanTag);
+void SM_CBaseClient__SetClientName(CBaseClient* pPlayer, const char* szName);
+void SM_CBaseClient__SetUserCvar( CBaseClient* pEntity, const char* szKey, const char* szVal);
+void SM_CCSPlayer__WeaponEquip(CCSPlayer* pPlayer, CBaseCombatWeapon* pWeapon);
+CBaseClient* SM_CBaseClient__FromIClient(IClient* pCl);
+edict_t* SM_CBaseClient__ToEdict(CBaseClient* pCl);
+const char* SM_WeaponIDToAlias(int weaponId);
+const char* SM_GetTranslatedWeaponAlias(const char* weaponName);
+const char* SM_GetWeaponInfo(const char* weaponName);
+CCSWeaponInfo * SM_GetWeaponInfo( int weaponID );
 #endif
 
 class CServerGameDLL : public IServerGameDLL

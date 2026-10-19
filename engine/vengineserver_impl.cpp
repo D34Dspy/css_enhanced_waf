@@ -5,6 +5,7 @@
 // $Workfile:     $
 // $NoKeywords: $
 //===========================================================================//
+#include "baseclient.h"
 #include "server_pch.h"
 #include "tier0/valve_minmax_off.h"
 #include <algorithm>
@@ -287,6 +288,41 @@ public:
 	CSourcemodGlueInterface* GetSourcemodGlue( )
 	{ 
 		return m_pSourcemodGlue;
+	}
+	virtual class CBaseClient* SM_CBaseClient__FromIClient(class IClient* pCl) 
+	{
+		return dynamic_cast<CBaseClient*>(pCl);
+	}
+	virtual edict_t* SM_Index_To_Edict(int i) 
+	{
+		return this->PEntityOfEntIndex(i);
+	}	
+	virtual edict_t* SM_CBaseClient__ToEdict(CBaseClient* pCl) 
+	{
+		// Assuming pClient is a pointer to an IClient interface
+		if (pCl) {
+			// GetPlayerSlot() returns 0 to (maxClients - 1)
+			int clientIndex = pCl->GetPlayerSlot() + 1; 
+			
+			// Convert the player index to edict_t*
+			edict_t *pEdict = SM_Index_To_Edict(clientIndex);
+			
+			if (pEdict && !pEdict->IsFree()) {
+				return pEdict;
+			}
+			return nullptr;
+		}
+		return nullptr;
+	}
+	virtual void SM_CBaseClient__SetClientName(CBaseClient* pPlayer, const char* szName)
+	{
+		pPlayer->SetName(szName);
+	}
+
+	virtual void SM_CBaseClient__SetUserCvar( CBaseClient* pEntity, const char* szKey, const char* szVal)
+	{
+		pEntity->SetUserCVar(szKey, szVal);
+		pEntity->m_bConVarsChanged = true;
 	}
 #endif
 

@@ -8396,3 +8396,12 @@ CON_COMMAND( sv_setclan, "Sets a player's clan tag. Usage: sv_setclan <player_na
 	pPlayer->SetClanTag( clanTag );
 	Msg( "Set clan tag for %s to %s\n", playerName, clanTag );
 }
+
+#if WAF_USE_SOURCEMOD == 1
+void SM_CCSPlayer__WeaponEquip(CCSPlayer* pPlayer, CBaseCombatWeapon* pWeapon) { pPlayer->Weapon_Equip(pWeapon); }
+void SM_CCSPlayer__RoundRespawn(CCSPlayer* pPlayer) { pPlayer->RoundRespawn(); }
+void SM_CCSPlayer__SwitchTeam(CCSPlayer* pPlayer, int team) { pPlayer->SwitchTeam(team);}
+void SM_CCSPlayer__CSWeaponDrop(CCSPlayer* pPlayer, CBaseCombatWeapon* pWeapon, const Vector *pvecTarget, const Vector *pVelocity) { pPlayer->Weapon_Drop(pWeapon, pvecTarget, pVelocity);};
+void SM_CCSPlayer__SetModelFromClass(CCSPlayer* pPlayer) { pPlayer->SetModelFromClass(); }
+void SM_CCSPlayer__SetClanTag(CCSPlayer* pPlayer, const char* pClanTag) { pPlayer->SetClanTag(pClanTag); }
+#endif

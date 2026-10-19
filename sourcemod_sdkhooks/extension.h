@@ -406,5 +406,6 @@ extern IServerTools *servertools;
 #endif
 extern SourceMod::IBinTools *g_pBinTools;
 extern IGameConfig *g_pGameConf;
+extern IServerGameDLL *g_pGameDLL;
 
 #endif // _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_

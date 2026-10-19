@@ -990,6 +990,11 @@ IPlugin *CPluginManager::LoadPlugin(const char *path, bool debug, PluginType typ
 		return NULL;
 	}
 
+	if(strstr(path, "playercommands"))
+	{
+		g_Logger.LogMessage("loading playercommands.smx!");
+	}
+
 	if ((res=LoadPlugin(&pl, path, true, PluginType_MapUpdated)) == LoadRes_Failure)
 	{
 		ke::SafeStrcpy(error, maxlength, pl->GetErrorMsg());

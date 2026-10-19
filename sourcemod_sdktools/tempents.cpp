@@ -31,6 +31,7 @@
 
 #include "tempents.h"
 #include <basehandle.h>
+#include "glue.hpp"
 
 TempEntityManager g_TEManager;
 ICallWrapper *g_GetServerClass = NULL;
@@ -97,7 +98,7 @@ TempEntityInfo::TempEntityInfo(const char *name, void *me)
 {
 	m_Name.assign(name);
 	m_Me = me;
-	g_GetServerClass->Execute(&m_Me, &m_Sc);
+	g_pGameDLL->GetSourcemodBridge()->CBaseEntity__GetServerClass((CBaseEntity*)me);
 }
 
 const char *TempEntityInfo::GetName()

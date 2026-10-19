@@ -9,10 +9,49 @@ class IGlobalSourcemodGlueInterface
 {
 public:
 	virtual void CCSGameRules__TerminateRoundOriginal(CCSGameRules* pGameRules, float delay, int reason) = 0;
+	virtual void CCSPlayer__RoundRespawn(CCSPlayer* pPlayer) = 0;	
+	virtual void CCSPlayer__SwitchTeam(CCSPlayer* pPlayer, int team) = 0;	
+	virtual void CCSPlayer__CSWeaponDrop(CCSPlayer* pPlayer, CBaseCombatWeapon* pWeapon, const Vector *pvecTarget, const Vector *pVelocity) = 0;	
+	virtual void CCSPlayer__SetModelFromClass(CCSPlayer* pPlayer) = 0;	
+	virtual void CCSPlayer__SetClanTag(CCSPlayer* pPlayer, const char*) = 0;	
+	virtual bool CCSPlayer__RemovePlayerItem( CCSPlayer* pEntity, CBaseCombatWeapon* pWeapon) = 0;
+	virtual int CCSPlayer__GiveAmmo( CCSPlayer* pEntity, int count, int ammo, bool suppress) = 0;
+	virtual CBaseEntity* CCSPlayer__GiveNamedItem(CCSPlayer* pPlayer, const char* name) = 0;
+	virtual CBaseEntity* CCSPlayer__GetWeaponSlot(CCSPlayer* pPlayer, int slot) = 0;
+	virtual void CCSPlayer__CommitSuicide(CCSPlayer* pPlayer, bool explode, bool force) = 0;
+	virtual void CCSPlayer__CommitSuicide(CCSPlayer* pPlayer, const Vector& vecForce, bool explode, bool force) = 0;
+	virtual void CCSPlayer__Weapon_Equip(CCSPlayer* pPlayer, CBaseCombatWeapon* pWeapon) = 0;
 	virtual int CCSWeaponInfo__GetWeaponPriceOriginal(CCSWeaponInfo* pWeaponInfo) = 0;
+	virtual bool CBaseEntity__AcceptInput( CBaseEntity* pEntity, const char *szInputName, CBaseEntity *pActivator, CBaseEntity *pCaller, variant_t Value, int outputID ) = 0;	
+	virtual ServerClass* CBaseEntity__GetServerClass(CBaseEntity* pEntity) = 0;
+	virtual void CBaseEntity__Teleport(CBaseEntity *pEntity, Vector *origin, QAngle *ang, Vector *velocity) = 0;
+	virtual void CBaseEntity__GetVelocity(CBaseEntity* pEntity, Vector* pVec, Vector* pVec2) = 0;
+	virtual const QAngle& CBaseEntity__GetEyeAngles(CBaseEntity* pEntity) = 0;
+	virtual void CBaseEntityOutput__FireOutput(CBaseEntityOutput* pOutput, variant_t Value, CBaseEntity *pActivator, CBaseEntity *pCaller, float fDelay) = 0;
+	virtual void CBaseEntity__SetOwnerEntity(CBaseEntity* pDest, CBaseEntity* pOwner) = 0;
+	virtual int CBaseEntity__OnTakeDamage( CBaseEntity* pEntity, const CTakeDamageInfo &info ) = 0;
+	virtual int CBaseEntity__OnTakeDamageOrig( CBaseEntity* pEntity, const CTakeDamageInfo &info ) = 0;
+	virtual void CBaseEntity__SetModel( CBaseEntity* pEntity, const char *szName ) = 0;
+	virtual void CBaseEntity__Activate( CBaseEntity* pEntity) = 0;
+	virtual edict_t* CBaseEntity__GetEdict( CBaseEntity* pEntity) = 0;
+	virtual void CBaseClient__SetClientName( CBaseClient* pEntity, const char* szName) = 0;
+	virtual void CBaseClient__SetUserCvar( CBaseClient* pEntity, const char* szKey, const char* szVal) = 0;
+	virtual int CBaseAnimating__LookupAttachment( CBaseAnimating* pAnim, const char *szName ) = 0;
+	virtual bool CBaseAnimating__GetAttachment( CBaseAnimating* pAnim, int number, matrix3x4_t &matrix ) = 0;
+	virtual void CBaseAnimating__Ignite( CBaseAnimating* pAnim ,float flFlameLifetime, bool bNPCOnly, float flSize, bool bCalledByLevelDesigner ) = 0;
+	virtual void CBaseAnimating__Extinguish( CBaseAnimating* pAnim ) = 0;
+	virtual CBaseClient* IClient2CBaseClient( IClient* pCl ) = 0;
+	virtual edict_t* CBaseClient2Edict( CBaseClient* pCl ) = 0;
+
+	virtual CBaseEntity *CGlobalEntityList__FindEntityByClassname( CGlobalEntityList* pList, CBaseEntity *pStartEntity, const char *szName ) = 0;
 
 	virtual void EntityListeners_Add(IEntityListener* pEntityListener) = 0;
 	virtual void EntityListeners_Rem(IEntityListener* pEntityListener) = 0;
+
+	virtual const char* WeaponIDToAlias(int weaponId) = 0;	
+	virtual int AliasToWeaponID(const char* weaponName) = 0;	
+	virtual const char* GetTranslatedWeaponAlias(const char* weaponName) = 0;	
+	virtual CCSWeaponInfo * GetWeaponInfo( int weaponID ) = 0;
 };
 
 class CSourcemodGlueInterface

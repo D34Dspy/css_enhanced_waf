@@ -269,6 +269,14 @@ bool SDKHooks::SDK_OnLoad(char *error, size_t maxlength, bool late)
 	}
 #endif
 
+	SM_GET_LATE_IFACE(BINTOOLS, g_pBinTools);
+
+	if (!g_pBinTools)
+	{
+		g_pSM->LogError(myself, "Could not find interface: " SMINTERFACE_BINTOOLS_NAME);
+		return false;
+	}
+
 	return true;
 }
 
@@ -288,14 +296,6 @@ inline void HookGetGameDescription()
 
 void SDKHooks::SDK_OnAllLoaded()
 {
-	SM_GET_LATE_IFACE(BINTOOLS, g_pBinTools);
-
-	if (!g_pBinTools)
-	{
-		g_pSM->LogError(myself, "Could not find interface: " SMINTERFACE_BINTOOLS_NAME);
-		return;
-	}
-
 	if (g_pOnLevelInit->GetFunctionCount() > 0)
 		HookLevelInit();
 #ifdef GAMEDESC_CAN_CHANGE

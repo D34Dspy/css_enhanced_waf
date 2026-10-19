@@ -3,7 +3,9 @@
 // #include "iserverplugin.h"
 #include "tier1/convar.h"
 #include "filesystem.h"
+#ifndef NO_PROTOCOL
 #include "protocol.h"
+#endif
 #ifndef GLUE_HPP
 #define GLUE_HPP
 
@@ -28,6 +30,7 @@ class CLC_VoiceData;
 class CPredictableId;
 class CTakeDamageInfo;
 class CUserCmd;
+class IClient;
 class IClientMessageHandler;
 class IEntityListener2;
 class IEntityListener;
@@ -35,6 +38,9 @@ class INetChannel;
 class IPhysicsObject;
 class IServerPluginCallbacks;
 class IServerPluginHelpers;
+class CBaseAnimating;
+class CBaseClient;
+class CGlobalEntityList;
 
 struct FireBulletsInfo_t;
 #ifndef USE_TYPE_DEFINED

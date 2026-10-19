@@ -615,6 +615,7 @@ public:
 	virtual void CommitSuicide( bool bExplode = false, bool bForce = false );
 	virtual void CommitSuicide( const Vector &vecForce, bool bExplode = false, bool bForce = false );
 
+	void SetModelFromClass( void );
     void WieldingKnifeAndKilledByGun( bool bState ) { m_bWieldingKnifeAndKilledByGun = bState; }
     bool WasWieldingKnifeAndKilledByGun() { return m_bWieldingKnifeAndKilledByGun; }
 
@@ -750,7 +751,6 @@ protected:
 
 	bool SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot );
 
-	void SetModelFromClass( void );
 	CNetworkVar( int, m_iClass ); // One of the CS_CLASS_ enums.
 
 	bool CSWeaponDrop( CBaseCombatWeapon *pWeapon, bool bDropShield = true, bool bThrow = false );
