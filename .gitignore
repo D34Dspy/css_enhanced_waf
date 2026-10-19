@@ -33,6 +33,7 @@ game/server/*/server.lib
 build*/
 .cache/
 .ccache/
+.ccache*/
 waf3*/
 .vscode/
 .depproj/

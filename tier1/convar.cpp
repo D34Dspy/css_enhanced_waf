@@ -597,6 +597,13 @@ void ConCommand::Dispatch( const CCommand &command )
 	}
 #endif
 	this->DispatchOrig(command);
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.invoke_post(this, sm_result, const_cast<CCommand*>(&command));
+	if (GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.overwrite_return())
+	{
+		return sm_result.unwrap();
+	}
+#endif
 }
 
 void ConCommand::DispatchOrig( const CCommand &command )
