@@ -76,16 +76,17 @@ bool CFuncWall::CreateVPhysics( void )
 	return true;
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CFuncWall::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
@@ -93,6 +94,11 @@ void CFuncWall::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 	{
 		m_nState = 1 - m_nState;
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -181,10 +187,11 @@ void CFuncWallToggle::InputToggle( inputdata_t &inputdata )
 //Adrian - Is this function needed at all?
 void CFuncWallToggle::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
@@ -197,6 +204,11 @@ void CFuncWallToggle::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TY
 		else
 			TurnOn();
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //============================== FUNC_VEHICLECLIP =====================================
@@ -354,15 +366,21 @@ void CFuncConveyor::UpdateSpeed( float flNewSpeed )
 
 void CFuncConveyor::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
     m_flSpeed = -m_flSpeed;
 	UpdateSpeed( m_flSpeed );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -1335,7 +1353,7 @@ void CFuncRotating::InputToggle( inputdata_t &inputdata )
 // Purpose: An entity has blocked the brush.
 // Input  : pOther - 
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CFuncRotating::Blocked( CBaseEntity *pOther )

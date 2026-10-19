@@ -277,16 +277,17 @@ int CBoneFollower::UpdateTransmitState()
 	// Send to the client for client-side collisions and visualization
 	return SetTransmitState( FL_EDICT_ALWAYS );
 }
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CBoneFollower::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_pre(this, pPhysics);
 	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 		return sm_result.unwrap();
 	}
 #endif
@@ -297,6 +298,11 @@ void CBoneFollower::VPhysicsUpdate( IPhysicsObject *pPhysics )
 
 	SetAbsOrigin( origin );
 	SetAbsAngles( angles );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 // a little helper class to temporarily change the physics object
@@ -424,10 +430,11 @@ int CBoneFollower::ObjectCaps()
 //-----------------------------------------------------------------------------
 void CBoneFollower::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
@@ -435,6 +442,11 @@ void CBoneFollower::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 	if ( pOwner )
 	{
 		pOwner->Use( pActivator, pCaller, useType, value );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
@@ -444,16 +456,17 @@ void CBoneFollower::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 //-----------------------------------------------------------------------------
 // Purpose: Pass on Touch calls to the entity we're following
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CBoneFollower::Touch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -462,6 +475,11 @@ void CBoneFollower::Touch( CBaseEntity *pOther )
 	{
 		//TODO: fill in the touch trace with the hitbox number associated with this bone
 		pOwner->Touch( pOther );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
@@ -471,16 +489,17 @@ void CBoneFollower::Touch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 // Purpose: Pass on trace attack calls to the entity we're following
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CBoneFollower::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_pre(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 		return sm_result.unwrap();
 	}
 #endif
@@ -488,6 +507,11 @@ void CBoneFollower::TraceAttack( const CTakeDamageInfo &info, const Vector &vecD
 	if ( pOwner )
 	{
 		pOwner->DispatchTraceAttack( info, vecDir, ptr, pAccumulator );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 

@@ -289,25 +289,40 @@ void CWeaponM4A1::DoFireEffects()
 	}
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CWeaponM4A1::Reload()
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Reload.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
 	CCSPlayer *pPlayer = GetPlayerOwner();
 	if ( !pPlayer )
+	{
+#if WAF_USE_SOURCEMOD == 1
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+			return sm_result.unwrap();
+#endif
 		return false;
+	}
 
 	if (pPlayer->GetAmmoCount( GetPrimaryAmmoType() ) <= 0)
+	{
+#if WAF_USE_SOURCEMOD == 1
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+			return sm_result.unwrap();
+#endif
 		return false;
+	}
 
 	int iResult = 0;
 	
@@ -317,7 +332,14 @@ bool CWeaponM4A1::Reload()
 		 iResult = DefaultReload( GetMaxClip1(), GetMaxClip2(), ACT_VM_RELOAD );
 
 	if ( !iResult )
+	{
+#if WAF_USE_SOURCEMOD == 1
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+			return sm_result.unwrap();
+#endif
 		return false;
+	}
 
 	pPlayer->SetAnimation( PLAYER_RELOAD );
 

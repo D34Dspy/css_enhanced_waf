@@ -916,16 +916,17 @@ void CBasePlayer::DrawDebugGeometryOverlays(void)
 //=========================================================
 // TraceAttack
 //=========================================================
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CBasePlayer::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_pre(this, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 		return sm_result.unwrap();
 	}
 #endif
@@ -940,12 +941,22 @@ void CBasePlayer::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &v
 			// --------------------------------------------------
 			CAI_BaseNPC *pNPC = info.GetAttacker()->MyNPCPointer();
 			if ( pNPC && (pNPC->CapabilitiesGet() & bits_CAP_NO_HIT_PLAYER) && pNPC->IRelationType( this ) != D_HT )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 				return;
 
 			// Prevent team damage here so blood doesn't appear
 			if ( info.GetAttacker()->IsPlayer() )
 			{
 				if ( !g_pGameRules->FPlayerCanTakeDamage( this, info.GetAttacker(), info ) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 					return;
 			}
 		}
@@ -4803,26 +4814,42 @@ void CBasePlayer::PostThink()
 }
 
 // handles touching physics objects
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CBasePlayer::Touch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( pOther == GetGroundEntity() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	if ( pOther->GetMoveType() != MOVETYPE_VPHYSICS || pOther->GetSolid() != SOLID_VPHYSICS || (pOther->GetSolidFlags() & FSOLID_TRIGGER) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	IPhysicsObject *pPhys = pOther->VPhysicsGetObject();
 	if ( !pPhys || !pPhys->IsMoveable() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	SetTouchedPhysics( true );
@@ -7457,18 +7484,24 @@ void CBasePlayer::ResetAutoaim( void )
 // Input  : A weapon
 // Output :	true or false
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CBasePlayer::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_pre(this, pWeapon);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
 		return sm_result.unwrap();
 	}
+#endif
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.overwrite_return())
+		return sm_result.unwrap();
 #endif
 	return true;
 }
@@ -7540,16 +7573,17 @@ void CBasePlayer::Weapon_DropSlot( int weaponSlot )
 //-----------------------------------------------------------------------------
 // Purpose: Override to add weapon to the hud
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CBasePlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke_pre(this, pWeapon);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke_post(this, sm_result, pWeapon);
 		return sm_result.unwrap();
 	}
 #endif
@@ -7570,6 +7604,11 @@ void CBasePlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 	{
 		Weapon_Switch( pWeapon );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke_post(this, sm_result, pWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -7915,10 +7954,11 @@ CBaseEntity *CreatePlayerLoadSave( Vector vOrigin, float flDuration, float flHol
 
 void CRevertSaved::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
@@ -7938,6 +7978,11 @@ void CRevertSaved::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 		g_ServerGameDLL.m_fAutoSaveDangerousTime = 0.0f;
 		g_ServerGameDLL.m_fAutoSaveDangerousMinHealthToCommit = 0.0f;
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void CRevertSaved::InputReload( inputdata_t &inputdata )
@@ -8278,15 +8323,16 @@ void CBasePlayer::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CBasePlayer::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_pre(this, pPhysics);
 	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 		return sm_result.unwrap();
 	}
 #endif
@@ -8296,6 +8342,11 @@ void CBasePlayer::VPhysicsUpdate( IPhysicsObject *pPhysics )
 	m_impactEnergyScale *= 0.125f;
 	ApplyStressDamage( pPhysics, true );
 	m_impactEnergyScale = savedImpact;
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------

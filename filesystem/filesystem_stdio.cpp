@@ -43,14 +43,14 @@ ASSERT_INVARIANT( SEEK_END == FILESYSTEM_SEEK_TAIL );
 
 class CFileSystem_Stdio : public CBaseFileSystem
 {
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	CSourcemodGlueInterface* m_pSourcemodGlue;
 #endif
 public:
 	CFileSystem_Stdio();
 	~CFileSystem_Stdio();
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() { return m_pSourcemodGlue; }
 #endif
 
@@ -1607,7 +1607,7 @@ char *CWin32ReadOnlyFile::FS_fgets( char *dest, int destSize )
 
 #endif // _WIN32
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
 #endif
 //-----------------------------------------------------------------------------
@@ -1615,7 +1615,7 @@ char *CWin32ReadOnlyFile::FS_fgets( char *dest, int destSize )
 //-----------------------------------------------------------------------------
 CFileSystem_Stdio::CFileSystem_Stdio()
 {
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
 #endif
 	m_bMounted = false;

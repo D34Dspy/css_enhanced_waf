@@ -367,16 +367,17 @@ void CPropJeep::DoImpactEffect( trace_t &tr, int nDamageType )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CPropJeep::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vecDir, trace_t *ptr )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.invoke_pre(this, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr);
 	if (GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr);
 		return sm_result.unwrap();
 	}
 #endif
@@ -390,6 +391,11 @@ void CPropJeep::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vec
 	}
 
 	BaseClass::TraceAttack( info, vecDir, ptr );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&inputInfo), const_cast<Vector*>(&vecDir), ptr);
+	if(GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -759,15 +765,16 @@ void CPropJeep::CreateRipple( const Vector &vecPosition )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CPropJeep::Think(void)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Think.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
@@ -901,6 +908,11 @@ void CPropJeep::Think(void)
 		CPASAttenuationFilter sndFilter( this, "PropJeep.AmmoClose" );
 		EmitSound( sndFilter, entindex(), "PropJeep.AmmoClose" );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1159,16 +1171,22 @@ void CPropJeep::GetCannonAim( Vector *resultDir )
 //-----------------------------------------------------------------------------
 void CPropJeep::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	
 	if ( pPlayer == NULL)
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	// Find out if the player's looking at our ammocrate hitbox 
@@ -1198,6 +1216,11 @@ void CPropJeep::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 		}
 
 		m_flAmmoCrateCloseTime = gpGlobals->curtime + JEEP_AMMO_CRATE_CLOSE_DELAY;
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 

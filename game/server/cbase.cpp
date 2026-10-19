@@ -244,7 +244,7 @@ CBaseEntityOutput::~CBaseEntityOutput()
 	}
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
 #endif
 
@@ -255,10 +255,11 @@ CBaseEntityOutput::~CBaseEntityOutput()
 //-----------------------------------------------------------------------------
 void CBaseEntityOutput::FireOutput(variant_t Value, CBaseEntity *pActivator, CBaseEntity *pCaller, float fDelay)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = g_SMGlue_COutputEvent__FireOutput.invoke(this, this, pActivator, pCaller, fDelay);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = g_SMGlue_COutputEvent__FireOutput.invoke_pre(this, this, pActivator, pCaller, fDelay);
 	if (g_SMGlue_COutputEvent__FireOutput.skip_original())
 	{
+		sm_result = g_SMGlue_COutputEvent__FireOutput.invoke_post(this, sm_result, this, pActivator, pCaller, fDelay);
 		return sm_result.unwrap();
 	}
 #endif
@@ -373,6 +374,13 @@ void CBaseEntityOutput::FireOutput(variant_t Value, CBaseEntity *pActivator, CBa
 			ev = next;
 		}
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = g_SMGlue_COutputEvent__FireOutput.invoke_post(this, sm_result, this, pActivator, pCaller, fDelay);
+	if (g_SMGlue_COutputEvent__FireOutput.overwrite_return())
+	{
+		return sm_result.unwrap();
+	}
+#endif
 }
 
 

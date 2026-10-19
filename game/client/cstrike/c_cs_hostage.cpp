@@ -12,7 +12,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
@@ -163,12 +163,18 @@ void C_CHostage::RecvProxy_Rescued( const CRecvProxyData *pData, void *pStruct, 
 }
 
 int C_CHostage::GetMaxHealth( void ) const { 
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
+#endif
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.overwrite_return())
+		return sm_result.unwrap();
 #endif
 	return m_iMaxHealth; 
 }
@@ -222,10 +228,11 @@ C_CHostage::~C_CHostage()
 //-----------------------------------------------------------------------------
 void C_CHostage::Spawn( void )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Spawn.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif

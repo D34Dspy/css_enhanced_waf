@@ -98,6 +98,9 @@ void ConVar_Unregister( )
 //-----------------------------------------------------------------------------
 // Purpose: Default constructor
 //-----------------------------------------------------------------------------
+#if WAF_USE_SOURCEMOD == 1
+#include "glue.hpp"
+#endif
 ConCommandBase::ConCommandBase( void )
 {
 	m_bRegistered   = false;
@@ -107,7 +110,7 @@ ConCommandBase::ConCommandBase( void )
 	m_nFlags = 0;
 	m_pNext  = NULL;
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
 #endif
 }
@@ -121,7 +124,7 @@ ConCommandBase::ConCommandBase( void )
 ConCommandBase::ConCommandBase( const char *pName, const char *pHelpString /*=0*/, int flags /*= 0*/ )
 {
 	CreateBase( pName, pHelpString, flags );
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
 #endif
 }
@@ -586,9 +589,10 @@ bool ConCommand::IsCommand( void ) const
 void ConCommand::Dispatch( const CCommand &command )
 {
 #if WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.invoke(this, const_cast<CCommand*>(&command));
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.invoke_pre(this, const_cast<CCommand*>(&command));
 	if (GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_ConCommand__Dispatch.invoke_post(this, sm_result, const_cast<CCommand*>(&command));
 		return sm_result.unwrap();
 	}
 #endif

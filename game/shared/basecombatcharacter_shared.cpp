@@ -35,15 +35,16 @@ bool CBaseCombatCharacter::SwitchToNextBestWeapon(CBaseCombatWeapon *pCurrent)
 // Input  :
 // Output : true is switch succeeded
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 bool CBaseCombatCharacter::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex /*=0*/ ) 
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke(this, pWeapon, viewmodelindex);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke_pre(this, pWeapon, viewmodelindex);
 	if (GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke_post(this, sm_result, pWeapon, viewmodelindex);
 		return sm_result.unwrap();
 	}
 #endif
@@ -78,16 +79,17 @@ bool CBaseCombatCharacter::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmo
 // Purpose: Returns whether or not we can switch to the given weapon.
 // Input  : pWeapon - 
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CBaseCombatCharacter::Weapon_CanSwitchTo( CBaseCombatWeapon *pWeapon )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_pre(this, pWeapon);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
 		return sm_result.unwrap();
 	}
 #endif

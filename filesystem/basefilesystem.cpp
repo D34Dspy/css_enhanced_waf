@@ -3745,15 +3745,16 @@ void CBaseFileSystem::FileTimeToString( char *pString, int maxCharsIncludingTerm
 // Input  : *pFileName - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 bool CBaseFileSystem::FileExists( const char *pFileName, const char *pPathID )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.invoke(this, pFileName, pPathID);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.invoke_pre(this, pFileName, pPathID);
 	if (GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.invoke_post(this, sm_result, pFileName, pPathID);
 		return sm_result.unwrap();
 	}
 #endif

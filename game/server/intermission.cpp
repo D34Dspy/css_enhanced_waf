@@ -32,15 +32,16 @@ void CInfoIntermission::Spawn( void )
 	SetNextThink( gpGlobals->curtime + 2 );// let targets spawn !
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CInfoIntermission::Think ( void )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Think.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
@@ -57,6 +58,11 @@ void CInfoIntermission::Think ( void )
 		VectorAngles( dir, angles );
 		SetLocalAngles( angles );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 LINK_ENTITY_TO_CLASS( info_intermission, CInfoIntermission );

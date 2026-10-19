@@ -195,29 +195,51 @@ void CWeaponM3::PrimaryAttack()
 	pPlayer->SetPunchAngle( angle );
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CWeaponM3::Reload()
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Reload.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
 	CCSPlayer *pPlayer = GetPlayerOwner();
 	if ( !pPlayer )
+	{
+#if WAF_USE_SOURCEMOD == 1
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+			return sm_result.unwrap();
+#endif
 		return false;
+	}
 
 	if (pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 || m_iClip1 == GetMaxClip1())
+	{
+#if WAF_USE_SOURCEMOD == 1
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+			return sm_result.unwrap();
+#endif
 		return true;
+	}
 
 	// don't reload until recoil is done
 	if (m_flNextPrimaryAttack > gpGlobals->curtime)
+	{
+#if WAF_USE_SOURCEMOD == 1
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+			return sm_result.unwrap();
+#endif
 		return true;
+	}
 		
 	// check to see if we're ready to reload
 	if (m_reloadState == 0)
@@ -235,6 +257,11 @@ bool CWeaponM3::Reload()
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_RELOAD_START );
 #endif
 
+#if WAF_USE_SOURCEMOD == 1
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+			return sm_result.unwrap();
+#endif
 		return true;
 	}
 	else if (m_reloadState == 1)
@@ -274,6 +301,11 @@ bool CWeaponM3::Reload()
 		m_reloadState = 1;
 	}
 
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return true;
 }
 

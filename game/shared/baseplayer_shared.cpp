@@ -841,15 +841,16 @@ void CBasePlayer::Weapon_SetLast( CBaseCombatWeapon *pWeapon )
 // Input  :
 // Output :
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 bool CBasePlayer::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex /*=0*/ ) 
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke(this, pWeapon, viewmodelindex);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke_pre(this, pWeapon, viewmodelindex);
 	if (GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke_post(this, sm_result, pWeapon, viewmodelindex);
 		return sm_result.unwrap();
 	}
 #endif

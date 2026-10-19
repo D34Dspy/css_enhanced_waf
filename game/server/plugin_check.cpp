@@ -9,7 +9,7 @@
 
 #include "cbase.h"
 #include "eiface.h"
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
 #endif
 

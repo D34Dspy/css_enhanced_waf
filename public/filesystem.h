@@ -505,7 +505,7 @@ class CSourcemodGlueInterface;
 abstract_class IBaseFileSystem
 {
 public:
-#ifdef WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
 #endif
 	virtual int				Read( void* pOutput, int size, FileHandle_t file ) = 0;

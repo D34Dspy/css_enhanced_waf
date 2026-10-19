@@ -293,21 +293,27 @@ float CHostage::GetModifiedDamage( float flDamage, int nHitGroup )
 }
 
 //-----------------------------------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CHostage::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_pre(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 		return sm_result.unwrap();
 	}
 #endif
 	CTakeDamageInfo scaledInfo = info;
 	scaledInfo.SetDamage( GetModifiedDamage( info.GetDamage(), ptr->hitgroup ) );
 	BaseClass::TraceAttack( scaledInfo, vecDir, ptr, pAccumulator );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -545,10 +551,11 @@ void CHostage::HostageRescueZoneTouch( inputdata_t &inputdata )
  */
 void CHostage::Touch( CBaseEntity *other )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, other);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, other);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
 		return sm_result.unwrap();
 	}
 #endif
@@ -571,6 +578,11 @@ void CHostage::Touch( CBaseEntity *other )
 		m_inhibitDoorTimer.Start( 3.0f );
 		other->Use( this, this, USE_TOGGLE, 0.0f );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 

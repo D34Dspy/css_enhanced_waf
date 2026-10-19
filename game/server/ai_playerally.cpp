@@ -1060,16 +1060,17 @@ void CAI_PlayerAlly::ClearTransientConditions()
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CAI_PlayerAlly::Touch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -1080,10 +1081,20 @@ void CAI_PlayerAlly::Touch( CBaseEntity *pOther )
 	{
 		// Ignore if pissed at player
 		if ( m_afMemory & bits_MEMORY_PROVOKED )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 
 		// Stay put during speech
 		if ( GetExpresser()->IsSpeaking() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 			
 		TestPlayerPushing( pOther );
@@ -1106,15 +1117,16 @@ void CAI_PlayerAlly::OnKilledNPC( CBaseCombatCharacter *pKilled )
 }
 
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CAI_PlayerAlly::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_pre(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 		return sm_result.unwrap();
 	}
 #endif
@@ -1139,6 +1151,11 @@ void CAI_PlayerAlly::TraceAttack( const CTakeDamageInfo &info, const Vector &vec
 	SpeakIfAllowed( TLK_SHOT, modifiers );
 
 	BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -185,16 +185,17 @@ void CWeaponG3SG1::PrimaryAttack()
 	pPlayer->SetPunchAngle( angle );
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CWeaponG3SG1::Reload()
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Reload.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
@@ -203,6 +204,11 @@ bool CWeaponG3SG1::Reload()
 	m_flAccuracy = 0.98;
 	m_weaponMode = Primary_Mode;
 	
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return ret;
 }
 

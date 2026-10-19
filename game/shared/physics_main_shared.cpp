@@ -2121,15 +2121,16 @@ bool CBaseEntity::PhysicsRunSpecificThink( int nContextIndex, BASEPTR thinkFunc 
 	return ( !IsMarkedForDeletion() );
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CBaseEntity::SetGroundEntity( CBaseEntity *ground )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.invoke(this, (void*)ground);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.invoke_pre(this, (void*)ground);
 	if (GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.invoke_post(this, sm_result, (void*)ground);
 		return sm_result.unwrap();
 	}
 #endif

@@ -83,13 +83,13 @@ class CGameEventManager : public IGameEventManager2
 {
 	friend class CGameEventManagerOld;
 
-	#ifdef WAF_USE_SOURCEMOD == 1
+	#if WAF_USE_SOURCEMOD == 1
 	CSourcemodGlueInterface* m_pSourcemodGlue;
 	#endif
 
 public:	// IGameEventManager functions
 
-	#ifdef WAF_USE_SOURCEMOD == 1
+	#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue();
 	#endif
 

@@ -75,7 +75,7 @@
 #undef CBasePlayer	
 #endif
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
@@ -471,10 +471,11 @@ C_BasePlayer::~C_BasePlayer()
 //-----------------------------------------------------------------------------
 void C_BasePlayer::Spawn( void )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Spawn.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
@@ -498,6 +499,11 @@ void C_BasePlayer::Spawn( void )
 	m_bWasFreezeFraming = false;
 
     m_bFiredWeapon = false;
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Spawn.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2001,10 +2007,11 @@ void C_BasePlayer::UpdateClientData( void )
 // Prediction stuff
 void C_BasePlayer::PreThink( void )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__PreThink.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__PreThink.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__PreThink.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__PreThink.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
@@ -2021,6 +2028,11 @@ void C_BasePlayer::PreThink( void )
 	UpdateFogController();
 
 	if (m_lifeState >= LIFE_DYING)
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__PreThink.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__PreThink.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	//

@@ -270,7 +270,7 @@ void SoundHooks::OnEmitAmbientSound(int entindex, Vector *pos_, const char *samp
 				// RETURN_META_NEWPARAMS(MRES_IGNORED, &IVEngineServer::EmitAmbientSound,
 										// (entindex, vec2, buffer, vol, soundlevel, fFlags, pitch, delay));
 				engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.create_return(MRES_SUPERCEDE);
-				engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.invoke(engine, entindex, &vec2, (const char*)buffer, vol, soundlevel, fFlags, pitch, delay);
+				engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.invoke_pre(engine, entindex, &vec2, (const char*)buffer, vol, soundlevel, fFlags, pitch, delay);
 				return;
 			}
 		}
@@ -477,7 +477,7 @@ void SoundHooks::OnEmitSound(IRecipientFilter &filter, int iEntIndex, int iChann
 					// pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity)
 					// );
 				engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound.create_return(MRES_IGNORED);
-				engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound.invoke(engsound, 
+				engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound.invoke_pre(engsound, 
 					(IRecipientFilter*)&crf, iEntIndex, iChannel, (const char*)buffer, flVolume, iSoundlevel, iFlags, iPitch, iSpecialDSP, pOrigin, 
 					pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
 				return;
@@ -650,7 +650,7 @@ void SoundHooks::OnEmitSound2(IRecipientFilter &filter, int iEntIndex, int iChan
 					// );
 					engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound2.create_return(MRES_SUPERCEDE);
 					float vol = SNDLVL_TO_ATTN(static_cast<soundlevel_t>(sndlevel));
-					engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound2.invoke(engsound, 
+					engsound->GetSourcemodGlue()->l_SMGlue_IEngineSound__EmitSound2.invoke_pre(engsound, 
 						(IRecipientFilter*)&crf, iEntIndex, iChannel, (const char*)buffer, flVolume, vol, iFlags, 
 						iPitch, iSpecialDSP, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity);
 					return;

@@ -6,7 +6,7 @@
 //=============================================================================//
 
 #include "cbase.h"
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include "baseentity.h"
 #endif
 
@@ -2605,33 +2605,47 @@ void CBaseEntity::InputAddOutput( inputdata_t &inputdata )
 // Input  : collisionGroup - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CBaseEntity::ShouldCollide( int collisionGroup, int contentsMask ) const
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.invoke(const_cast<CBaseEntity*>(this), collisionGroup, contentsMask);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.invoke_pre(const_cast<CBaseEntity*>(this), collisionGroup, contentsMask);
 	if (GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.invoke_post(const_cast<CBaseEntity*>(this), sm_result, collisionGroup, contentsMask);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( m_CollisionGroup == COLLISION_GROUP_DEBRIS )
 	{
 		if ( ! (contentsMask & CONTENTS_DEBRIS) )
+#if WAF_USE_SOURCEMOD == 1
+		{
+			sm_result = GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.invoke_post(const_cast<CBaseEntity*>(this), sm_result, collisionGroup, contentsMask);
+			if (GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.overwrite_return())
+				return sm_result.unwrap();
+#endif
 			return false;
+		}
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.invoke_post(const_cast<CBaseEntity*>(this), sm_result, collisionGroup, contentsMask);
+	if (GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return true;
 }
 
 void CBaseEntity::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_pre(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 		return sm_result.unwrap();
 	}
 #endif
@@ -2658,15 +2672,19 @@ void CBaseEntity::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 			TraceBleed( info.GetDamage(), vecDir, ptr, info.GetDamageType() );
 		}
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#endif
 }
 
 void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke(this, const_cast<FireBulletsInfo_t*>(&info));
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke_pre(this, const_cast<FireBulletsInfo_t*>(&info));
 	if (GetSourcemodGlue()->l_SMGlue_P1__FireBullets.skip_original())
 	{
-		return sm_result.unwrap();
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke_post(this, sm_result, const_cast<FireBulletsInfo_t*>(&info));
+		return;
 	}
 #endif
 	static int	tracerCount;
@@ -2909,6 +2927,9 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 		if (info.m_iAmmoType == -1)
 		{
 			DevMsg("ERROR: Undefined ammo type!\n");
+#if WAF_USE_SOURCEMOD == 1
+			GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke_post(this, sm_result, const_cast<FireBulletsInfo_t*>(&info));
+#endif
 			return;
 		}
 

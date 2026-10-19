@@ -1262,19 +1262,25 @@ void CEnvFireSource::Spawn()
 	}
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CEnvFireSource::Think()
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Think.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( !m_bEnabled )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	SetNextThink( gpGlobals->curtime + FIRESOURCE_THINK_TIME );
 
@@ -1377,14 +1383,20 @@ void CEnvFireSensor::Spawn()
 
 void CEnvFireSensor::Think()
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Think.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( !m_bEnabled )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	float time = m_targetTime * 0.25;

@@ -250,7 +250,7 @@ ConVar cl_autohelp(
 
 #else
 
-	#ifdef WAF_USE_SOURCEMOD == 1
+	#if WAF_USE_SOURCEMOD == 1
 	#include "glue.hpp"
 	#endif
 
@@ -4294,15 +4294,23 @@ ConVar cl_autohelp(
 
 	void CCSGameRules::TerminateRound(float tmDelay, int iReason )
 	{
-		#ifdef WAF_USE_SOURCEMOD
-		auto sm_result = g_SMGlue_CCSGameRules__TerminateRound.invoke(this, this, tmDelay, iReason);
+		#if WAF_USE_SOURCEMOD
+		auto sm_result = g_SMGlue_CCSGameRules__TerminateRound.invoke_pre(this, this, tmDelay, iReason);
 		if (g_SMGlue_CCSGameRules__TerminateRound.skip_original())
 		{
+			sm_result = g_SMGlue_CCSGameRules__TerminateRound.invoke_post(this, sm_result, this, tmDelay, iReason);
 			return sm_result.unwrap();
 		}
 		#endif
 
 		TerminateRoundOriginal(tmDelay, iReason);
+		#if WAF_USE_SOURCEMOD
+		sm_result = g_SMGlue_CCSGameRules__TerminateRound.invoke_post(this, sm_result, this, tmDelay, iReason);
+		if (g_SMGlue_CCSGameRules__TerminateRound.overwrite_return())
+		{
+			return sm_result.unwrap();
+		}
+		#endif
 	}
 
 	//=============================================================================

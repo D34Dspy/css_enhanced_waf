@@ -344,16 +344,17 @@ void CPropVehicleChoreoGeneric::Spawn( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CPropVehicleChoreoGeneric::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.invoke_pre(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr);
 	if (GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr);
 		return sm_result.unwrap();
 	}
 #endif
@@ -365,6 +366,11 @@ void CPropVehicleChoreoGeneric::TraceAttack( const CTakeDamageInfo &info, const 
 			m_hPlayer->TakeDamage( info );
 		}
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr);
+	if(GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -553,15 +559,21 @@ void CPropVehicleChoreoGeneric::HandleAnimEvent( animevent_t *pEvent )
 //-----------------------------------------------------------------------------
 void CPropVehicleChoreoGeneric::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	if ( !pPlayer )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	ResetUseKey( pPlayer );
@@ -914,22 +926,28 @@ void CChoreoGenericServerVehicle::GetVehicleViewPosition( int nRole, Vector *pAb
 	MatrixGetColumn( newCameraToWorld, 3, *pAbsOrigin );
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CPropVehicleChoreoGeneric::ShouldCollide( int collisionGroup, int contentsMask ) const
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_pre(this, pInfo, bAlways);
 	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( m_bIgnorePlayerCollisions == true )
 	{
 		if ( collisionGroup == COLLISION_GROUP_PLAYER || collisionGroup == COLLISION_GROUP_PLAYER_MOVEMENT )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return false;
 	}
 

@@ -41,7 +41,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
@@ -233,15 +233,21 @@ END_PREDICTION_DATA()
 
 	void CPlantedC4::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 	{
-#ifdef WAF_USE_SOURCEMOD == 1
-		auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#if WAF_USE_SOURCEMOD == 1
+		auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_pre(this, pInfo, bAlways);
 		if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
 		{
+			sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
 			return sm_result.unwrap();
 		}
 #endif
 		// Are we already marked for transmission?
 		if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 
 		BaseClass::SetTransmit( pInfo, bAlways );
@@ -662,17 +668,28 @@ END_PREDICTION_DATA()
 	// For CTs to defuse the c4
 	void CPlantedC4::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 	{
-#ifdef WAF_USE_SOURCEMOD == 1
-		auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+		auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 		if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 		{
+			sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 			return sm_result.unwrap();
 		}
 #endif
+		//	#if WAF_USE_SOURCEMOD == 1
+		//	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		//		if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		//				return sm_result.unwrap();
+		//				#endif
 		//Can't defuse if its already defused or if it has blown up
 		if( !m_bBombTicking )
 		{
 			SetUse( NULL );
+#if WAF_USE_SOURCEMOD == 1
+			sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+			if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+				return sm_result.unwrap();
+#endif
 			return;
 		}
 
@@ -690,6 +707,11 @@ END_PREDICTION_DATA()
 					ClientPrint( player, HUD_PRINTCENTER, "#Bomb_Already_Being_Defused" );
 					player->m_iNextTimeCheck = gpGlobals->curtime + 1;
 				}
+#if WAF_USE_SOURCEMOD == 1
+				sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+				if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+					return sm_result.unwrap();
+#endif
 				return;
 			}
 

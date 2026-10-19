@@ -2584,7 +2584,7 @@ static bool OpenSocketInternal( int nModule, int nSetPort, int nDefaultPort, con
 		if ( !*handle )
 		{
 			if ( flags & OSOCKET_FLAG_FAIL )
-				Sys_Exit( "Couldn't allocate any %s IP port", pName );
+				Sys_Error( "Couldn't allocate any %s IP port (address already in use?)", pName );
 			return false;
 		}
 

@@ -642,7 +642,7 @@ bf_write *UserMessages::OnStartMessage_Post(IRecipientFilter *filter, int msg_ty
 	else
 		m_OrigBuffer = m_FakeEngineBuffer;
 #else
-	m_OrigBuffer = META_RESULT_ORIG_RET(bf_write *);
+	m_OrigBuffer = engine->GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.original_return_value().unwrap();
 #endif
 
 	// UM_RETURN_META_VALUE(MRES_IGNORED, NULL);

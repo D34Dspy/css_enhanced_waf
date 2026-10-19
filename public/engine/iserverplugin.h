@@ -154,7 +154,7 @@ public:
 	//  "command" - (string) client command to run if selected
 	//  "msg" - (string) button text for this option
 	//
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
 #endif
 

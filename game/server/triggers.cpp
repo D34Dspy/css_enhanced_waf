@@ -469,15 +469,16 @@ void CBaseTrigger::InputEndTouch( inputdata_t &inputdata )
 // Purpose: Called when an entity starts touching us.
 // Input  : pOther - The entity that is touching us.
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CBaseTrigger::StartTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -501,6 +502,11 @@ void CBaseTrigger::StartTouch(CBaseEntity *pOther)
 			m_OnStartTouchAll.FireOutput( pOther, this );
 		}
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -510,10 +516,11 @@ void CBaseTrigger::StartTouch(CBaseEntity *pOther)
 //-----------------------------------------------------------------------------
 void CBaseTrigger::EndTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -563,6 +570,11 @@ void CBaseTrigger::EndTouch(CBaseEntity *pOther)
 			m_OnEndTouchAll.FireOutput(pOther, this);
 		}
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -660,14 +672,20 @@ void CTriggerRemove::Spawn( void )
 //-----------------------------------------------------------------------------
 void CTriggerRemove::Touch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
 	if (!PassesTriggerFilters(pOther))
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	UTIL_Remove( pOther );
@@ -821,10 +839,11 @@ void CTriggerHurt::HurtThink()
 
 void CTriggerHurt::EndTouch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -840,6 +859,11 @@ void CTriggerHurt::EndTouch( CBaseEntity *pOther )
 		}
 	}
 	BaseClass::EndTouch( pOther );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -910,10 +934,11 @@ int CTriggerHurt::HurtAllTouchers( float dt )
 
 void CTriggerHurt::Touch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -922,6 +947,11 @@ void CTriggerHurt::Touch( CBaseEntity *pOther )
 		SetThink( &CTriggerHurt::HurtThink );
 		SetNextThink( gpGlobals->curtime );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -1116,10 +1146,11 @@ void CTriggerLook::Spawn( void )
 //-----------------------------------------------------------------------------
 void CTriggerLook::StartTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -1132,6 +1163,11 @@ void CTriggerLook::StartTouch(CBaseEntity *pOther)
 		SetThink(&CTriggerLook::TimeoutThink);
 		SetNextThink(gpGlobals->curtime + m_flTimeoutDuration);
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -1149,10 +1185,11 @@ void CTriggerLook::TimeoutThink(void)
 //------------------------------------------------------------------------------
 void CTriggerLook::EndTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -1165,6 +1202,11 @@ void CTriggerLook::EndTouch(CBaseEntity *pOther)
 
 		m_flLookTimeTotal = -1;
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -1173,16 +1215,22 @@ void CTriggerLook::EndTouch(CBaseEntity *pOther)
 //------------------------------------------------------------------------------
 void CTriggerLook::Touch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
 	// Don't fire the OnTrigger if we've already fired the OnTimeout. This will be
 	// reset in OnEndTouch.
 	if (m_bTimeoutFired)
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	// --------------------------------
@@ -1193,6 +1241,11 @@ void CTriggerLook::Touch(CBaseEntity *pOther)
 		m_hLookTarget = GetNextTarget();
 		if (m_hLookTarget == NULL)
 		{
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 	}
@@ -2296,21 +2349,37 @@ void CTriggerPush::Activate()
 //-----------------------------------------------------------------------------
 void CTriggerPush::Touch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( !pOther->IsSolid() || (pOther->GetMoveType() == MOVETYPE_PUSH || pOther->GetMoveType() == MOVETYPE_NONE ) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	if (!PassesTriggerFilters(pOther))
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	// FIXME: If something is hierarchically attached, should we try to push the parent?
 	if (pOther->GetMoveParent())
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	// Transform the push dir into global space
@@ -2327,6 +2396,11 @@ void CTriggerPush::Touch( CBaseEntity *pOther )
 			pOther->SetGroundEntity( NULL );
 		}
 		UTIL_Remove( this );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
@@ -2344,6 +2418,11 @@ void CTriggerPush::Touch( CBaseEntity *pOther )
 			{
 				// UNDONE: Assume the velocity is for a 100kg object, scale with mass
 				pPhys->ApplyForceCenter( m_flPushSpeed * vecAbsDir * 100.0f * gpGlobals->frametime );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 				return;
 			}
 		}
@@ -2447,10 +2526,11 @@ void CTriggerTeleport::Spawn( void )
 //-----------------------------------------------------------------------------
 void CTriggerTeleport::Touch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -2458,6 +2538,11 @@ void CTriggerTeleport::Touch( CBaseEntity *pOther )
 
 	if (!PassesTriggerFilters(pOther))
 	{
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
@@ -2465,6 +2550,11 @@ void CTriggerTeleport::Touch( CBaseEntity *pOther )
 	pentTarget = gEntList.FindEntityByName( pentTarget, m_target.Get(), NULL, pOther, pOther );
 	if (!pentTarget)
 	{
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	   return;
 	}
 	
@@ -2582,18 +2672,29 @@ void CTriggerToggleSave::Spawn( void )
 //-----------------------------------------------------------------------------
 void CTriggerToggleSave::Touch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
 	if( m_bDisabled )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	// Only save on clients
 	if ( !pOther->IsPlayer() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
     
 	// Can be re-enabled
@@ -2653,15 +2754,21 @@ void CTriggerSave::Spawn( void )
 //-----------------------------------------------------------------------------
 void CTriggerSave::Touch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
 	// Only save on clients
 	if ( !pOther->IsPlayer() || !pOther->IsAlive() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	if ( m_fDangerousTimer != 0.0f )
@@ -3309,14 +3416,20 @@ void CTriggerCamera::Disable( void )
 //-----------------------------------------------------------------------------
 void CTriggerCamera::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( !ShouldToggle( useType, m_state ) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	// Toggle state
@@ -3562,14 +3675,20 @@ void CTriggerCDAudio::Spawn( void )
 
 void CTriggerCDAudio::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
 	PlayTrack();
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -3714,10 +3833,11 @@ void CTriggerProximity::Activate(void)
 //-----------------------------------------------------------------------------
 void CTriggerProximity::StartTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -3730,6 +3850,11 @@ void CTriggerProximity::StartTouch(CBaseEntity *pOther)
 		SetThink( &CTriggerProximity::MeasureThink );
 		SetNextThink( gpGlobals->curtime );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -3740,10 +3865,11 @@ void CTriggerProximity::StartTouch(CBaseEntity *pOther)
 //-----------------------------------------------------------------------------
 void CTriggerProximity::EndTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -3759,6 +3885,11 @@ void CTriggerProximity::EndTouch(CBaseEntity *pOther)
 			SetNextThink( TICK_NEVER_THINK );
 		}
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -4024,16 +4155,27 @@ void CTriggerWind::OnRestore()
 //------------------------------------------------------------------------------
 void CTriggerWind::StartTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( !PassesTriggerFilters(pOther) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	if ( pOther->IsPlayer() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	IPhysicsObject *pPhys = pOther->VPhysicsGetObject();
@@ -4049,16 +4191,27 @@ void CTriggerWind::StartTouch(CBaseEntity *pOther)
 //------------------------------------------------------------------------------
 void CTriggerWind::EndTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( !PassesTriggerFilters(pOther) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	if ( pOther->IsPlayer() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	IPhysicsObject *pPhys = pOther->VPhysicsGetObject();
@@ -4266,10 +4419,11 @@ void CTriggerImpact::InputImpact( inputdata_t &inputdata )
 //------------------------------------------------------------------------------
 void CTriggerImpact::StartTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -4291,6 +4445,11 @@ void CTriggerImpact::StartTouch(CBaseEntity *pOther)
 		float flPunch = -m_flViewkick*m_flMagnitude*TRIGGERIMPACT_VIEWKICK_SCALE;
 		pOther->ViewPunch( QAngle( vDir.y * flPunch, 0, vDir.x * flPunch ) );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -4371,19 +4530,30 @@ void CTriggerPlayerMovement::Spawn( void )
 // UNDONE: Do we care?  If so, ref count automovement in the player?
 void CTriggerPlayerMovement::StartTouch( CBaseEntity *pOther )
 {	
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
-		return sm_result.unwrap();
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+				return sm_result.unwrap();
 	}
 #endif
 	if (!PassesTriggerFilters(pOther))
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	CBasePlayer *pPlayer = ToBasePlayer( pOther );
 
 	if ( !pPlayer )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	if ( HasSpawnFlags( SF_TRIGGER_AUTO_DUCK ) )
@@ -4400,19 +4570,30 @@ void CTriggerPlayerMovement::StartTouch( CBaseEntity *pOther )
 
 void CTriggerPlayerMovement::EndTouch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
-		return sm_result.unwrap();
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+				return sm_result.unwrap();
 	}
 #endif
 	if (!PassesTriggerFilters(pOther))
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	CBasePlayer *pPlayer = ToBasePlayer( pOther );
 
 	if ( !pPlayer )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	if ( HasSpawnFlags( SF_TRIGGER_AUTO_DUCK ) )
@@ -4562,12 +4743,18 @@ void CBaseVPhysicsTrigger::InputDisable( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CBaseVPhysicsTrigger::StartTouch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
-		return sm_result.unwrap();
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+				return sm_result.unwrap();
 	}
+#endif
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
 #endif
 }
 
@@ -4576,12 +4763,18 @@ void CBaseVPhysicsTrigger::StartTouch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 void CBaseVPhysicsTrigger::EndTouch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
-		return sm_result.unwrap();
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+				return sm_result.unwrap();
 	}
+#endif
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
 #endif
 }
 
@@ -4806,16 +4999,22 @@ void CTriggerVPhysicsMotion::OnRestore()
 // BUGBUG: If a player uses crouch/uncrouch it will generate touch events and clear the motioncontroller flag
 void CTriggerVPhysicsMotion::StartTouch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
-		return sm_result.unwrap();
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+				return sm_result.unwrap();
 	}
 #endif
 	BaseClass::StartTouch( pOther );
 
 	if ( !PassesTriggerFilters(pOther) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	CBasePlayer *pPlayer = ToBasePlayer( pOther );
@@ -4853,16 +5052,22 @@ void CTriggerVPhysicsMotion::StartTouch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 void CTriggerVPhysicsMotion::EndTouch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
-		return sm_result.unwrap();
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+				return sm_result.unwrap();
 	}
 #endif
 	BaseClass::EndTouch( pOther );
 
 	if ( !PassesTriggerFilters(pOther) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	CBasePlayer *pPlayer = ToBasePlayer( pOther );
@@ -5017,16 +5222,22 @@ void CServerRagdollTrigger::Spawn( void )
 
 void CServerRagdollTrigger::StartTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
-		return sm_result.unwrap();
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+				return sm_result.unwrap();
 	}
 #endif
 	BaseClass::StartTouch( pOther );
 
 	if ( pOther->IsPlayer() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	CBaseCombatCharacter *pCombatChar = pOther->MyCombatCharacterPointer();
@@ -5039,16 +5250,22 @@ void CServerRagdollTrigger::StartTouch(CBaseEntity *pOther)
 
 void CServerRagdollTrigger::EndTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
-		return sm_result.unwrap();
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+				return sm_result.unwrap();
 	}
 #endif
 	BaseClass::EndTouch( pOther );
 
 	if ( pOther->IsPlayer() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	CBaseCombatCharacter *pCombatChar = pOther->MyCombatCharacterPointer();

@@ -270,7 +270,7 @@ static bool ValidCmd( const char *pCmd )
 // ---------------------------------------------------------------------- //
 // CVEngineServer
 // ---------------------------------------------------------------------- //
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 class CVEngineServer : public IVEngineServer
@@ -278,12 +278,12 @@ class CVEngineServer : public IVEngineServer
 	CSourcemodGlueInterface* m_pSourcemodGlue;
 public:
 	CVEngineServer() {
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
     	m_pSourcemodGlue = new CSourcemodGlueInterface;
 #endif
 	}
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	CSourcemodGlueInterface* GetSourcemodGlue( )
 	{ 
 		return m_pSourcemodGlue;
@@ -292,10 +292,11 @@ public:
 
 	virtual void ChangeLevel( const char* s1, const char* s2)
 	{
-#ifdef WAF_USE_SOURCEMOD == 1
-		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.invoke(this, s1, s2);
+#if WAF_USE_SOURCEMOD == 1
+		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.invoke_pre(this, s1, s2);
 		if (GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.skip_original())
 		{
+			sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.invoke_post(this, sm_result, s1, s2);
 			return sm_result.unwrap();
 		}
 #endif
@@ -311,6 +312,11 @@ public:
 		     ( s2 && !Cbuf_EscapeCommandArg( s2, s2Escaped, sizeof( s2Escaped ) )))
 		{
 			Warning( "Illegal map name in ChangeLevel\n" );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.invoke_post(this, sm_result, s1, s2);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 
@@ -327,6 +333,11 @@ public:
 		if ( !cmdLen || cmdLen >= sizeof( cmd ) )
 		{
 			Warning( "Paramter overflow in ChangeLevel\n" );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.invoke_post(this, sm_result, s1, s2);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__ChangeLevel.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 
@@ -799,10 +810,11 @@ public:
 	virtual void EmitAmbientSound( int entindex, const Vector& pos, const char *samp, float vol, 
 		soundlevel_t soundlevel, int fFlags, int pitch, float soundtime /*=0.0f*/ )
 	{
-#ifdef WAF_USE_SOURCEMOD == 1
-		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.invoke(this, entindex, const_cast<Vector*>(&pos), samp, vol, soundlevel, fFlags, pitch, soundtime);
+#if WAF_USE_SOURCEMOD == 1
+		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.invoke_pre(this, entindex, const_cast<Vector*>(&pos), samp, vol, soundlevel, fFlags, pitch, soundtime);
 		if (GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.skip_original())
 		{
+			sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.invoke_post(this, sm_result, entindex, const_cast<Vector*>(&pos), samp, vol, soundlevel, fFlags, pitch, soundtime);
 			return sm_result.unwrap();
 		}
 #endif
@@ -836,6 +848,11 @@ public:
 			if ( sound.nSoundNum >= VOX_SentenceCount() )
 			{
 				ConMsg("EmitAmbientSound: invalid sentence number: %s", PSkipSoundChars(samp));
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.invoke_post(this, sm_result, entindex, const_cast<Vector*>(&pos), samp, vol, soundlevel, fFlags, pitch, soundtime);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.overwrite_return())
+		return sm_result.unwrap();
+#endif
 				return;
 			}
 		}
@@ -847,6 +864,11 @@ public:
 			if (sound.nSoundNum <= 0)
 			{
 				ConMsg ("EmitAmbientSound:  sound not precached: %s\n", samp);
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.invoke_post(this, sm_result, entindex, const_cast<Vector*>(&pos), samp, vol, soundlevel, fFlags, pitch, soundtime);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.overwrite_return())
+		return sm_result.unwrap();
+#endif
 				return;
 			}
 		}
@@ -868,6 +890,11 @@ public:
 			if ( !sndmsg.WriteToBuffer( sv.m_Signon ) )
 			{
 				Sys_Error( "EmitAmbientSound: Init message would overflow signon buffer!\n" );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.invoke_post(this, sm_result, entindex, const_cast<Vector*>(&pos), samp, vol, soundlevel, fFlags, pitch, soundtime);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__EmitAmbientSound.overwrite_return())
+		return sm_result.unwrap();
+#endif
 				return;
 			}
 		}
@@ -1036,10 +1063,11 @@ public:
 	*/
 	virtual void ClientCommand(edict_t* pEdict, const char* szFmt, ...)
 	{
-#ifdef WAF_USE_SOURCEMOD == 1
-		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.invoke(this, pEdict, szFmt);
+#if WAF_USE_SOURCEMOD == 1
+		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.invoke_pre(this, pEdict, szFmt);
 		if (GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.skip_original())
 		{
+			sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.invoke_post(this, sm_result, pEdict, szFmt);
 			return sm_result.unwrap();
 		}
 #endif
@@ -1053,6 +1081,11 @@ public:
 		if ( szOut[0] == 0 )
 		{
 			Warning( "ClientCommand, 0 length string supplied.\n" );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.invoke_post(this, sm_result, pEdict, szFmt);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 
@@ -1062,6 +1095,11 @@ public:
 		{
 			ConMsg("\n!!!\n\nStuffCmd:  Some entity tried to stuff '%s' to console buffer of entity %i when maxclients was set to %i, ignoring\n\n",
 				szOut, entnum, sv.GetMaxClients() );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.invoke_post(this, sm_result, pEdict, szFmt);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientCommand.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 		
@@ -1173,16 +1211,22 @@ public:
 	
 	virtual bf_write *UserMessageBegin( IRecipientFilter *filter, int msg_index )
 	{
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.invoke(this, filter, msg_index);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.invoke_pre(this, filter, msg_index);
 	if (GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.invoke_post(this, sm_result, filter, msg_index);
 		return sm_result.unwrap();
 	}
 #endif
 		if ( s_MsgData.started )
 		{
 			Sys_Error( "UserMessageBegin:  New message started before matching call to EndMessage.\n " );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.invoke_post(this, sm_result, filter, msg_index);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return NULL;
 		}
 		
@@ -1201,6 +1245,11 @@ public:
 		
 		s_MsgData.userMsg.m_DataOut.Reset();	
 		
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.invoke_post(this, sm_result, filter, msg_index);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__UserMessageBegin.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return &s_MsgData.userMsg.m_DataOut;
 	}
 	
@@ -1262,16 +1311,22 @@ public:
 	
 	virtual void MessageEnd( void )
 	{
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
 		if ( !s_MsgData.started )
 		{
 			Sys_Error( "MESSAGE_END called with no active message\n" );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 		
@@ -1281,6 +1336,11 @@ public:
 		if ( length < 0 )
 		{
 			s_MsgData.Reset(); // clear message data
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__MessageEnd.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 
@@ -1301,10 +1361,11 @@ public:
 	/* single print to a specific client */
 	virtual void ClientPrintf( edict_t *pEdict, const char *szMsg )
 	{
-#ifdef WAF_USE_SOURCEMOD == 1
-		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.invoke(this, pEdict, szMsg);
+#if WAF_USE_SOURCEMOD == 1
+		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.invoke_pre(this, pEdict, szMsg);
 		if (GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.skip_original())
 		{
+			sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.invoke_post(this, sm_result, pEdict, szMsg);
 			return sm_result.unwrap();
 		}
 #endif
@@ -1313,6 +1374,11 @@ public:
 		if (entnum < 1 || entnum > sv.GetClientCount() )
 		{
 			ConMsg ("tried to sprint to a non-client\n");
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.invoke_post(this, sm_result, pEdict, szMsg);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__ClientPrintf.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 		
@@ -1881,10 +1947,11 @@ static CUtlMemoryPool s_PVSInfoAllocator( 128, 128 * 64, CUtlMemoryPool::GROW_SL
 //-----------------------------------------------------------------------------
 void CVEngineServer::PlaybackTempEntity( IRecipientFilter& filter, float delay, const void *pSender, const SendTable *pST, int classID  )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__PlaybackTempEntity.invoke(this, &filter, delay, pSender, const_cast<SendTable*>(pST), classID);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__PlaybackTempEntity.invoke_pre(this, &filter, delay, pSender, const_cast<SendTable*>(pST), classID);
 	if (GetSourcemodGlue()->l_SMGlue_IVEngineServer__PlaybackTempEntity.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__PlaybackTempEntity.invoke_post(this, sm_result, &filter, delay, pSender, const_cast<SendTable*>(pST), classID);
 		return sm_result.unwrap();
 	}
 #endif
@@ -1910,6 +1977,11 @@ void CVEngineServer::PlaybackTempEntity( IRecipientFilter& filter, float delay, 
 	if( !SendTable_Encode( pST, pSender, &buffer, classID, NULL, false ) )
 	{
 		Host_Error( "PlaybackTempEntity: SendTable_Encode returned false (ent %d), overflow? %i\n", classID, buffer.IsOverflowed() ? 1 : 0 );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__PlaybackTempEntity.invoke_post(this, sm_result, &filter, delay, pSender, const_cast<SendTable*>(pST), classID);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__PlaybackTempEntity.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 	
@@ -1966,14 +2038,20 @@ client_textmessage_t *CVEngineServer::TextMessageGet( const char *pName )
 
 void CVEngineServer::LogPrint(const char * msg)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__LogPrint.invoke(this, msg);
+#if WAF_USE_SOURCEMOD == 1
+		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__LogPrint.invoke_pre(this, msg);
 		if (GetSourcemodGlue()->l_SMGlue_IVEngineServer__LogPrint.skip_original())
 		{
+			sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__LogPrint.invoke_post(this, sm_result, msg);
 			return sm_result.unwrap();
 		}
 #endif
 	g_Log.Print( msg );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__LogPrint.invoke_post(this, sm_result, msg);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__LogPrint.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 // HACKHACK: Save/restore wrapper - Move this to a different interface
@@ -2010,12 +2088,18 @@ void CVEngineServer::ClearSaveDirAfterClientLoad()
 
 const char* CVEngineServer::GetMapEntitiesString()
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__GetMapEntitiesString.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+		auto sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__GetMapEntitiesString.invoke_pre(this);
 		if (GetSourcemodGlue()->l_SMGlue_IVEngineServer__GetMapEntitiesString.skip_original())
 		{
+			sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__GetMapEntitiesString.invoke_post(this, sm_result);
 			return sm_result.unwrap();
 		}
+#endif
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IVEngineServer__GetMapEntitiesString.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_IVEngineServer__GetMapEntitiesString.overwrite_return())
+		return sm_result.unwrap();
 #endif
 	return CM_EntityString();
 }

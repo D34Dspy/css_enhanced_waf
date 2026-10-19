@@ -30,8 +30,6 @@ struct SourcemodInvocationRecord {
     bool stopDelegation;
     bool recordIsCurrent;
     T returnValue;
-    int position_router;
-    int position_route;
     SourcemodInvocationRecord() 
         : pluginTookAction(false)
         , skipOriginal(false)
@@ -39,8 +37,6 @@ struct SourcemodInvocationRecord {
         , stopDelegation(false)
         , recordIsCurrent(false)
         , returnValue({})
-        , position_router(0)
-        , position_route(0)
     {
     }
     SourcemodInvocationRecord(const SourcemodInvocationRecord<T>& rec) 
@@ -50,8 +46,6 @@ struct SourcemodInvocationRecord {
         , stopDelegation(rec.stopDelegation)
         , recordIsCurrent(rec.recordIsCurrent)
         , returnValue(rec.returnValue)
-        , position_router(rec.position_router)
-        , position_route(rec.position_route)
     {
     }
 };
@@ -154,6 +148,15 @@ private:
     ParamSet param;
     bool paramAltered;
 
+    RetStore orig;
+    bool origSet;
+    RetStore alter;
+    bool alterSet;
+
+    int mres;
+
+    Invoke currentRecord;
+
     void throw_() {
         *(int*)0 = 0;
     }
@@ -208,10 +211,18 @@ public:
         keyCodes = INT_MIN;
     }
     template <typename... T>
-    RetStore invoke(CInterface* iface, T... params) {
-        curr = iface;
-        auto ctx = SourcemodInvokeStackOwnership<RetStore>(before_ownership_update_param());
-        auto& rec = ctx.record;
+    RetStore invoke_pre(CInterface* iface, T... params) {
+        auto& rec = this->currentRecord;
+
+        this->curr = iface;
+        this->alterSet = false;
+        this->origSet = false;
+        this->paramAltered = false;
+        rec.recordIsCurrent = false;
+        rec.overwriteReturn = false;
+        rec.parametersAltered = false;
+        rec.stopDelegation = false;
+        rec.skipOriginal = false;
 
         // param = ParamSet(params...);
         auto cpy = ParamSet(params...);
@@ -219,14 +230,54 @@ public:
 
         rec.stopDelegation = false;
         rec.parametersAltered = false;
-        for(int i = rec.position_router; i < routers.Count(); i++) {
+        for(int i = 0; i < routers.Count(); i++) {
             auto& router = routers.Element(i);
-            for (int j = rec.position_route; j < router.routes.Count(); j++)
+            if (router.overload != 0)
+                continue;
+            for (int j = 0; j < router.routes.Count(); j++)
             {
                 auto& route = router.routes.Element(j);
                 if(route.keyIface != iface && route.keyIface != nullptr)
                     continue;
                 route.delegate(params...);
+                alter = rec.returnValue;
+                alterSet = true;
+                memcpy(&currentRecord, &rec, sizeof(Invoke));
+                if(rec.stopDelegation)
+                    break;
+                if(paramAltered)
+                    param.unwrap(params...);
+            }
+            if(rec.stopDelegation)
+                break;
+        }
+        rec.recordIsCurrent = true;
+        return rec.returnValue;
+    }
+    template <typename... T>
+    RetStore invoke_post(CInterface* iface, RetStore previous, T... params) {
+        curr = iface;
+        auto& rec = currentRecord;
+        rec.returnValue = previous;
+
+        // param = ParamSet(params...);
+        auto cpy = ParamSet(params...);
+        memcpy(&param,&cpy, sizeof(ParamSet));
+
+        rec.stopDelegation = false;
+        rec.parametersAltered = false;
+        for(int i = 0; i < routers.Count(); i++) {
+            auto& router = routers.Element(i);
+            if (router.overload != 1)
+                continue;
+            for (int j = 0; j < router.routes.Count(); j++)
+            {
+                auto& route = router.routes.Element(j);
+                if(route.keyIface != iface && route.keyIface != nullptr)
+                    continue;
+                route.delegate(params...);
+                alter = rec.returnValue;
+                alterSet = true;
                 if(rec.stopDelegation)
                     break;
                 if(paramAltered)
@@ -254,34 +305,6 @@ public:
         routers[m].rem(hook, iface);
     }
 
-    bool loop(int& router, int& route, CDelegate* delegate) {
-
-        if (router == routers.Count())
-            return false;
-
-        Routes& router_ = routers[router];
-
-        if(route == router_.routes.Count())
-        {
-            if(router + 1 == routers.Count())
-            {
-                return false;
-            }
-            else
-            {
-                *delegate = router_.routes.Element(route).delegate;
-                router += 1;
-                route = 0;
-            }
-        }
-        else {
-            *delegate = router_.routes.Element(route).delegate;
-            route += 1;
-        }
-        
-        return true;
-    }
-
     int invalid() {
         return -1;
     }
@@ -290,6 +313,7 @@ public:
         create_return(status, RetStore());
     }
     void create_return(int status, RetStore val) {
+        mres = status;
         switch(status) {
             default:
                 *(int*)0 = 0;
@@ -304,13 +328,17 @@ public:
         }
     }
 
+    int metamod_result() const {
+        return mres;
+    }
+
     void create_return(bool plugin_took_action, bool skip_original, bool overwrite_return, RetStore val) {
-        stack.tail().pluginTookAction = plugin_took_action;
-        stack.tail().skipOriginal = skip_original;
-        stack.tail().overwriteReturn = overwrite_return;
-        stack.tail().stopDelegation = overwrite_return;
-        stack.tail().recordIsCurrent = true;
-        stack.tail().returnValue = RetStore{val};
+        currentRecord.pluginTookAction = plugin_took_action;
+        currentRecord.skipOriginal = skip_original;
+        currentRecord.overwriteReturn = overwrite_return;
+        currentRecord.stopDelegation = overwrite_return;
+        currentRecord.recordIsCurrent = true;
+        currentRecord.returnValue = RetStore{val};
     }
 
     bool overwrite_return() const { return stack.tail().overwriteReturn; }
@@ -318,6 +346,17 @@ public:
     bool plugin_took_action() const { return stack.tail().pluginTookAction; }
 
     ParamSet& parameters() { return param; }
+
+    RetStore& original_return_value() { if(!origSet)*(int*)0 = 0; return orig; }
+    bool original_return_value_set() { return origSet; }
+    void set_original_return_value(RetStore val) {
+        origSet = true;
+        orig = val;
+    }
+
+    RetStore& altered_return_value() { if(!alterSet)*(int*)0 = 0; return alter; }
+    bool altered_return_value_set() { return alterSet; }
+
     bool parameters_altered() { return paramAltered; }
     void alter_parameters() { paramAltered = true; }
     CInterface* candidate() { return curr; }

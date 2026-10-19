@@ -452,7 +452,7 @@ public:
 	virtual void SetSendTableCurrentEntityIndex(int index) = 0;
     virtual int GetSendTableCurrentEntityIndex() = 0;
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
 #endif
 };
@@ -644,7 +644,7 @@ public:
 
 	virtual void			PostClientUpdate( bool simulating, bool bFinalTick ) = 0;
 
-#ifdef WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
 	virtual IGlobalSourcemodGlueInterface* GetSourcemodBridge() = 0;
 #endif
@@ -761,7 +761,7 @@ public:
 	// Hook for player spawning
 	virtual void			ClientSpawned( edict_t *pPlayer ) = 0;
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
 #endif
 };

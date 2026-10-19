@@ -188,16 +188,17 @@ void CFish::Event_Killed( const CTakeDamageInfo &info )
 /**
  * In contact with "other"
  */
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CFish::Touch( CBaseEntity *other )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, other);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, other);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, other);
 		return sm_result.unwrap();
 	}
 #endif
@@ -206,6 +207,11 @@ void CFish::Touch( CBaseEntity *other )
 		// touched a Player - panic!
 		Panic();
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, other);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 

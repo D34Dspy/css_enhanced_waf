@@ -253,15 +253,16 @@ void CGameUI::InputActivate( inputdata_t &inputdata )
 // Purpose: Samples the player's inputs and fires outputs based on what buttons
 //			are currently held down.
 //------------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CGameUI::Think( void )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Think.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
@@ -271,6 +272,11 @@ void CGameUI::Think( void )
 	if (pPlayer == NULL)
 	{
 		SetNextThink( TICK_NEVER_THINK );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
@@ -295,6 +301,11 @@ void CGameUI::Think( void )
 		if (flDotPr < m_flFieldOfView)
 		{
 			Deactivate( pPlayer );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 	}
@@ -308,6 +319,11 @@ void CGameUI::Think( void )
 		(( pPlayer->m_afButtonPressed & IN_JUMP ) && ( m_spawnflags & SF_GAMEUI_JUMP_DEACTIVATES )))
 	{
 		Deactivate( pPlayer );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 

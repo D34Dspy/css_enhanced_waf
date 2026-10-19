@@ -313,15 +313,16 @@ void CMatchmaking::ConnectionStart( INetChannel *chan )
 //-----------------------------------------------------------------------------
 // Purpose: Process a networked voice packet
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 bool CMatchmaking::ProcessVoiceData( CLC_VoiceData *pVoice )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, pVoice);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_pre(this, pVoice);
 	if (GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_post(this, sm_result, pVoice);
 		return sm_result.unwrap();
 	}
 #endif
@@ -347,6 +348,11 @@ bool CMatchmaking::ProcessVoiceData( CLC_VoiceData *pVoice )
 	{
 		Audio_GetXVoice()->PlayIncomingVoiceData( pVoice->m_xuid, (byte*)chReceived, dwLength );
 	}
+#endif
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_post(this, sm_result, pVoice);
+	if(GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.overwrite_return())
+		return sm_result.unwrap();
 #endif
 	return true;
 }

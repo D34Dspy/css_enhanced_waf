@@ -183,16 +183,17 @@ void CWeaponP228::PrimaryAttack( void )
 	pPlayer->SetPunchAngle( angle );
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CWeaponP228::Reload()
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Reload.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif

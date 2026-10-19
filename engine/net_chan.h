@@ -141,14 +141,14 @@ private: // netchan structurs
 		netframe_t	*currentframe;	// current frame
 	} netflow_t;
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	CSourcemodGlueInterface* m_pSourcemodGlue;
 #endif
 public: 
 	CNetChan();
 	~CNetChan();
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() { return m_pSourcemodGlue; }
 #endif
 

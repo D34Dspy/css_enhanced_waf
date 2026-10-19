@@ -564,12 +564,16 @@ void CCSPlayer::Precache()
 // Purpose: Allow pre-frame adjustments on the player
 //-----------------------------------------------------------------------------
 ConVar sv_runcmds( "sv_runcmds", "1" );
+#if WAF_USE_SOURCEMOD
+#include "glue.hpp"
+#endif
 void CCSPlayer::PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__PlayerRunCmdHook2.invoke(this, ucmd, moveHelper);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__PlayerRunCmdHook2.invoke_pre(this, ucmd, moveHelper);
 	if (GetSourcemodGlue()->l_SMGlue_P2__PlayerRunCmdHook2.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__PlayerRunCmdHook2.invoke_post(this, sm_result, ucmd, moveHelper);
 		return sm_result.unwrap();
 	}
 #endif
@@ -577,6 +581,11 @@ void CCSPlayer::PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper )
 	VPROF( "CCSPlayer::PlayerRunCommand" );
 
 	if ( !sv_runcmds.GetInt() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__PlayerRunCmdHook2.invoke_post(this, sm_result, ucmd, moveHelper);
+	if(GetSourcemodGlue()->l_SMGlue_P2__PlayerRunCmdHook2.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	// If they use a negative bot_mimic value, then don't process their usercmds, but have
@@ -1634,28 +1643,44 @@ void CCSPlayer::PushawayThink()
 // Purpose: Returns whether or not we can switch to the given weapon.
 // Input  : pWeapon -
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CCSPlayer::Weapon_CanSwitchTo( CBaseCombatWeapon *pWeapon )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke(this, pWeapon);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_pre(this, pWeapon);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( !pWeapon->CanDeploy() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return false;
 
 	if ( GetActiveWeapon() )
 	{
 		if ( !GetActiveWeapon()->CanHolster() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return false;
 	}
 
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return true;
 }
 
@@ -2123,17 +2148,18 @@ bool CCSPlayer::IsHittingShield( const Vector &vecDirection, trace_t *ptr )
 	return false;
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 
 void CCSPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_pre(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 		return sm_result.unwrap();
 	}
 #endif
@@ -2148,6 +2174,11 @@ void CCSPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 		 bShouldBleed = CSGameRules()->IsFriendlyFireOn();
 
 	if ( m_takedamage != DAMAGE_YES )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	m_LastHitGroup = ptr->hitgroup;
@@ -2849,10 +2880,11 @@ void CCSPlayer::SetShieldDrawnState( bool bState )
 
 bool CCSPlayer::CSWeaponDrop( CBaseCombatWeapon *pWeapon, bool bDropShield, bool bThrowForward )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = g_SMGlue_CCSPlayer__CSWeaponDrop.invoke(this, this, pWeapon, bDropShield, bThrowForward);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = g_SMGlue_CCSPlayer__CSWeaponDrop.invoke_pre(this, this, pWeapon, bDropShield, bThrowForward);
 	if (g_SMGlue_CCSPlayer__CSWeaponDrop.skip_original())
 	{
+		sm_result = g_SMGlue_CCSPlayer__CSWeaponDrop.invoke_post(this, sm_result, this, pWeapon, bDropShield, bThrowForward);
 		return sm_result.unwrap();
 	}
 #endif
@@ -2861,6 +2893,11 @@ bool CCSPlayer::CSWeaponDrop( CBaseCombatWeapon *pWeapon, bool bDropShield, bool
 	if ( HasShield() && bDropShield == true )
 	{
 		DropShield();
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = g_SMGlue_CCSPlayer__CSWeaponDrop.invoke_post(this, sm_result, this, pWeapon, bDropShield, bThrowForward);
+	if(g_SMGlue_CCSPlayer__CSWeaponDrop.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return true;
 	}
 
@@ -2943,7 +2980,14 @@ bool CCSPlayer::CSWeaponDrop( CBaseCombatWeapon *pWeapon, bool bDropShield, bool
 			}
 
 			if ( iWeaponBoneIndex == hdr->numbones() )
-				 return true;
+			{
+#if WAF_USE_SOURCEMOD == 1
+				sm_result = g_SMGlue_CCSPlayer__CSWeaponDrop.invoke_post(this, sm_result, this, pWeapon, bDropShield, bThrowForward);
+				if(g_SMGlue_CCSPlayer__CSWeaponDrop.overwrite_return())
+					return sm_result.unwrap();
+#endif
+				return true;
+			}
 
 			if ( iBIndex == -1 )
 			{
@@ -3003,6 +3047,11 @@ bool CCSPlayer::CSWeaponDrop( CBaseCombatWeapon *pWeapon, bool bDropShield, bool
 		bSuccess = true;
 	}
 
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = g_SMGlue_CCSPlayer__CSWeaponDrop.invoke_post(this, sm_result, this, pWeapon, bDropShield, bThrowForward);
+	if(g_SMGlue_CCSPlayer__CSWeaponDrop.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return bSuccess;
 }
 
@@ -3406,7 +3455,7 @@ BuyResult_e CCSPlayer::HandleCommand_Buy( const char *item )
 	return result;
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
 #endif
 BuyResult_e CCSPlayer::HandleCommand_Buy_Internal( const char* wpnName ) 
@@ -3414,11 +3463,12 @@ BuyResult_e CCSPlayer::HandleCommand_Buy_Internal( const char* wpnName )
 // HPE_END
 //=============================================================================
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.invoke(this, this, wpnName);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.invoke_pre(this, this, wpnName);
 	if (g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.skip_original())
 	{
-		return sm_result.unwrap();
+		sm_result = g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.invoke_post(this,sm_result, this, wpnName);
+		return (BuyResult_e)sm_result.unwrap();
 	}
 #endif
 	BuyResult_e result = CanPlayerBuy( false ) ? BUY_PLAYER_CANT_BUY : BUY_INVALID_ITEM; // set some defaults
@@ -3450,6 +3500,11 @@ BuyResult_e CCSPlayer::HandleCommand_Buy_Internal( const char* wpnName )
 
 		if( !CanPlayerBuy( true ) )
 		{
+#if WAF_USE_SOURCEMOD == 1
+			sm_result = g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.invoke_post(this,sm_result, this, wpnName);
+			if(g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.overwrite_return())
+				return (BuyResult_e)sm_result.unwrap();
+#endif
 			return BUY_PLAYER_CANT_BUY;
 		}
 
@@ -3478,6 +3533,11 @@ BuyResult_e CCSPlayer::HandleCommand_Buy_Internal( const char* wpnName )
 			{
 				BuildRebuyStruct();
 			}
+#if WAF_USE_SOURCEMOD == 1
+			sm_result = g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.invoke_post(this,sm_result, this, wpnName);
+			if(g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.overwrite_return())
+				return (BuyResult_e)sm_result.unwrap();
+#endif
 			return equipResult; // intentional early return here
 		}
 
@@ -3602,6 +3662,11 @@ BuyResult_e CCSPlayer::HandleCommand_Buy_Internal( const char* wpnName )
 		BuildRebuyStruct();
 	}
 
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.invoke_post(this,sm_result, this, wpnName);
+	if(g_SMGlue_CCSPlayer__HandleCommand_Buy_Internal.overwrite_return())
+		return (BuyResult_e)sm_result.unwrap();
+#endif
 	return result;
 }
 
@@ -5538,17 +5603,18 @@ void CCSPlayer::State_PreThink_ACTIVE()
 	Assert( !IsSolidFlagSet( FSOLID_NOT_SOLID ) );
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 
 void CCSPlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke_pre(this, pWeapon);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke_post(this, sm_result, pWeapon);
 		return sm_result.unwrap();
 	}
 #endif
@@ -5573,6 +5639,11 @@ void CCSPlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 			{
 				Weapon_EquipAmmoOnly( pWeapon );
 				UTIL_Remove( pCSWeapon );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke_post(this, sm_result, pWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.overwrite_return())
+		return sm_result.unwrap();
+#endif
 				return;
 			}
 		}
@@ -5586,10 +5657,11 @@ void CCSPlayer::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 
 bool CCSPlayer::Weapon_CanUse( CBaseCombatWeapon *pBaseWeapon )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke(this, pBaseWeapon);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_pre(this, pBaseWeapon);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pBaseWeapon);
 		return sm_result.unwrap();
 	}
 #endif
@@ -5600,10 +5672,20 @@ bool CCSPlayer::Weapon_CanUse( CBaseCombatWeapon *pBaseWeapon )
 		// Don't give weapon_c4 to non-terrorists
 		if( pWeapon->GetCSWpnData().m_WeaponType == WEAPONTYPE_C4 && GetTeamNumber() != TEAM_TERRORIST )
 		{
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pBaseWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return false;
 		}
 	}
 
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pBaseWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return true;
 }
 

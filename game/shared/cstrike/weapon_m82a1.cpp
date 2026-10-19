@@ -285,21 +285,27 @@ bool CWeaponM82A1::IsM82a1() const
 	return true;
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CWeaponM82A1::Reload()
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Reload.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
 	m_weaponMode = Primary_Mode;
 	return BaseClass::Reload();
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 bool CWeaponM82A1::Deploy()

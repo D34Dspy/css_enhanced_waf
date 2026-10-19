@@ -247,19 +247,25 @@ void CPropVehicle::Think()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CPropVehicle::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_pre(this, pPhysics);
 	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( IsMarkedForDeletion() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	Vector	velocity;
@@ -270,6 +276,11 @@ void CPropVehicle::VPhysicsUpdate( IPhysicsObject *pPhysics )
 
 	// must be a wheel
 	if (!m_VehiclePhysics.VPhysicsUpdate( pPhysics ))
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	
 	BaseClass::VPhysicsUpdate( pPhysics );
@@ -561,15 +572,21 @@ void CPropVehicleDriveable::VehicleAngleVectors( const QAngle &angles, Vector *p
 //-----------------------------------------------------------------------------
 void CPropVehicleDriveable::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	if ( !pPlayer )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	ResetUseKey( pPlayer );
@@ -979,16 +996,17 @@ int CPropVehicleDriveable::VPhysicsGetObjectList( IPhysicsObject **pList, int li
 //-----------------------------------------------------------------------------
 // Purpose: Handle trace attacks from the physcannon
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CPropVehicleDriveable::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_pre(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 		return sm_result.unwrap();
 	}
 #endif
@@ -1035,6 +1053,11 @@ void CPropVehicleDriveable::TraceAttack( const CTakeDamageInfo &info, const Vect
 	}
 
 	BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //=============================================================================

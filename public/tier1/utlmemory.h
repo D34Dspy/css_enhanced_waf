@@ -761,6 +761,12 @@ void CUtlMemory<T,I>::Grow( int num )
 		return;
 	}
 
+	// Ensure m_nGrow is not zero
+	if (!m_nGrowSize)
+	{
+		m_nGrowSize = 1;
+	}
+
 	// Make sure we have at least numallocated + num allocations.
 	// Use the grow rules specified for this memory (in m_nGrowSize)
 	int nAllocationRequested = m_nAllocationCount + num;

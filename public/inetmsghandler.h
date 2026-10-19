@@ -111,7 +111,7 @@ class IClientMessageHandler : public INetMessageHandler
 public:
 	virtual ~IClientMessageHandler( void ) {};
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
 #endif
 

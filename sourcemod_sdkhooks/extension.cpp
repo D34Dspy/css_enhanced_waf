@@ -139,30 +139,6 @@ IForward *g_pOnLevelInit = NULL;
 
 IGameConfig *g_pGameConf = NULL;
 
-CUtlVector<IEntityListener *> *EntListeners()
-{
-	void *gEntList = gamehelpers->GetGlobalEntityList();
-	if (gEntList)
-	{
-		int offset = -1; /* 65572 */
-		if (g_pGameConf->GetOffset("EntityListeners", &offset))
-		{
-			return (CUtlVector<IEntityListener *> *)((intptr_t) gEntList + offset);
-		}
-	}
-	else
-	{
-		void *entListeners;
-		if (g_pGameConf->GetAddress("EntityListenersPtr", &entListeners))
-		{
-			return (CUtlVector<IEntityListener *> *)entListeners;
-		}
-	}
-
-	return NULL;
-}
-
-
 /**
  * IServerGameDLL & IVEngineServer Hooks
  */
@@ -242,19 +218,7 @@ bool SDKHooks::SDK_OnLoad(char *error, size_t maxlength, bool late)
 
 	memset(m_EntityCache, INVALID_EHANDLE_INDEX, sizeof(m_EntityCache));
 
-	CUtlVector<IEntityListener *> *entListeners = EntListeners();
-	if (!entListeners)
-	{
-		g_pSM->Format(error, maxlength, "Failed to setup entity listeners");
-#if SOURCE_ENGINE != SE_MOCK
-		return false;
-#endif
-	}
-	else
-	{
-		entListeners->AddToTail(this);
-	}
-
+	gamedll->GetSourcemodBridge()->EntityListeners_Add(this);
 
 	sharesys->AddDependency(myself, "./bin/sourcemodbintools", "./bin/libsourcemodbintools", false, true);
 	sharesys->AddNatives(myself, g_Natives);
@@ -393,11 +357,7 @@ void SDKHooks::SDK_OnUnload()
 	sharesys->DropCapabilityProvider(myself, this, "SDKHook_DmgCustomInOTD");
 	sharesys->DropCapabilityProvider(myself, this, "SDKHook_LogicalEntSupport");
 
-	CUtlVector<IEntityListener *> *entListeners = EntListeners();
-	if (entListeners)
-	{
-		entListeners->FindAndRemove(this);
-	}
+	gamedll->GetSourcemodBridge()->EntityListeners_Rem(this);
 
 	gameconfs->CloseGameConfigFile(g_pGameConf);
 }
@@ -1428,7 +1388,7 @@ bool SDKHooksHookRecord::Hook_ReloadPost()
 		}
 
 		int entity = gamehelpers->EntityToBCompatRef(pEntity);
-		cell_t origreturn = META_RESULT_ORIG_RET(bool) ? 1 : 0;
+		cell_t origreturn = pEntity->GetSourcemodGlue()->l_SMGlue_P0__Reload.original_return_value().unwrap() ? 1 : 0;
 
 		std::vector<IPluginFunction *> callbackList;
 		PopulateCallbackList(vtablehooklist[entry]->hooks, callbackList, entity);
@@ -1476,7 +1436,14 @@ bool SDKHooksHookRecord::Hook_ShouldCollide(int collisionGroup, int contentsMask
 		}
 
 		int entity = gamehelpers->EntityToBCompatRef(pEntity);
-		cell_t origRet = ((META_RESULT_STATUS >= MRES_OVERRIDE)?(META_RESULT_OVERRIDE_RET(bool)):(META_RESULT_ORIG_RET(bool))) ? 1 : 0;
+		
+		cell_t origRet = (
+				(pEntity->GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.metamod_result() >= MRES_OVERRIDE)
+					? (pEntity->GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.altered_return_value().unwrap())
+					: (pEntity->GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.original_return_value().unwrap())
+			) 
+				? 1 
+				: 0;
 		cell_t res = 0;
 
 		std::vector<IPluginFunction *> callbackList;

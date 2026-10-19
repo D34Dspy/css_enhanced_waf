@@ -440,17 +440,13 @@ bool SourceModBase::LevelInit(char const *pMapName, char const *pMapEntities, ch
 	{
 		logger->LogError("Map entity lump parsing for %s failed with error code %d on position %d", pMapName, parseError, position);
 		// RETURN_META_VALUE(MRES_IGNORED, true);
-		engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+		gamedll->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
 		return true;
 	}
 
 	// RETURN_META_VALUE_NEWPARAMS(MRES_HANDLED, true, &IServerGameDLL::LevelInit, (pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background));
-	engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
-	auto sm_result = engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.invoke(gamedll, pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background);
-	if (engine->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.skip_original())
-	{
-		return sm_result.unwrap();
-	}
+	gamedll->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.create_return(MRES_IGNORED, {true});
+	// auto sm_result = gamedll->GetSourcemodGlue()->l_SMGlue_IServerGameDLL__LevelInit.invoke_pre(gamedll, pMapName, logicore.GetEntityLumpString(), pOldLevel, pLandmarkName, loadGame, background);
 	return true;
 }
 

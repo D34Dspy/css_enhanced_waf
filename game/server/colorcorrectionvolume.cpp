@@ -168,33 +168,45 @@ bool CColorCorrectionVolume::PassesTriggerFilters( CBaseEntity *pEntity )
 	return false;
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CColorCorrectionVolume::StartTouch( CBaseEntity *pEntity )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke(this, pEntity);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_pre(this, pEntity);
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pEntity);
 		return sm_result.unwrap();
 	}
 #endif
 	m_LastEnterTime = gpGlobals->curtime;
 	m_LastEnterWeight = m_Weight;
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pEntity);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void CColorCorrectionVolume::EndTouch( CBaseEntity *pEntity )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pEntity);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pEntity);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pEntity);
 		return sm_result.unwrap();
 	}
 #endif
 	m_LastExitTime = gpGlobals->curtime;
 	m_LastExitWeight = m_Weight;
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pEntity);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void CColorCorrectionVolume::ThinkFunc( )

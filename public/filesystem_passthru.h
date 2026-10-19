@@ -86,7 +86,7 @@ public:
 		BaseClass::InitPassThru( pFileSystemPassThru );
 	}
 
-#ifdef WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() { return nullptr; }
 #endif
 

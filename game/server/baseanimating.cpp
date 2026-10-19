@@ -124,21 +124,27 @@ void CInfoLightingRelative::Activate()
 //-----------------------------------------------------------------------------
 // Force our lighting landmark to be transmitted
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CInfoLightingRelative::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_pre(this, pInfo, bAlways);
 	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
 		return sm_result.unwrap();
 	}
 #endif
 	// Are we already marked for transmission?
 	if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	BaseClass::SetTransmit( pInfo, bAlways );
@@ -350,10 +356,11 @@ void CBaseAnimating::Activate()
 //-----------------------------------------------------------------------------
 void CBaseAnimating::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_pre(this, pInfo, bAlways);
 	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
 		return sm_result.unwrap();
 	}
 #endif

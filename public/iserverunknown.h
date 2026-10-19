@@ -29,7 +29,7 @@ public:
 	virtual ICollideable*		GetCollideable() = 0;
 	virtual IServerNetworkable*	GetNetworkable() = 0;
 	virtual CBaseEntity*		GetBaseEntity() = 0;
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0; // Enforce Sourcemod Binding
 #endif
 };

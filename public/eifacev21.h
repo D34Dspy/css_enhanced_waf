@@ -482,7 +482,7 @@ public:
 	// Hand over the StandardSendProxies in the game DLL's module.
 	virtual CStandardSendProxiesV1*	GetStandardSendProxies() = 0;
 
-#ifdef WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD
 	virtual CSourcemodGlueInterface* GetSourcemodGlue() = 0;
 	virtual IGlobalSourcemodGlueInterface* GetSourcemodBridge() = 0;
 #endif

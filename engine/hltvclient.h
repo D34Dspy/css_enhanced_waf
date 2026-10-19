@@ -61,7 +61,7 @@ public: // IClientMessageHandlers
 public:
 	CClientFrame *GetDeltaFrame( int nTick );
 	
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue();
 #endif
 
@@ -73,7 +73,7 @@ public:
 	bool	m_bNoChat;			// if true don't send chat message to this client
 	char	m_szChatGroup[64];	// client password
 	CHLTVServer *m_pHLTV;
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	CSourcemodGlueInterface* m_pSourcemodGlue;
 #endif
 };

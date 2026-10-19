@@ -30,7 +30,7 @@ static ConVar tv_chatgroupsize( "tv_chatgroupsize", "0", 0, "Set the default cha
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
 CSourcemodGlueInterface* CHLTVClient::GetSourcemodGlue() {
 	return m_pSourcemodGlue;
@@ -41,7 +41,7 @@ CHLTVClient::CHLTVClient(int slot, CBaseServer *pServer)
 {
 	Clear();
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
 #endif
 
@@ -124,19 +124,25 @@ bool CHLTVClient::ProcessSaveReplay( CLC_SaveReplay *msg )
 	return true;
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 bool CHLTVClient::ProcessVoiceData(CLC_VoiceData *msg)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, msg);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_pre(this, msg);
 	if (GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_post(this, sm_result, msg);
 		return sm_result.unwrap();
 	}
 #endif
 	// HLTV clients can't speak
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_post(this, sm_result, msg);
+	if(GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return true;
 }
 

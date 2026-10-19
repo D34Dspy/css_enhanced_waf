@@ -522,31 +522,47 @@ void CAmbientGeneric::Activate( void )
 //-----------------------------------------------------------------------------
 // Rules about which entities need to transmit along with me
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CAmbientGeneric::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_pre(this, pInfo, bAlways);
 	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
 		return sm_result.unwrap();
 	}
 #endif
 	// Ambient generics never transmit; this is just a way for us to ensure
 	// the sound source gets transmitted; that's why we don't call pInfo->m_pTransmitEdict->Set
 	if ( !m_hSoundSource || m_hSoundSource == this || !m_fActive )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	// Don't bother sending the position of the source if we have to play everywhere
 	if ( FBitSet( m_spawnflags, SF_AMBIENT_SOUND_EVERYWHERE ) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	Assert( pInfo->m_pClientEnt );
 	CBaseEntity *pClient = (CBaseEntity*)(pInfo->m_pClientEnt->GetUnknown());
 	if ( !pClient )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	// Send the sound source if he's close enough

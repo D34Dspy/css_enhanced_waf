@@ -812,16 +812,17 @@ void CRagdollProp::RecheckCollisionFilter( void )
 	}
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CRagdollProp::TraceAttack( const CTakeDamageInfo &info, const Vector &dir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_pre(this, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
 	if (GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
 		return sm_result.unwrap();
 	}
 #endif
@@ -830,6 +831,11 @@ void CRagdollProp::TraceAttack( const CTakeDamageInfo &info, const Vector &dir, 
 		VPhysicsSwapObject( m_ragdoll.list[ptr->physicsbone].pObject );
 	}
 	BaseClass::TraceAttack( info, dir, ptr, pAccumulator );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
+	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void CRagdollProp::SetupBones( matrix3x4_t *pBoneToWorld, int boneMask )
@@ -973,19 +979,25 @@ void CRagdollProp::Teleport( const Vector *newPosition, const QAngle *newAngles,
 	UpdateNetworkDataFromVPhysics( m_ragdoll.list[0].pObject, 0 );
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CRagdollProp::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_pre(this, pPhysics);
 	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( m_lastUpdateTickCount == (unsigned int)gpGlobals->tickcount )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	m_lastUpdateTickCount = gpGlobals->tickcount;
@@ -1469,16 +1481,17 @@ void CRagdollPropAttached::DetachOnNextUpdate()
 	m_bShouldDetach = true;
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CRagdollPropAttached::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_pre(this, pPhysics);
 	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 		return sm_result.unwrap();
 	}
 #endif
@@ -1488,6 +1501,11 @@ void CRagdollPropAttached::VPhysicsUpdate( IPhysicsObject *pPhysics )
 		m_bShouldDetach = false;
 	}
 	BaseClass::VPhysicsUpdate( pPhysics );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void CRagdollPropAttached::Detach()

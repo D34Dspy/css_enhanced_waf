@@ -19,7 +19,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
@@ -126,12 +126,12 @@ KeyValues* CGameEvent::GetDataKeys()
 CGameEventManager::CGameEventManager()
 {
 	Reset();
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
 #endif
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 CSourcemodGlueInterface* CGameEventManager::GetSourcemodGlue()
 {
 	return m_pSourcemodGlue;
@@ -366,14 +366,20 @@ IGameEvent *CGameEventManager::CreateEvent( const char *name, bool bForce )
 
 bool CGameEventManager::FireEvent( IGameEvent *event, bool bServerOnly )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke(this, event, bServerOnly);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke_pre(this, event, bServerOnly);
 	if (GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke_post(this, sm_result, event, bServerOnly);
 		return sm_result.unwrap();
 	}
 #endif
 	return FireEventIntern( event, bServerOnly, false );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke_post(this, sm_result, event, bServerOnly);
+	if(GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 bool CGameEventManager::FireEventClientSide( IGameEvent *event )

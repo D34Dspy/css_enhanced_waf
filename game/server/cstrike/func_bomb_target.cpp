@@ -61,15 +61,16 @@ void CBombTarget::BombTargetTouch( CBaseEntity* pOther )
 	}
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CBombTarget::EndTouch(CBaseEntity* pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -78,6 +79,11 @@ void CBombTarget::EndTouch(CBaseEntity* pOther)
 	{
 		p->m_bInBombZone = false;
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void CBombTarget::BombTargetUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )

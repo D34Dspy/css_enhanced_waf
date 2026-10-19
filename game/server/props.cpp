@@ -2886,7 +2886,7 @@ int CPhysicsProp::ObjectCaps()
 
 	return caps;
 }
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 //-----------------------------------------------------------------------------
@@ -2898,10 +2898,11 @@ int CPhysicsProp::ObjectCaps()
 //-----------------------------------------------------------------------------
 void CPhysicsProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif
@@ -2915,6 +2916,11 @@ void CPhysicsProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 
 		pPlayer->PickupObject( this );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2924,10 +2930,11 @@ void CPhysicsProp::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 
 void CPhysicsProp::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_pre(this, pPhysics);
 	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 		return sm_result.unwrap();
 	}
 #endif
@@ -2953,6 +2960,11 @@ void CPhysicsProp::VPhysicsUpdate( IPhysicsObject *pPhysics )
 	{
 		m_OnOutOfWorld.FireOutput( this, this );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -3890,10 +3902,11 @@ void CBasePropDoor::SetDoorBlocker( CBaseEntity *pBlocker )
 //-----------------------------------------------------------------------------
 void CBasePropDoor::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke(this, pActivator, pCaller, useType, value);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_pre(this, pActivator, pCaller, useType, value);
 	if (GetSourcemodGlue()->l_SMGlue_P4__Use.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 		return sm_result.unwrap();
 	}
 #endif

@@ -27,12 +27,12 @@ extern INetworkStringTable *g_pStringTableServerPopFiles;
 // Most of this is implemented in gameinterface.cpp, but some of it is per-mod in files like cs_gameinterface.cpp, etc.
 class CServerGameClients : public IServerGameClients
 {
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	CSourcemodGlueInterface* m_pSourcemodGlue;
 #endif
 public:
 	CServerGameClients();
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue();
 #endif
 	virtual bool			ClientConnect( edict_t *pEntity, char const* pszName, char const* pszAddress, char *reject, int maxrejectlen ) OVERRIDE;
@@ -66,7 +66,7 @@ public:
 	virtual void			ClientSpawned( edict_t *pPlayer ) OVERRIDE;
 };
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 class CSourcemodGlueInterface;
 class IGlobalSourcemodGlueInterface;
 class CCSGameRules;
@@ -77,13 +77,13 @@ int SM_CCSWeaponInfo__GetWeaponPriceOriginal(CCSWeaponInfo* pWeaponInfo);
 
 class CServerGameDLL : public IServerGameDLL
 {
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	IGlobalSourcemodGlueInterface* m_pSourcemodBridge;
 	CSourcemodGlueInterface* m_pSourcemodGlue;
 #endif
 public:
 	CServerGameDLL();
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue();
 	virtual IGlobalSourcemodGlueInterface* GetSourcemodBridge();
 #endif

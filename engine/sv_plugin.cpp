@@ -29,7 +29,7 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CServerPlugin, IServerPluginHelpers, INTERFAC
 // Ascending value so they have a unique cookie to relate queries to the responses.
 static int g_iQueryCvarCookie = 1;
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
@@ -218,12 +218,12 @@ void CPlugin::Disable( bool state )
 CServerPlugin::CServerPlugin()
 {
 	m_PluginHelperCheck = NULL;
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
 #endif
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 CSourcemodGlueInterface* CServerPlugin::GetSourcemodGlue() 
 {
 	return m_pSourcemodGlue;
@@ -275,9 +275,11 @@ void CServerPlugin::LoadPlugins()
 	CreateInterfaceFn gameServerFactory = Sys_GetFactory( g_GameDLL );
 	m_PluginHelperCheck = (IPluginHelpersCheck *)gameServerFactory( INTERFACEVERSION_PLUGINHELPERSCHECK, NULL );
 
+#if WAF_USE_SOURCEMOD == 1
 	// automagically load metamod.
 	if(!LoadPlugin("sourcemodmetamodloader" DLL_EXT_STRING, "EXECUTABLE_PATH"))
 		*(int*)0 = 0;
+#endif
 }
 
 //---------------------------------------------------------------------------------
@@ -625,34 +627,55 @@ void CServerPlugin::OnEdictFreed( const edict_t *edict )
 //---------------------------------------------------------------------------------
 void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValues *data, IServerPluginCallbacks *plugin )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke(this, pEntity, type, data, plugin);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_pre(this, pEntity, type, data, plugin);
 	if (GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( !pEntity )
 	{
 		ConMsg( "Invaid pEntity\n" );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
 	if ( !data )
 	{
 		ConMsg( "No data keyvalues provided\n" );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
 	if ( !plugin )
 	{
 		ConMsg( "No plugin provided\n" );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
 	if ( m_PluginHelperCheck && !m_PluginHelperCheck->CreateMessage( plugin->GetPluginDescription(), pEntity, type, data ) )
 	{
 		ConMsg( "Disallowed by game dll\n" );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
@@ -660,6 +683,11 @@ void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValue
 	if (clientnum < 1 || clientnum > sv.GetClientCount() )
 	{
 		ConMsg( "Invalid entity\n" );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 	

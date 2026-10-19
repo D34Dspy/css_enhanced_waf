@@ -223,9 +223,12 @@ CreateInterfaceFn VStdLib_GetICVarFactory()
 //-----------------------------------------------------------------------------
 // Constructor
 //-----------------------------------------------------------------------------
+#if WAF_USE_SOURCEMOD == 1
+#include "glue.hpp"
+#endif
 CCvar::CCvar() : m_TempConsoleBuffer( 0, 1024 )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	m_pSourcemodGlue = new CSourcemodGlueInterface;
 #endif
 	m_nNextDLLIdentifier = 0;
@@ -304,20 +307,26 @@ CVarDLLIdentifier_t CCvar::AllocateDLLIdentifier()
 // Purpose: 
 // Input  : *variable - 
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CCvar::RegisterConCommand( ConCommandBase *variable )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke(this, variable);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_pre(this, variable);
 	if (GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
 		return sm_result.unwrap();
 	}
 #endif
 	// Already registered
 	if ( variable->IsRegistered() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
+	if(GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	variable->m_bRegistered = true;
@@ -326,6 +335,11 @@ void CCvar::RegisterConCommand( ConCommandBase *variable )
 	if ( !pName || !pName[0] )
 	{
 		variable->m_pNext = NULL;
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
+	if(GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
@@ -419,6 +433,11 @@ void CCvar::RegisterConCommand( ConCommandBase *variable )
 		}
 
 		variable->m_pNext = NULL;
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
+	if(GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 	}
 
@@ -429,15 +448,21 @@ void CCvar::RegisterConCommand( ConCommandBase *variable )
 
 void CCvar::UnregisterConCommand( ConCommandBase *pCommandToRemove )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.invoke(this, pCommandToRemove);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.invoke_pre(this, pCommandToRemove);
 	if (GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.invoke_post(this, sm_result, pCommandToRemove);
 		return sm_result.unwrap();
 	}
 #endif
 	// Not registered? Don't bother
 	if ( !pCommandToRemove->IsRegistered() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.invoke_post(this, sm_result, pCommandToRemove);
+	if(GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	pCommandToRemove->m_bRegistered = false;

@@ -277,7 +277,7 @@ CCSWeaponInfo::CCSWeaponInfo()
 	m_szAddonModel[0] = 0;
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
 #endif
 
@@ -294,15 +294,24 @@ int SM_CCSWeaponInfo__GetWeaponPriceOriginal(CCSWeaponInfo* pWeaponInfo) {
 
 int	CCSWeaponInfo::GetWeaponPrice( void ) const
 {
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 	auto this_ = const_cast<CCSWeaponInfo*>(this);
-	auto sm_result = g_SMGlue_CCSWeaponInfo__GetWeaponPrice.invoke(this_, this_);
+	auto sm_result = g_SMGlue_CCSWeaponInfo__GetWeaponPrice.invoke_pre(this_, this_);
 	if (g_SMGlue_CCSWeaponInfo__GetWeaponPrice.skip_original())
+	{
+		sm_result = g_SMGlue_CCSWeaponInfo__GetWeaponPrice.invoke_post(this_, sm_result, this_);
+		return sm_result.unwrap();
+	}
+#endif
+	int original = GetWeaponPriceOriginal();
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = g_SMGlue_CCSWeaponInfo__GetWeaponPrice.invoke_post(this_, sm_result, this_);
+	if (g_SMGlue_CCSWeaponInfo__GetWeaponPrice.overwrite_return())
 	{
 		return sm_result.unwrap();
 	}
 #endif
-	return GetWeaponPriceOriginal();
+	return original;
 }
 
 int	CCSWeaponInfo::GetDefaultPrice( void )

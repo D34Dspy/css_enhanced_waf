@@ -110,7 +110,7 @@ CGameClient::CGameClient(int slot, CBaseServer *pServer )
 	m_PrevPackInfo.m_pTransmitEdict = &m_PrevTransmitEdict;
 }
 
-#ifdef WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD
 CSourcemodGlueInterface* CGameClient::GetSourcemodGlue() {
 	return m_pSourcemodGlue;
 }
@@ -243,15 +243,16 @@ bool CGameClient::ProcessMove(CLC_Move *msg)
 	return true;
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 bool CGameClient::ProcessVoiceData( CLC_VoiceData *msg )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke(this, msg);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_pre(this, msg);
 	if (GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_post(this, sm_result, msg);
 		return sm_result.unwrap();
 	}
 #endif
@@ -260,6 +261,11 @@ bool CGameClient::ProcessVoiceData( CLC_VoiceData *msg )
 
 	SV_BroadcastVoiceData( this, Bits2Bytes(bitsRead), voiceDataBuffer, msg->m_xuid );
 
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_post(this, sm_result, msg);
+	if(GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return true;
 }
 

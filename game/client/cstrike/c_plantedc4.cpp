@@ -82,16 +82,22 @@ void C_PlantedC4::SetDormant( bool bDormant )
 
 void C_PlantedC4::Spawn( void )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Spawn.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
 	BaseClass::Spawn();
 
 	SetNextClientThink( CLIENT_THINK_ALWAYS );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Spawn.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void C_PlantedC4::ClientThink( void )

@@ -132,16 +132,17 @@ void CTriggerPortal::SetRemotePortal(const char *strRemotePortalName )
 // Purpose: 
 // Input  : *pOther - 
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CTriggerPortal::EndTouch(CBaseEntity *pOther)
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__EndTouch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -155,6 +156,11 @@ void CTriggerPortal::EndTouch(CBaseEntity *pOther)
 	EHANDLE hHandle;
 	hHandle = pOther;
 	m_hDisabledForEntities.FindAndRemove( hHandle );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -164,10 +170,11 @@ void CTriggerPortal::EndTouch(CBaseEntity *pOther)
 //-----------------------------------------------------------------------------
 void CTriggerPortal::Touch( CBaseEntity *pOther )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke(this, pOther);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_pre(this, pOther);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Touch.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 		return sm_result.unwrap();
 	}
 #endif
@@ -178,6 +185,11 @@ void CTriggerPortal::Touch( CBaseEntity *pOther )
 		if ( m_hRemotePortal == NULL )
 		{
 			Disable();
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 
@@ -193,6 +205,11 @@ void CTriggerPortal::Touch( CBaseEntity *pOther )
 		if ( m_hDisabledForEntities.Find(hHandle) != m_hDisabledForEntities.InvalidIndex() )
 		{
 			Msg("    IGNORED\n", GetDebugName(), pOther->GetDebugName() );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 			return;
 		}
 

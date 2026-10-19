@@ -98,15 +98,16 @@ int CBaseViewModel::ShouldTransmit( const CCheckTransmitInfo *pInfo )
 	return FL_EDICT_DONTSEND;
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 void CBaseViewModel::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_pre(this, pInfo, bAlways);
 	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
 		return sm_result.unwrap();
 	}
 #endif

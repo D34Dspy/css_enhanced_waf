@@ -181,23 +181,34 @@ void CWeaponFiveSeven::SecondaryAttack()
 {
 }
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CWeaponFiveSeven::Reload()
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__Reload.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
 #endif
 	if ( !DefaultPistolReload() )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return false;
 
 	m_flAccuracy = 0.92;
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return true;
 }
 

@@ -2071,16 +2071,17 @@ void CBaseCombatCharacter::SetLightingOriginRelative( CBaseEntity *pLightingOrig
 // Purpose:	Add new weapon to the character
 // Input  : New weapon
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 void CBaseCombatCharacter::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke(this, pWeapon);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke_pre(this, pWeapon);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke_post(this, sm_result, pWeapon);
 		return sm_result.unwrap();
 	}
 #endif
@@ -2178,6 +2179,11 @@ void CBaseCombatCharacter::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 
 	// Pass the lighting origin over to the weapon if we have one
 	pWeapon->SetLightingOriginRelative( GetLightingOriginRelative() );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke_post(this, sm_result, pWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2292,16 +2298,17 @@ CBaseCombatWeapon *CBaseCombatCharacter::Weapon_GetWpnForAmmo( int iAmmoIndex )
 // Input  : A weapon
 // Output :	true or false
 //-----------------------------------------------------------------------------
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
 bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke(this, pWeapon);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_pre(this, pWeapon);
 	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pWeapon);
 		return sm_result.unwrap();
 	}
 #endif
@@ -2311,6 +2318,11 @@ bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 	if( actCount < 1 )
 	{
 		// If the weapon has no activity table, it definitely cannot be used.
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return false;
 	}
 
@@ -2323,11 +2335,21 @@ bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 
 			if ( SelectWeightedSequence(translatedActivity) == ACTIVITY_NOT_AVAILABLE )
 			{
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.overwrite_return())
+		return sm_result.unwrap();
+#endif
 				return false;
 			}
 		}
 	}
 
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pWeapon);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return true;
 }
 
@@ -2575,15 +2597,21 @@ Vector CBaseCombatCharacter::BodyDirection3D( void )
 
 void CBaseCombatCharacter::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke(this, pInfo, bAlways);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_pre(this, pInfo, bAlways);
 	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
 		return sm_result.unwrap();
 	}
 #endif
 	// Skip this work if we're already marked for transmission.
 	if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		return sm_result.unwrap();
+#endif
 		return;
 
 	BaseClass::SetTransmit( pInfo, bAlways );
@@ -3042,21 +3070,27 @@ int CBaseCombatCharacter::GiveAmmo( int iCount, const char *szName, bool bSuppre
 }
 
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 ConVar	phys_stressbodyweights( "phys_stressbodyweights", "5.0" );
 void CBaseCombatCharacter::VPhysicsUpdate( IPhysicsObject *pPhysics )
 {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke(this, pPhysics);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_pre(this, pPhysics);
 	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 		return sm_result.unwrap();
 	}
 #endif
 	ApplyStressDamage( pPhysics, false );
 	BaseClass::VPhysicsUpdate( pPhysics );
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 float CBaseCombatCharacter::CalculatePhysicsStressDamage( vphysics_objectstress_t *pStressOut, IPhysicsObject *pPhysics )

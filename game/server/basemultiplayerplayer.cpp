@@ -10,7 +10,7 @@
 #include "mp_shareddefs.h"
 #include "basemultiplayerplayer.h"
 
-#ifdef WAF_USE_SOURCEMOD == 1
+#if WAF_USE_SOURCEMOD == 1
 #include <glue.hpp>
 #endif
 
@@ -223,12 +223,18 @@ int	CBaseMultiplayerPlayer::CalculateTeamBalanceScore( void )
 	return iScore;
 }
 bool CBaseMultiplayerPlayer::CanBeAutobalanced( void ) {
-#ifdef WAF_USE_SOURCEMOD == 1
-	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.invoke(this);
+#if WAF_USE_SOURCEMOD == 1
+	auto sm_result = GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.invoke_pre(this);
 	if (GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.skip_original())
 	{
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.invoke_post(this, sm_result);
 		return sm_result.unwrap();
 	}
+#endif
+#if WAF_USE_SOURCEMOD == 1
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.overwrite_return())
+		return sm_result.unwrap();
 #endif
 	return CanBeAutobalancedOrig();
 }

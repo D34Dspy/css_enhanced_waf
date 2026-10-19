@@ -585,7 +585,7 @@ bool PlayerManager::OnClientConnect(edict_t *pEntity, const char *pszName, const
 bool PlayerManager::OnClientConnect_Post(edict_t *pEntity, const char *pszName, const char *pszAddress, char *reject, int maxrejectlen)
 {
 	int client = IndexOfEdict(pEntity);
-	bool orig_value = META_RESULT_ORIG_RET(bool);
+	bool orig_value = serverClients->GetSourcemodGlue()->l_SMGlue_IServerGameClients__ClientConnect.original_return_value().unwrap();
 	CPlayer *pPlayer = &m_Players[client];
 
 	if (orig_value)

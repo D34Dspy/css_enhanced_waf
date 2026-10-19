@@ -10,6 +10,9 @@ class IGlobalSourcemodGlueInterface
 public:
 	virtual void CCSGameRules__TerminateRoundOriginal(CCSGameRules* pGameRules, float delay, int reason) = 0;
 	virtual int CCSWeaponInfo__GetWeaponPriceOriginal(CCSWeaponInfo* pWeaponInfo) = 0;
+
+	virtual void EntityListeners_Add(IEntityListener* pEntityListener) = 0;
+	virtual void EntityListeners_Rem(IEntityListener* pEntityListener) = 0;
 };
 
 class CSourcemodGlueInterface
