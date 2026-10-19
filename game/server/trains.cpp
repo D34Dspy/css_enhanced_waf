@@ -425,27 +425,39 @@ void CPlatTrigger::Touch( CBaseEntity *pOther )
 #endif
 	// Ignore touches by non-players
 	if ( !pOther->IsPlayer() )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
-	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+		if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	// Ignore touches by corpses
 	if (!pOther->IsAlive())
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
-	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+		if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 	
 	// Make linked platform go up/down.
 	if (m_pPlatform->m_toggle_state == TS_AT_BOTTOM)
 		m_pPlatform->GoUp();
 	else if (m_pPlatform->m_toggle_state == TS_AT_TOP)
 		m_pPlatform->SetMoveDoneTime( 1 );// delay going down
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -865,6 +877,7 @@ void CFuncTrain::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE us
 		}
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 		return sm_result.unwrap();
@@ -1503,6 +1516,7 @@ void CFuncTrackTrain::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TY
 		SetSpeed( m_maxSpeed * delta );
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 		return sm_result.unwrap();
@@ -3013,6 +3027,7 @@ void CFuncTrackChange::Touch( CBaseEntity *pOther )
 	}
 #endif
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
 		return sm_result.unwrap();
@@ -3237,12 +3252,15 @@ void CFuncTrackChange::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	}
 #endif
 	if ( m_toggle_state != TS_AT_TOP && m_toggle_state != TS_AT_BOTTOM )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
-	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+		if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	// If train is in "safe" area, but not on the elevator, play alarm sound
 	if ( m_toggle_state == TS_AT_TOP )
@@ -3256,9 +3274,10 @@ void CFuncTrackChange::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 		// Play alarm and return
 		EmitSound( "FuncTrackChange.Blocking" );
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
-	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+		if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
 	}
@@ -3272,6 +3291,12 @@ void CFuncTrackChange::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 		GoDown();
 	else
 		GoUp();
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -3425,12 +3450,15 @@ void CFuncTrackAuto::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 	CPathTrack *pTarget;
 
 	if ( !UseEnabled() )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
-	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+		if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	if ( m_toggle_state == TS_AT_TOP )
 		pTarget = m_trackTop;
@@ -3466,4 +3494,10 @@ void CFuncTrackAuto::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 
 		UpdateAutoTargets( m_targetState );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }

@@ -349,12 +349,14 @@ bool CMatchmaking::ProcessVoiceData( CLC_VoiceData *pVoice )
 		Audio_GetXVoice()->PlayIncomingVoiceData( pVoice->m_xuid, (byte*)chReceived, dwLength );
 	}
 #endif
+	auto orig = true;
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.set_original_return_value({orig});
 	sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_post(this, sm_result, pVoice);
 	if(GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.overwrite_return())
 		return sm_result.unwrap();
 #endif
-	return true;
+	return orig;
 }
 
 //-----------------------------------------------------------------------------

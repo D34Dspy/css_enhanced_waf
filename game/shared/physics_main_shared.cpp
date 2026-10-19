@@ -2135,7 +2135,17 @@ void CBaseEntity::SetGroundEntity( CBaseEntity *ground )
 	}
 #endif
 	if ( m_hGroundEntity.Get() == ground )
+	{
+#if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.invoke_post(this, sm_result, (void*)ground);
+		if (GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.overwrite_return())
+		{
+			return sm_result.unwrap();
+		}
+#endif
 		return;
+	}
 
 #ifdef GAME_DLL
 	// this can happen in-between updates to the held object controller (physcannon, +USE)
@@ -2184,6 +2194,14 @@ void CBaseEntity::SetGroundEntity( CBaseEntity *ground )
 	{
 		RemoveFlag( FL_ONGROUND );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.invoke_post(this, sm_result, (void*)ground);
+	if (GetSourcemodGlue()->l_SMGlue_P1__GroundEntChanged.overwrite_return())
+	{
+		return sm_result.unwrap();
+	}
+#endif
 }
 
 CBaseEntity *CBaseEntity::GetGroundEntity( void )

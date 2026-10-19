@@ -832,6 +832,7 @@ void CRagdollProp::TraceAttack( const CTakeDamageInfo &info, const Vector &dir, 
 	}
 	BaseClass::TraceAttack( info, dir, ptr, pAccumulator );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
 	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
 		return sm_result.unwrap();
@@ -993,12 +994,15 @@ void CRagdollProp::VPhysicsUpdate( IPhysicsObject *pPhysics )
 	}
 #endif
 	if ( m_lastUpdateTickCount == (unsigned int)gpGlobals->tickcount )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
-	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+		if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	m_lastUpdateTickCount = gpGlobals->tickcount;
 	//NetworkStateChanged();
@@ -1502,7 +1506,7 @@ void CRagdollPropAttached::VPhysicsUpdate( IPhysicsObject *pPhysics )
 	}
 	BaseClass::VPhysicsUpdate( pPhysics );
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.set_original_return_value({});
 	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
 		return sm_result.unwrap();
 #endif

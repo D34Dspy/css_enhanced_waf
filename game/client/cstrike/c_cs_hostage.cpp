@@ -172,6 +172,7 @@ int C_CHostage::GetMaxHealth( void ) const {
 	}
 #endif
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.set_original_return_value({m_iMaxHealth});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.overwrite_return())
 		return sm_result.unwrap();
@@ -238,6 +239,14 @@ void C_CHostage::Spawn( void )
 #endif
 	m_leader = NULL;
 	m_blinkTimer.Invalidate();
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Spawn.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_post(this, sm_result);
+	if (GetSourcemodGlue()->l_SMGlue_P0__Spawn.skip_original())
+	{
+		return sm_result.unwrap();
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

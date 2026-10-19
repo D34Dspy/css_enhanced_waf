@@ -45,14 +45,14 @@ class	CCommand;
 //-----------------------------------------------------------------------------
 class CGameClient : public CBaseClient, public CClientFrameManager
 {
-#if WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD == 1
 	CSourcemodGlueInterface* m_pSourcemodGlue;
 #endif
 public:
 	CGameClient(int slot, CBaseServer *pServer);
 	~CGameClient();
 
-#if WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD == 1
 	virtual CSourcemodGlueInterface* GetSourcemodGlue();
 #endif
 

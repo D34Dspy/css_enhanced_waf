@@ -442,20 +442,26 @@ bool CNetChan::SendFile(const char *filename, unsigned int transferID)
 #endif
 	// add file to waiting list
 	if ( remote_address.GetType() == NA_NULL )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke_post(this, sm_result, filename ,transferID);
-	if(GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.set_original_return_value({true});
+		sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke_post(this, sm_result, filename ,transferID);
+		if(GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return true;
+	}
 
 	if ( !filename )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke_post(this, sm_result, filename ,transferID);
-	if(GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.set_original_return_value({false});
+		sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke_post(this, sm_result, filename ,transferID);
+		if(GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return false;
+	}
 
 	const char *sendfile = filename;
 	while( sendfile[0] && PATHSEPARATOR( sendfile[0] ) )
@@ -465,20 +471,24 @@ bool CNetChan::SendFile(const char *filename, unsigned int transferID)
 
 	// Don't transfer exe, vbs, com, bat-type files.
 	if ( !IsValidFileForTransfer( sendfile ) )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke_post(this, sm_result, filename ,transferID);
-	if(GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.set_original_return_value({false});
+		sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke_post(this, sm_result, filename ,transferID);
+		if(GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return false;
+	}
 
 	if ( !CreateFragmentsFromFile( sendfile, FRAG_FILE_STREAM, transferID	) )
 	{
 		DenyFile( sendfile, transferID ); // send host a deny message
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke_post(this, sm_result, filename ,transferID);
-	if(GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.set_original_return_value({false});
+		sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke_post(this, sm_result, filename ,transferID);
+		if(GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return false;
 	}
@@ -489,6 +499,7 @@ bool CNetChan::SendFile(const char *filename, unsigned int transferID)
 	}
 
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.set_original_return_value({true});
 	sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.invoke_post(this, sm_result, filename ,transferID);
 	if(GetSourcemodGlue()->l_SMGlue_INetChannel__SendFile.overwrite_return())
 		return sm_result.unwrap();
@@ -2492,8 +2503,9 @@ void CNetChan::ProcessPacket( netpacket_t * packet, bool bHasHeader )
 	if ( remote_address.IsValid() && !packet->from.CompareAdr ( remote_address ) )
 	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke_post(this, sm_result, packet, bHasHeader);
-	if(GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.overwrite_return())
+		GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke_post(this, sm_result, packet, bHasHeader);
+		if(GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.overwrite_return())
 		return sm_result.unwrap();
 #endif
 		return;
@@ -2510,12 +2522,15 @@ void CNetChan::ProcessPacket( netpacket_t * packet, bool bHasHeader )
 	}
 
 	if ( flags == -1 )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke_post(this, sm_result, packet, bHasHeader);
-	if(GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke_post(this, sm_result, packet, bHasHeader);
+		if(GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return; // invalid header/packet
+	}
 
 	if ( net_showudp.GetInt() && net_showudp.GetInt() != 3 )
 	{
@@ -2545,12 +2560,15 @@ void CNetChan::ProcessPacket( netpacket_t * packet, bool bHasHeader )
 			if ( msg.ReadOneBit() != 0 )
 			{
 				if ( !ReadSubChannelData( msg, i ) )
+				{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke_post(this, sm_result, packet, bHasHeader);
-	if(GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.overwrite_return())
-		return sm_result.unwrap();
+					GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.set_original_return_value({});
+					sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke_post(this, sm_result, packet, bHasHeader);
+					if(GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.overwrite_return())
+						return sm_result.unwrap();
 #endif
 					return; // error while reading fragments, drop whole packet
+				}
 			}
 		}
 
@@ -2560,12 +2578,15 @@ void CNetChan::ProcessPacket( netpacket_t * packet, bool bHasHeader )
 		for ( i=0; i<MAX_STREAMS; i++ )
 		{
 			if ( !CheckReceivingList( i ) )
+			{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke_post(this, sm_result, packet, bHasHeader);
-	if(GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.overwrite_return())
-		return sm_result.unwrap();
+				GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.set_original_return_value({});
+				sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke_post(this, sm_result, packet, bHasHeader);
+				if(GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.overwrite_return())
+					return sm_result.unwrap();
 #endif
 				return; // error while processing 
+			}
 		}
 	}
 
@@ -2576,9 +2597,10 @@ void CNetChan::ProcessPacket( netpacket_t * packet, bool bHasHeader )
 		if ( !ProcessMessages( msg ) )
 		{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke_post(this, sm_result, packet, bHasHeader);
-	if(GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.invoke_post(this, sm_result, packet, bHasHeader);
+			if(GetSourcemodGlue()->l_SMGlue_INetChannel__ProcessPacket.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return;	// disconnect or error
 		}

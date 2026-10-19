@@ -231,12 +231,14 @@ bool CBaseMultiplayerPlayer::CanBeAutobalanced( void ) {
 		return sm_result.unwrap();
 	}
 #endif
+	auto orig = CanBeAutobalancedOrig();
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.set_original_return_value({orig});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__CanBeAutobalanced.overwrite_return())
 		return sm_result.unwrap();
 #endif
-	return CanBeAutobalancedOrig();
+	return orig;
 }
 
 

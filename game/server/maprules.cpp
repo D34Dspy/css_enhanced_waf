@@ -209,12 +209,15 @@ void CGameScore::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE us
 	}
 #endif
 	if ( !CanFireForActivator( pActivator ) )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
-	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+		if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	// Only players can use this
 	if ( pActivator->IsPlayer() )
@@ -228,6 +231,12 @@ void CGameScore::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE us
 			pActivator->AddPoints( Points(), AllowNegativeScore() );
 		}
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -271,14 +280,23 @@ void CGameEnd::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useT
 	}
 #endif
 	if ( !CanFireForActivator( pActivator ) )
+	{
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+		if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+			return sm_result.unwrap();
+#endif
+		return;
+	}
+
+	g_pGameRules->EndMultiplayerGame();
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 		return sm_result.unwrap();
 #endif
-		return;
-
-	g_pGameRules->EndMultiplayerGame();
 }
 
 
@@ -678,22 +696,34 @@ void CGamePlayerEquip::Touch( CBaseEntity *pOther )
 	}
 #endif
 	if ( !CanFireForActivator( pOther ) )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
-	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+		if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	if ( UseOnly() )
+	{
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+		if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+			return sm_result.unwrap();
+#endif
+		return;
+	}
+
+	EquipPlayer( pOther );
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
 		return sm_result.unwrap();
 #endif
-		return;
-
-	EquipPlayer( pOther );
 }
 
 void CGamePlayerEquip::EquipPlayer( CBaseEntity *pEntity )
@@ -727,6 +757,7 @@ void CGamePlayerEquip::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 #endif
 	EquipPlayer( pActivator );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 		return sm_result.unwrap();
@@ -788,12 +819,15 @@ void CGamePlayerTeam::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TY
 	}
 #endif
 	if ( !CanFireForActivator( pActivator ) )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
-	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+		if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	if ( pActivator->IsPlayer() )
 	{
@@ -809,6 +843,12 @@ void CGamePlayerTeam::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TY
 	{
 		UTIL_Remove( this );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 

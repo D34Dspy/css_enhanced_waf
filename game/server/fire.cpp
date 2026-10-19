@@ -1276,12 +1276,15 @@ void CEnvFireSource::Think()
 	}
 #endif
 	if ( !m_bEnabled )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
-	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 	SetNextThink( gpGlobals->curtime + FIRESOURCE_THINK_TIME );
 
 	CFire *pFires[128];
@@ -1392,12 +1395,15 @@ void CEnvFireSensor::Think()
 	}
 #endif
 	if ( !m_bEnabled )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
-	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	float time = m_targetTime * 0.25;
 	if ( time < 0.1 )
@@ -1435,6 +1441,12 @@ void CEnvFireSensor::Think()
 			m_OnHeatLevelEnd.FireOutput( this, this );
 		}
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void CEnvFireSensor::TurnOn()

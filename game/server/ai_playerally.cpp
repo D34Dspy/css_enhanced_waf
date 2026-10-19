@@ -1081,24 +1081,36 @@ void CAI_PlayerAlly::Touch( CBaseEntity *pOther )
 	{
 		// Ignore if pissed at player
 		if ( m_afMemory & bits_MEMORY_PROVOKED )
+		{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
-	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+			if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return;
+		}
 
 		// Stay put during speech
 		if ( GetExpresser()->IsSpeaking() )
+		{
 #if WAF_USE_SOURCEMOD == 1
+			GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+			if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+				return sm_result.unwrap();
+#endif
+			return;
+		}
+			
+		TestPlayerPushing( pOther );
+	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
 		return sm_result.unwrap();
 #endif
-			return;
-			
-		TestPlayerPushing( pOther );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1152,6 +1164,7 @@ void CAI_PlayerAlly::TraceAttack( const CTakeDamageInfo &info, const Vector &vec
 
 	BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
 		return sm_result.unwrap();

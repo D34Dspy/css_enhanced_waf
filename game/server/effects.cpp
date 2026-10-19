@@ -426,6 +426,7 @@ void CGibShooter::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 	SetThink( &CGibShooter::ShootThink );
 	SetNextThink( gpGlobals->curtime );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 		return sm_result.unwrap();
@@ -1031,6 +1032,7 @@ void CTestEffect::Think( void )
 		SetNextThink( TICK_NEVER_THINK );
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
 		return sm_result.unwrap();
@@ -1051,6 +1053,7 @@ void CTestEffect::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 	SetNextThink( gpGlobals->curtime + 0.1f );
 	m_flStartTime = gpGlobals->curtime;
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 		return sm_result.unwrap();
@@ -1328,6 +1331,7 @@ void CEnvFunnel::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE us
 	SetThink( &CEnvFunnel::SUB_Remove );
 	SetNextThink( gpGlobals->curtime );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 		return sm_result.unwrap();
@@ -1408,9 +1412,10 @@ void CEnvBeverage::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 	{
 		// no more cans while one is waiting in the dispenser, or if I'm out of cans.
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
-	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+		if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
 	}
@@ -1432,6 +1437,12 @@ void CEnvBeverage::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 
 	//SetThink (SUB_Remove);
 	//SetNextThink( gpGlobals->curtime );
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void CEnvBeverage::InputActivate( inputdata_t &inputdata )

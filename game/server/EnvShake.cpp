@@ -368,6 +368,14 @@ void CEnvShake::Think( void )
 	// Drop amplitude a bit, less for higher frequency shakes
 	m_currentAmp -= m_currentAmp * ( gpGlobals->frametime / (Duration() * Frequency()) );
 	SetNextThink( gpGlobals->curtime );
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+	if (GetSourcemodGlue()->l_SMGlue_P0__Think.skip_original())
+	{
+		return sm_result.unwrap();
+	}
+#endif
 }
 
 

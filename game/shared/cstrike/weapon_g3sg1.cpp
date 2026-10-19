@@ -205,6 +205,7 @@ bool CWeaponG3SG1::Reload()
 	m_weaponMode = Primary_Mode;
 	
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({ret});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 		return sm_result.unwrap();

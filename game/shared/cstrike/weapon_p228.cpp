@@ -198,9 +198,27 @@ bool CWeaponP228::Reload()
 	}
 #endif
 	if ( !DefaultPistolReload() )
+	{
+#if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({false});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+		if (GetSourcemodGlue()->l_SMGlue_P0__Reload.skip_original())
+		{
+			return sm_result.unwrap();
+		}
+#endif
 		return false;
+	}
 
 	m_flAccuracy = 0.9;
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({true});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+	if (GetSourcemodGlue()->l_SMGlue_P0__Reload.skip_original())
+	{
+		return sm_result.unwrap();
+	}
+#endif
 	return true;
 }
 

@@ -113,7 +113,17 @@ void CBaseViewModel::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 #endif
 	// Are we already marked for transmission?
 	if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
+	{
+#if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+		if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		{
+			return sm_result.unwrap();
+		}
+#endif
 		return;
+	}
 
 	BaseClass::SetTransmit( pInfo, bAlways );
 	
@@ -124,4 +134,12 @@ void CBaseViewModel::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 		if ( pScreen )
 			pScreen->SetTransmit( pInfo, bAlways );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if (GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+	{
+		return sm_result.unwrap();
+	}
+#endif
 }

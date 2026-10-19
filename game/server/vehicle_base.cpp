@@ -261,12 +261,15 @@ void CPropVehicle::VPhysicsUpdate( IPhysicsObject *pPhysics )
 	}
 #endif
 	if ( IsMarkedForDeletion() )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
-	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+		if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	Vector	velocity;
 	VPhysicsGetObject()->GetVelocity( &velocity, NULL );
@@ -276,14 +279,23 @@ void CPropVehicle::VPhysicsUpdate( IPhysicsObject *pPhysics )
 
 	// must be a wheel
 	if (!m_VehiclePhysics.VPhysicsUpdate( pPhysics ))
+	{
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
+		if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
+			return sm_result.unwrap();
+#endif
+		return;
+	}
+	
+	BaseClass::VPhysicsUpdate( pPhysics );
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
 		return sm_result.unwrap();
 #endif
-		return;
-	
-	BaseClass::VPhysicsUpdate( pPhysics );
 }
 
 //-----------------------------------------------------------------------------
@@ -582,16 +594,25 @@ void CPropVehicleDriveable::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, 
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	if ( !pPlayer )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
-	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+		if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	ResetUseKey( pPlayer );
 
 	m_pServerVehicle->HandlePassengerEntry( pPlayer, (value>0) );
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1054,6 +1075,7 @@ void CPropVehicleDriveable::TraceAttack( const CTakeDamageInfo &info, const Vect
 
 	BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
 		return sm_result.unwrap();

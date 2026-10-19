@@ -243,12 +243,15 @@ END_PREDICTION_DATA()
 #endif
 		// Are we already marked for transmission?
 		if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
+		{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
-	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+			if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return;
+		}
 
 		BaseClass::SetTransmit( pInfo, bAlways );
 
@@ -258,6 +261,12 @@ END_PREDICTION_DATA()
 			CVGuiScreen *pScreen = m_hScreens[i].Get();
 			pScreen->SetTransmit( pInfo, bAlways );
 		}
+#if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+		if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+			return sm_result.unwrap();
+#endif
 	}
 
 	CPlantedC4* CPlantedC4::ShootSatchelCharge( CCSPlayer *pevOwner, Vector vecStart, QAngle vecAngles )
@@ -686,6 +695,7 @@ END_PREDICTION_DATA()
 		{
 			SetUse( NULL );
 #if WAF_USE_SOURCEMOD == 1
+			GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 			sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 			if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 				return sm_result.unwrap();
@@ -696,7 +706,15 @@ END_PREDICTION_DATA()
 		CCSPlayer *player = dynamic_cast< CCSPlayer* >( pActivator );
 
 		if ( !player || player->GetTeamNumber() != TEAM_CT )
+		{
+#if WAF_USE_SOURCEMOD == 1
+			GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+			if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+				return sm_result.unwrap();
+#endif
 		 	return;
+		}
 
 		if ( m_bStartDefuse )
 		{
@@ -708,6 +726,7 @@ END_PREDICTION_DATA()
 					player->m_iNextTimeCheck = gpGlobals->curtime + 1;
 				}
 #if WAF_USE_SOURCEMOD == 1
+				GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 				sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 				if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 					return sm_result.unwrap();
@@ -762,6 +781,12 @@ END_PREDICTION_DATA()
 
             player->OnStartedDefuse();
 		}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	}
 
 

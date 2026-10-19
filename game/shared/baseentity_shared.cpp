@@ -2622,8 +2622,9 @@ bool CBaseEntity::ShouldCollide( int collisionGroup, int contentsMask ) const
 	if ( m_CollisionGroup == COLLISION_GROUP_DEBRIS )
 	{
 		if ( ! (contentsMask & CONTENTS_DEBRIS) )
-#if WAF_USE_SOURCEMOD == 1
 		{
+#if WAF_USE_SOURCEMOD == 1
+			GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.set_original_return_value({false});
 			sm_result = GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.invoke_post(const_cast<CBaseEntity*>(this), sm_result, collisionGroup, contentsMask);
 			if (GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.overwrite_return())
 				return sm_result.unwrap();
@@ -2632,6 +2633,7 @@ bool CBaseEntity::ShouldCollide( int collisionGroup, int contentsMask ) const
 		}
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.set_original_return_value({true});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.invoke_post(const_cast<CBaseEntity*>(this), sm_result, collisionGroup, contentsMask);
 	if (GetSourcemodGlue()->l_SMGlue_P2__ShouldCollide.overwrite_return())
 		return sm_result.unwrap();
@@ -2673,6 +2675,7 @@ void CBaseEntity::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 		}
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 #endif
 }
@@ -2928,6 +2931,7 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 		{
 			DevMsg("ERROR: Undefined ammo type!\n");
 #if WAF_USE_SOURCEMOD == 1
+			GetSourcemodGlue()->l_SMGlue_P1__FireBullets.set_original_return_value({});
 			GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke_post(this, sm_result, const_cast<FireBulletsInfo_t*>(&info));
 #endif
 			return;
@@ -3125,5 +3129,9 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 		CTakeDamageInfo dmgInfo( this, pAttacker, flCumulativeDamage, nDamageType );
 		gamestats->Event_WeaponHit( pPlayer, info.m_bPrimaryAttack, pPlayer->GetActiveWeapon()->GetClassname(), dmgInfo );
 	}
+#endif
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__FireBullets.set_original_return_value({});
+	GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke_post(this, sm_result, const_cast<FireBulletsInfo_t*>(&info));
 #endif
 }

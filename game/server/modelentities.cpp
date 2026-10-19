@@ -309,6 +309,7 @@ void CTriggerBrush::StartTouch( CBaseEntity *pOther )
 			BaseClass::StartTouch( pOther );
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
 		return sm_result.unwrap();
@@ -341,6 +342,7 @@ void CTriggerBrush::EndTouch( CBaseEntity *pOther )
 			BaseClass::EndTouch( pOther );
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
 		return sm_result.unwrap();
@@ -374,6 +376,7 @@ void CTriggerBrush::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 		}
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 		return sm_result.unwrap();

@@ -307,6 +307,7 @@ bool CWeaponM4A1::Reload()
 	if ( !pPlayer )
 	{
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({false});
 		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 			return sm_result.unwrap();
@@ -317,6 +318,7 @@ bool CWeaponM4A1::Reload()
 	if (pPlayer->GetAmmoCount( GetPrimaryAmmoType() ) <= 0)
 	{
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({false});
 		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 			return sm_result.unwrap();
@@ -334,6 +336,7 @@ bool CWeaponM4A1::Reload()
 	if ( !iResult )
 	{
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({false});
 		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 			return sm_result.unwrap();
@@ -351,6 +354,12 @@ bool CWeaponM4A1::Reload()
 	m_flAccuracy = 0.2;
 	pPlayer->m_iShotsFired = 0;
 	m_bDelayFire = false;
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({true});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
+		return sm_result.unwrap();
+#endif
 	return true;
 }
 

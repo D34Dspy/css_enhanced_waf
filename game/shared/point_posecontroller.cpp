@@ -111,6 +111,7 @@ void CPoseController::Think( void )
 		SetNextThink( gpGlobals->curtime + 1.0 );
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
 		return sm_result.unwrap();

@@ -868,8 +868,24 @@ bool CBasePlayer::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex 
 		if ( pViewModel )
 			pViewModel->RemoveEffects( EF_NODRAW );
 		ResetAutoaim( );
+#if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.set_original_return_value({true});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke_post(this, sm_result, pWeapon, viewmodelindex);
+		if (GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.overwrite_return())
+		{
+			return sm_result.unwrap();
+		}
+#endif
 		return true;
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.set_original_return_value({false});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.invoke_post(this, sm_result, pWeapon, viewmodelindex);
+	if (GetSourcemodGlue()->l_SMGlue_P2__Weapon_Switch.overwrite_return())
+	{
+		return sm_result.unwrap();
+	}
+#endif
 	return false;
 }
 

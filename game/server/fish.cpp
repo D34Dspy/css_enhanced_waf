@@ -208,6 +208,7 @@ void CFish::Touch( CBaseEntity *other )
 		Panic();
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, other);
 	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
 		return sm_result.unwrap();

@@ -138,12 +138,14 @@ bool CHLTVClient::ProcessVoiceData(CLC_VoiceData *msg)
 	}
 #endif
 	// HLTV clients can't speak
+	auto orig = true;
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.set_original_return_value({orig});
 	sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_post(this, sm_result, msg);
 	if(GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.overwrite_return())
 		return sm_result.unwrap();
 #endif
-	return true;
+	return orig;
 }
 
 void CHLTVClient::ConnectionClosing(const char *reason)

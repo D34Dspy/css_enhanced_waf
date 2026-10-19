@@ -1507,6 +1507,7 @@ int	C_CSPlayer::GetMaxHealth() const
 	}
 #endif
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.set_original_return_value({100});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__GetMaxHealth.overwrite_return())
 		return sm_result.unwrap();
@@ -3105,8 +3106,9 @@ void C_CSPlayer::PostThink()
 		}
 	}
 
-    BaseClass::PostThink();
+        BaseClass::PostThink();
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__PostThink.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__PostThink.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__PostThink.overwrite_return())
 		return sm_result.unwrap();

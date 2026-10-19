@@ -102,21 +102,69 @@ bool CBaseCombatCharacter::Weapon_CanSwitchTo( CBaseCombatWeapon *pWeapon )
 		IClientVehicle *pVehicle = pPlayer->GetVehicle();
 #endif
 		if (pVehicle && !pPlayer->UsingStandardWeaponsInVehicle())
+		{
+#if WAF_USE_SOURCEMOD == 1
+			GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.set_original_return_value({false});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
+			if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.overwrite_return())
+			{
+				return sm_result.unwrap();
+			}
+#endif
 			return false;
+		}
 	}
 
 	if ( !pWeapon->HasAnyAmmo() && !GetAmmoCount( pWeapon->m_iPrimaryAmmoType ) )
+	{
+#if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.set_original_return_value({false});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
+		if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.overwrite_return())
+		{
+			return sm_result.unwrap();
+		}
+#endif
 		return false;
+	}
 
 	if ( !pWeapon->CanDeploy() )
+	{
+#if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.set_original_return_value({false});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
+		if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.overwrite_return())
+		{
+			return sm_result.unwrap();
+		}
+#endif
 		return false;
+	}
 	
 	if ( m_hActiveWeapon )
 	{
 		if ( !m_hActiveWeapon->CanHolster() )
+		{
+#if WAF_USE_SOURCEMOD == 1
+			GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.set_original_return_value({false});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
+			if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.overwrite_return())
+			{
+				return sm_result.unwrap();
+			}
+#endif
 			return false;
+		}
 	}
 
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.set_original_return_value({true});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.invoke_post(this, sm_result, pWeapon);
+	if (GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanSwitchTo.overwrite_return())
+	{
+		return sm_result.unwrap();
+	}
+#endif
 	return true;
 }
 

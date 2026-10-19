@@ -367,6 +367,7 @@ void CPropVehicleChoreoGeneric::TraceAttack( const CTakeDamageInfo &info, const 
 		}
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr);
 	if(GetSourcemodGlue()->l_SMGlue_P3__TraceAttack.overwrite_return())
 		return sm_result.unwrap();
@@ -569,16 +570,25 @@ void CPropVehicleChoreoGeneric::Use( CBaseEntity *pActivator, CBaseEntity *pCall
 #endif
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
 	if ( !pPlayer )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
-	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+		if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	ResetUseKey( pPlayer );
 
 	GetServerVehicle()->HandlePassengerEntry( pPlayer, (value > 0) );
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
+	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -943,12 +953,15 @@ bool CPropVehicleChoreoGeneric::ShouldCollide( int collisionGroup, int contentsM
 	if ( m_bIgnorePlayerCollisions == true )
 	{
 		if ( collisionGroup == COLLISION_GROUP_PLAYER || collisionGroup == COLLISION_GROUP_PLAYER_MOVEMENT )
+		{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
-	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({false});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+			if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return false;
+		}
 	}
 
 	return BaseClass::ShouldCollide( collisionGroup, contentsMask );

@@ -123,9 +123,10 @@ void CTempEntTester::Think( void )
 	{
 		UTIL_Remove( this );
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
-	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
 	}
@@ -138,10 +139,17 @@ void CTempEntTester::Think( void )
 	{
 		UTIL_Remove( this );
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+			return sm_result.unwrap();
+#endif
+		return;
+	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
 		return sm_result.unwrap();
 #endif
-		return;
-	}
 }

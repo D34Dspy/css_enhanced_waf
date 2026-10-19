@@ -158,6 +158,7 @@ void CCycler::Think( void )
 			m_flPlaybackRate = 0.0;	// FIX: don't reset framerate
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
 		return sm_result.unwrap();
@@ -413,18 +414,20 @@ void CWreckage::Think( void )
 		{
 			UTIL_Remove( this );
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
-	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+			if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return;
 		}
 		else if (random->RandomFloat( 0, m_flDieTime - m_flStartTime ) > m_flDieTime - gpGlobals->curtime)
 		{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
-	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+			if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return;
 		}
@@ -437,6 +440,12 @@ void CWreckage::Think( void )
 		&vecSrc, g_sModelIndexSmoke,
 		random->RandomFloat(0,4.9) + 5.0,
 		random->RandomInt(0, 3) + 8 );
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 // BlendingCycler
@@ -557,6 +566,7 @@ void CBlendingCycler::Think( void )
 		}
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
 		return sm_result.unwrap();

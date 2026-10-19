@@ -1138,12 +1138,15 @@ void CAI_BaseNPC::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 
 	m_fNoDamageDecal = false;
 	if ( m_takedamage == DAMAGE_NO )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
-	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+		if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	CTakeDamageInfo subInfo = info;
 
@@ -1238,6 +1241,12 @@ void CAI_BaseNPC::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 	}
 
 	AddMultiDamage( subInfo, this );
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -6697,7 +6706,7 @@ void CAI_BaseNPC::StartTouch( CBaseEntity *pOther )
 	if (GetSourcemodGlue()->l_SMGlue_P1__StartTouch.skip_original())
 	{
 		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
-				return sm_result.unwrap();
+		return sm_result.unwrap();
 	}
 #endif
 	BaseClass::StartTouch(pOther);
@@ -6707,6 +6716,7 @@ void CAI_BaseNPC::StartTouch( CBaseEntity *pOther )
 		m_bCheckContacts = true;
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
 		return sm_result.unwrap();

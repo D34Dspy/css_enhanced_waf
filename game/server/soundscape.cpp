@@ -534,6 +534,7 @@ void CTriggerSoundscape::StartTouch( CBaseEntity *pOther )
 
 	BaseClass::StartTouch( pOther );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
 		return sm_result.unwrap();
@@ -556,6 +557,7 @@ void CTriggerSoundscape::EndTouch( CBaseEntity *pOther )
 
 	BaseClass::EndTouch( pOther );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
 		return sm_result.unwrap();

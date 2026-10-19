@@ -539,37 +539,52 @@ void CAmbientGeneric::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 	// Ambient generics never transmit; this is just a way for us to ensure
 	// the sound source gets transmitted; that's why we don't call pInfo->m_pTransmitEdict->Set
 	if ( !m_hSoundSource || m_hSoundSource == this || !m_fActive )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
-	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+		if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	// Don't bother sending the position of the source if we have to play everywhere
 	if ( FBitSet( m_spawnflags, SF_AMBIENT_SOUND_EVERYWHERE ) )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
-	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
-		return sm_result.unwrap();
-#endif
-		return;
+		GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+		if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+			return sm_result.unwrap(); 
+#endif 
+		return; 
+	}
 
 	Assert( pInfo->m_pClientEnt );
 	CBaseEntity *pClient = (CBaseEntity*)(pInfo->m_pClientEnt->GetUnknown());
 	if ( !pClient )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
-	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+		if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	// Send the sound source if he's close enough
 	if ( ( m_flMaxRadius < 0 ) || ( pClient->GetAbsOrigin().DistToSqr( m_hSoundSource->GetAbsOrigin() ) <= m_flMaxRadius * m_flMaxRadius ) )
 	{
 		m_hSoundSource->SetTransmit( pInfo, false );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------

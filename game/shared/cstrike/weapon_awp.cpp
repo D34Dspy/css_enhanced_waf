@@ -301,12 +301,14 @@ bool CWeaponAWP::Reload()
 	}
 #endif
 	m_weaponMode = Primary_Mode;
-	return BaseClass::Reload();
+	auto orig = BaseClass::Reload();
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({orig});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 		return sm_result.unwrap();
 #endif
+	return orig;
 }
 
 bool CWeaponAWP::Deploy()

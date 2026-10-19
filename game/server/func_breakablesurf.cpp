@@ -542,9 +542,10 @@ void CBreakableSurface::TraceAttack( const CTakeDamageInfo &info, const Vector &
 			if (m_nNumBrokenPanes >= m_nNumWide*m_nNumHigh)
 			{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
-	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
-		return sm_result.unwrap();
+				GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.set_original_return_value({});
+				sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+				if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+					return sm_result.unwrap();
 #endif
 				return;
 			}
@@ -614,6 +615,12 @@ void CBreakableSurface::TraceAttack( const CTakeDamageInfo &info, const Vector &
 			BreakAllPanes();
 		}
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
+	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //------------------------------------------------------------------------------

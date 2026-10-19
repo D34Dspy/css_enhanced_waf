@@ -3766,9 +3766,25 @@ bool CBaseFileSystem::FileExists( const char *pFileName, const char *pPathID )
 	if ( h )
 	{
 		Close(h);
+#if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.set_original_return_value({true});
+		sm_result = GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.invoke_post(this, sm_result, pFileName, pPathID);
+		if (GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.overwrite_return())
+		{
+			return sm_result.unwrap();
+		}
+#endif
 		return true;
 	}
 
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.set_original_return_value({false});
+	sm_result = GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.invoke_post(this, sm_result, pFileName, pPathID);
+	if (GetSourcemodGlue()->l_SMGlue_IBaseFileSystem__FileExists.overwrite_return())
+	{
+		return sm_result.unwrap();
+	}
+#endif
 	return false;
 }
 

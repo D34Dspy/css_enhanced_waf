@@ -316,7 +316,7 @@ void CBaseEntityModelLoadProxy::Handler::OnModelLoadComplete( const model_t *pMo
 }
 
 
-#if WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
 #endif
 CBaseEntity::CBaseEntity( bool bServerOnly )
@@ -2150,6 +2150,7 @@ void CBaseEntity::Touch( CBaseEntity *pOther )
 	if ( m_pParent != NULL )
 		m_pParent->Touch( pOther );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
 		return sm_result.unwrap();
@@ -2172,6 +2173,7 @@ void CBaseEntity::EndTouch( CBaseEntity *pOther )
 		m_pParent->EndTouch( pOther );
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
 		return sm_result.unwrap();
@@ -2206,6 +2208,7 @@ void CBaseEntity::Blocked( CBaseEntity *pOther )
 		m_pParent->Blocked( pOther );
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Think.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Think.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Think.overwrite_return())
 		return sm_result.unwrap();
@@ -2245,6 +2248,7 @@ void CBaseEntity::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 		}
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__Use.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__Use.invoke_post(this, sm_result, pActivator, pCaller, useType, value);
 	if(GetSourcemodGlue()->l_SMGlue_P4__Use.overwrite_return())
 		return sm_result.unwrap();
@@ -3638,12 +3642,15 @@ void CBaseEntity::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 
 	// Are we already marked for transmission?
 	if ( pInfo->m_pTransmitEdict->Get( index ) )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
-	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+		if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	CServerNetworkProperty *pNetworkParent = NetworkProp()->GetNetworkParent();
 
@@ -3673,6 +3680,12 @@ void CBaseEntity::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 		CBaseEntity *pMoveParent = pNetworkParent->GetBaseEntity();
 		pMoveParent->SetTransmit( pInfo, bAlways );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 

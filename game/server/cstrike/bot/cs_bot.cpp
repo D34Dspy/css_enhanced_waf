@@ -168,12 +168,14 @@ int CCSBot::OnTakeDamage( const CTakeDamageInfo &info )
 	}
 
 	// extend
-	return BaseClass::OnTakeDamage( info );
+	auto orig = BaseClass::OnTakeDamage( info );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__FireBullets.set_original_return_value({orig});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__FireBullets.invoke_post(this, sm_result, (FireBulletsInfo_t*)const_cast<CTakeDamageInfo*>(&info));
 	if(GetSourcemodGlue()->l_SMGlue_P1__FireBullets.overwrite_return())
 		return sm_result.unwrap();
 #endif
+	return orig;
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -284,21 +286,27 @@ void CCSBot::Touch( CBaseEntity *other )
 	{
 		// if we are defusing a bomb, don't move
 		if (IsDefusingBomb())
+		{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
-	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
+			if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return;
+		}
 
 		// if we are on a ladder, don't move
 		if (IsUsingLadder())
+		{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
-	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
+			if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return;
+		}
 
 		CCSPlayer *player = static_cast<CCSPlayer *>( other );
 
@@ -310,12 +318,15 @@ void CCSBot::Touch( CBaseEntity *other )
 
 		// if our priority is better, don't budge
 		if (myPri < otherPri)
+		{ 
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
-	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
+			if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return;
+		}
 
 		// they are higher priority - make way, unless we're already making way for someone more important
 		if (m_avoid != NULL)
@@ -324,10 +335,11 @@ void CCSBot::Touch( CBaseEntity *other )
 			if (avoidPri < otherPri)
 			{
 				// ignore 'other' because we're already avoiding someone better
-#if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
-	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
-		return sm_result.unwrap();
+#if WAF_USE_SOURCEMOD == 1 
+				GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({}); 
+				sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
+				if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+					return sm_result.unwrap();
 #endif
 				return;
 			}
@@ -340,12 +352,15 @@ void CCSBot::Touch( CBaseEntity *other )
 	// Check for breakables we're actually touching
 	// If we're not stuck or crouched, we don't care
 	if ( !m_isStuck && !IsCrouching() && !IsOnLadder() )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
-	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
+		if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	// See if it's breakable
 	if ( IsBreakableEntity( other ) )
@@ -353,6 +368,12 @@ void CCSBot::Touch( CBaseEntity *other )
 		// it's breakable - try to shoot it.
 		SetLookAt( "Breakable", other->WorldSpaceCenter(), PRIORITY_HIGH, 0.1f, false, 5.0f, true );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
+	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------------------

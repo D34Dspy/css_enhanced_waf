@@ -375,6 +375,7 @@ void CBaseEntityOutput::FireOutput(variant_t Value, CBaseEntity *pActivator, CBa
 		}
 	}
 #if WAF_USE_SOURCEMOD == 1
+	g_SMGlue_COutputEvent__FireOutput.set_original_return_value({});
 	sm_result = g_SMGlue_COutputEvent__FireOutput.invoke_post(this, sm_result, this, pActivator, pCaller, fDelay);
 	if (g_SMGlue_COutputEvent__FireOutput.overwrite_return())
 	{

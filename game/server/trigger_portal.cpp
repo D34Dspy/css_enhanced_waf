@@ -157,6 +157,7 @@ void CTriggerPortal::EndTouch(CBaseEntity *pOther)
 	hHandle = pOther;
 	m_hDisabledForEntities.FindAndRemove( hHandle );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pOther);
 	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
 		return sm_result.unwrap();
@@ -186,9 +187,10 @@ void CTriggerPortal::Touch( CBaseEntity *pOther )
 		{
 			Disable();
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
-	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+			if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return;
 		}
@@ -206,9 +208,10 @@ void CTriggerPortal::Touch( CBaseEntity *pOther )
 		{
 			Msg("    IGNORED\n", GetDebugName(), pOther->GetDebugName() );
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
-	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
-		return sm_result.unwrap();
+			GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
+			sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+			if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+				return sm_result.unwrap();
 #endif
 			return;
 		}
@@ -295,6 +298,12 @@ void CTriggerPortal::Touch( CBaseEntity *pOther )
 
 		
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__Touch.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Touch.invoke_post(this, sm_result, pOther);
+	if(GetSourcemodGlue()->l_SMGlue_P1__Touch.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -184,6 +184,7 @@ void CColorCorrectionVolume::StartTouch( CBaseEntity *pEntity )
 	m_LastEnterTime = gpGlobals->curtime;
 	m_LastEnterWeight = m_Weight;
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, pEntity);
 	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
 		return sm_result.unwrap();
@@ -203,6 +204,7 @@ void CColorCorrectionVolume::EndTouch( CBaseEntity *pEntity )
 	m_LastExitTime = gpGlobals->curtime;
 	m_LastExitWeight = m_Weight;
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__EndTouch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__EndTouch.invoke_post(this, sm_result, pEntity);
 	if(GetSourcemodGlue()->l_SMGlue_P1__EndTouch.overwrite_return())
 		return sm_result.unwrap();

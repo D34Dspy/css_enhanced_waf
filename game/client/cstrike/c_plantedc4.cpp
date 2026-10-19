@@ -94,6 +94,7 @@ void C_PlantedC4::Spawn( void )
 
 	SetNextClientThink( CLIENT_THINK_ALWAYS );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Spawn.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Spawn.overwrite_return())
 		return sm_result.unwrap();

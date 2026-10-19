@@ -217,6 +217,7 @@ void CPhysicsCannister::TraceAttack( const CTakeDamageInfo &info, const Vector &
 	}
 	BaseClass::TraceAttack( info, dir, ptr, pAccumulator );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&dir), ptr, pAccumulator);
 	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
 		return sm_result.unwrap();
@@ -510,6 +511,7 @@ void CPhysicsCannister::VPhysicsUpdate( IPhysicsObject *pPhysics )
 		}
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
 		return sm_result.unwrap();

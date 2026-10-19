@@ -500,6 +500,7 @@ void C_BasePlayer::Spawn( void )
 
     m_bFiredWeapon = false;
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Spawn.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Spawn.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Spawn.overwrite_return())
 		return sm_result.unwrap();
@@ -2028,12 +2029,15 @@ void C_BasePlayer::PreThink( void )
 	UpdateFogController();
 
 	if (m_lifeState >= LIFE_DYING)
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P0__PreThink.invoke_post(this, sm_result);
-	if(GetSourcemodGlue()->l_SMGlue_P0__PreThink.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P0__PreThink.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P0__PreThink.invoke_post(this, sm_result);
+		if(GetSourcemodGlue()->l_SMGlue_P0__PreThink.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	//
 	// If we're not on the ground, we're falling. Update our falling velocity.
@@ -2042,6 +2046,12 @@ void C_BasePlayer::PreThink( void )
 	{
 		m_Local.m_flFallVelocity = -GetAbsVelocity().z;
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__PreThink.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P0__PreThink.invoke_post(this, sm_result);
+	if(GetSourcemodGlue()->l_SMGlue_P0__PreThink.overwrite_return())
+		return sm_result.unwrap();
+#endif
 #endif
 }
 

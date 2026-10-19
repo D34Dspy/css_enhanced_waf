@@ -209,6 +209,7 @@ bool CWeaponXM1014::Reload()
 	if ( !pPlayer )
 	{
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({false});
 		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 			return sm_result.unwrap();
@@ -219,6 +220,7 @@ bool CWeaponXM1014::Reload()
 	if (pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 || m_iClip1 == GetMaxClip1())
 	{
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({true});
 		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 			return sm_result.unwrap();
@@ -230,6 +232,7 @@ bool CWeaponXM1014::Reload()
 	if (m_flNextPrimaryAttack > gpGlobals->curtime)
 	{
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({true});
 		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 			return sm_result.unwrap();
@@ -256,6 +259,7 @@ bool CWeaponXM1014::Reload()
 #endif
 
 #if WAF_USE_SOURCEMOD == 1
+		GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({true});
 		sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 		if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 			return sm_result.unwrap();
@@ -267,6 +271,7 @@ bool CWeaponXM1014::Reload()
 		if (m_flTimeWeaponIdle > gpGlobals->curtime)
 		{
 #if WAF_USE_SOURCEMOD == 1
+			GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({true});
 			sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 			if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 				return sm_result.unwrap();
@@ -308,6 +313,7 @@ bool CWeaponXM1014::Reload()
 	
 
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P0__Reload.set_original_return_value({true});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P0__Reload.invoke_post(this, sm_result);
 	if(GetSourcemodGlue()->l_SMGlue_P0__Reload.overwrite_return())
 		return sm_result.unwrap();

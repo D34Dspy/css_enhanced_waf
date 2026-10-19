@@ -305,6 +305,7 @@ int	CCSWeaponInfo::GetWeaponPrice( void ) const
 #endif
 	int original = GetWeaponPriceOriginal();
 #if WAF_USE_SOURCEMOD == 1
+	g_SMGlue_CCSWeaponInfo__GetWeaponPrice.set_original_return_value({original});
 	sm_result = g_SMGlue_CCSWeaponInfo__GetWeaponPrice.invoke_post(this_, sm_result, this_);
 	if (g_SMGlue_CCSWeaponInfo__GetWeaponPrice.overwrite_return())
 	{

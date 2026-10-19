@@ -374,12 +374,14 @@ bool CGameEventManager::FireEvent( IGameEvent *event, bool bServerOnly )
 		return sm_result.unwrap();
 	}
 #endif
-	return FireEventIntern( event, bServerOnly, false );
+	auto orig = FireEventIntern( event, bServerOnly, false );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.set_original_return_value({orig});
 	sm_result = GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.invoke_post(this, sm_result, event, bServerOnly);
 	if(GetSourcemodGlue()->l_SMGlue_IGameEventManager2__FireEvent.overwrite_return())
 		return sm_result.unwrap();
 #endif
+	return orig;
 }
 
 bool CGameEventManager::FireEventClientSide( IGameEvent *event )

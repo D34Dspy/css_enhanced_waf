@@ -322,12 +322,15 @@ void CCvar::RegisterConCommand( ConCommandBase *variable )
 #endif
 	// Already registered
 	if ( variable->IsRegistered() )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
-	if(GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
+		if(GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	variable->m_bRegistered = true;
 
@@ -336,9 +339,10 @@ void CCvar::RegisterConCommand( ConCommandBase *variable )
 	{
 		variable->m_pNext = NULL;
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
-	if(GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
+		if(GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
 	}
@@ -434,9 +438,10 @@ void CCvar::RegisterConCommand( ConCommandBase *variable )
 
 		variable->m_pNext = NULL;
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
-	if(GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
+		if(GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
 	}
@@ -444,6 +449,12 @@ void CCvar::RegisterConCommand( ConCommandBase *variable )
 	// link the variable in
 	variable->m_pNext = m_pConCommandList;
 	m_pConCommandList = variable;
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.invoke_post(this, sm_result, variable);
+	if(GetSourcemodGlue()->l_SMGlue_ICvar__RegisterConCommand.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void CCvar::UnregisterConCommand( ConCommandBase *pCommandToRemove )
@@ -458,12 +469,15 @@ void CCvar::UnregisterConCommand( ConCommandBase *pCommandToRemove )
 #endif
 	// Not registered? Don't bother
 	if ( !pCommandToRemove->IsRegistered() )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.invoke_post(this, sm_result, pCommandToRemove);
-	if(GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.invoke_post(this, sm_result, pCommandToRemove);
+		if(GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	pCommandToRemove->m_bRegistered = false;
 
@@ -488,6 +502,12 @@ void CCvar::UnregisterConCommand( ConCommandBase *pCommandToRemove )
 		pCommand->m_pNext = NULL;
 		break;
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.invoke_post(this, sm_result, pCommandToRemove);
+	if(GetSourcemodGlue()->l_SMGlue_ICvar__UnregisterConCommand.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 // Crash here in TF2, so I'm adding some debugging stuff.

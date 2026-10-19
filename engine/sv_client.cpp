@@ -110,7 +110,7 @@ CGameClient::CGameClient(int slot, CBaseServer *pServer )
 	m_PrevPackInfo.m_pTransmitEdict = &m_PrevTransmitEdict;
 }
 
-#if WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD == 1
 CSourcemodGlueInterface* CGameClient::GetSourcemodGlue() {
 	return m_pSourcemodGlue;
 }
@@ -262,6 +262,7 @@ bool CGameClient::ProcessVoiceData( CLC_VoiceData *msg )
 	SV_BroadcastVoiceData( this, Bits2Bytes(bitsRead), voiceDataBuffer, msg->m_xuid );
 
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.set_original_return_value({true});
 	sm_result = GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.invoke_post(this, sm_result, msg);
 	if(GetSourcemodGlue()->l_SMGlue_IClientMessageHandler__ProcessVoiceData.overwrite_return())
 		return sm_result.unwrap();

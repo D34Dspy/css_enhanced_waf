@@ -637,11 +637,12 @@ void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValue
 #endif
 	if ( !pEntity )
 	{
-		ConMsg( "Invaid pEntity\n" );
+		ConMsg( "Invalid pEntity\n" );
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
-	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+		if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
 	}
@@ -650,9 +651,10 @@ void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValue
 	{
 		ConMsg( "No data keyvalues provided\n" );
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
-	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+		if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
 	}
@@ -661,8 +663,9 @@ void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValue
 	{
 		ConMsg( "No plugin provided\n" );
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
-	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+		GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+		if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
 		return sm_result.unwrap();
 #endif
 		return;
@@ -672,9 +675,10 @@ void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValue
 	{
 		ConMsg( "Disallowed by game dll\n" );
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
-	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+		if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
 	}
@@ -684,9 +688,10 @@ void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValue
 	{
 		ConMsg( "Invalid entity\n" );
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
-	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+		if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
 	}
@@ -695,6 +700,13 @@ void  CServerPlugin::CreateMessage( edict_t *pEntity, DIALOG_TYPE type, KeyValue
 
 	SVC_Menu menu( type, data );
 	client->SendNetMsg( menu );
+
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.invoke_post(this, sm_result, pEntity, type, data, plugin);
+	if(GetSourcemodGlue()->l_SMGlue_IServerPluginHelpers__CreateMessage.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 void CServerPlugin::ClientCommand( edict_t *pEntity, const char *cmd )

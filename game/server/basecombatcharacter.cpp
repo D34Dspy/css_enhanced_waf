@@ -2180,6 +2180,7 @@ void CBaseCombatCharacter::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 	// Pass the lighting origin over to the weapon if we have one
 	pWeapon->SetLightingOriginRelative( GetLightingOriginRelative() );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.invoke_post(this, sm_result, pWeapon);
 	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_Equip.overwrite_return())
 		return sm_result.unwrap();
@@ -2319,9 +2320,10 @@ bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 	{
 		// If the weapon has no activity table, it definitely cannot be used.
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pWeapon);
-	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.set_original_return_value({false});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pWeapon);
+		if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return false;
 	}
@@ -2336,9 +2338,10 @@ bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 			if ( SelectWeightedSequence(translatedActivity) == ACTIVITY_NOT_AVAILABLE )
 			{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pWeapon);
-	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.overwrite_return())
-		return sm_result.unwrap();
+				GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.set_original_return_value({false});
+				sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pWeapon);
+				if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.overwrite_return())
+					return sm_result.unwrap();
 #endif
 				return false;
 			}
@@ -2346,6 +2349,7 @@ bool CBaseCombatCharacter::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 	}
 
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.set_original_return_value({true});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.invoke_post(this, sm_result, pWeapon);
 	if(GetSourcemodGlue()->l_SMGlue_P1__Weapon_CanUse.overwrite_return())
 		return sm_result.unwrap();
@@ -2607,12 +2611,15 @@ void CBaseCombatCharacter::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways 
 #endif
 	// Skip this work if we're already marked for transmission.
 	if ( pInfo->m_pTransmitEdict->Get( entindex() ) )
+	{
 #if WAF_USE_SOURCEMOD == 1
-	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
-	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
-		return sm_result.unwrap();
+		GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+		sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+		if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+			return sm_result.unwrap();
 #endif
 		return;
+	}
 
 	BaseClass::SetTransmit( pInfo, bAlways );
 
@@ -2637,6 +2644,12 @@ void CBaseCombatCharacter::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways 
 		if ( m_hActiveWeapon && !m_hActiveWeapon->IsEffectActive( EF_NODRAW ) )
 			m_hActiveWeapon->SetTransmit( pInfo, bAlways );
 	}
+#if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.set_original_return_value({});
+	sm_result = GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.invoke_post(this, sm_result, pInfo, bAlways);
+	if(GetSourcemodGlue()->l_SMGlue_P2__SetTransmit.overwrite_return())
+		return sm_result.unwrap();
+#endif
 }
 
 
@@ -3080,6 +3093,7 @@ void CBaseCombatCharacter::VPhysicsUpdate( IPhysicsObject *pPhysics )
 	auto sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_pre(this, pPhysics);
 	if (GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.skip_original())
 	{
+		GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.set_original_return_value({});
 		sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 		return sm_result.unwrap();
 	}
@@ -3087,6 +3101,7 @@ void CBaseCombatCharacter::VPhysicsUpdate( IPhysicsObject *pPhysics )
 	ApplyStressDamage( pPhysics, false );
 	BaseClass::VPhysicsUpdate( pPhysics );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.invoke_post(this, sm_result, pPhysics);
 	if(GetSourcemodGlue()->l_SMGlue_P1__VPhysicsUpdate.overwrite_return())
 		return sm_result.unwrap();

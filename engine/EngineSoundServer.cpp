@@ -24,7 +24,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#if WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD == 1
 #include "glue.hpp"
 #endif
 

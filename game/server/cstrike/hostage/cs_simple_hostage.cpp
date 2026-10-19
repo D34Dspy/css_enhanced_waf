@@ -310,6 +310,7 @@ void CHostage::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, t
 	scaledInfo.SetDamage( GetModifiedDamage( info.GetDamage(), ptr->hitgroup ) );
 	BaseClass::TraceAttack( scaledInfo, vecDir, ptr, pAccumulator );
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.invoke_post(this, sm_result, const_cast<CTakeDamageInfo*>(&info), const_cast<Vector*>(&vecDir), ptr, pAccumulator);
 	if(GetSourcemodGlue()->l_SMGlue_P4__TraceAttack.overwrite_return())
 		return sm_result.unwrap();
@@ -579,6 +580,7 @@ void CHostage::Touch( CBaseEntity *other )
 		other->Use( this, this, USE_TOGGLE, 0.0f );
 	}
 #if WAF_USE_SOURCEMOD == 1
+	GetSourcemodGlue()->l_SMGlue_P1__StartTouch.set_original_return_value({});
 	sm_result = GetSourcemodGlue()->l_SMGlue_P1__StartTouch.invoke_post(this, sm_result, other);
 	if(GetSourcemodGlue()->l_SMGlue_P1__StartTouch.overwrite_return())
 		return sm_result.unwrap();

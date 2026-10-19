@@ -4294,7 +4294,7 @@ ConVar cl_autohelp(
 
 	void CCSGameRules::TerminateRound(float tmDelay, int iReason )
 	{
-		#if WAF_USE_SOURCEMOD
+		#if WAF_USE_SOURCEMOD == 1
 		auto sm_result = g_SMGlue_CCSGameRules__TerminateRound.invoke_pre(this, this, tmDelay, iReason);
 		if (g_SMGlue_CCSGameRules__TerminateRound.skip_original())
 		{
@@ -4304,13 +4304,14 @@ ConVar cl_autohelp(
 		#endif
 
 		TerminateRoundOriginal(tmDelay, iReason);
-		#if WAF_USE_SOURCEMOD
+#if WAF_USE_SOURCEMOD == 1
+		g_SMGlue_CCSGameRules__TerminateRound.set_original_return_value({});
 		sm_result = g_SMGlue_CCSGameRules__TerminateRound.invoke_post(this, sm_result, this, tmDelay, iReason);
 		if (g_SMGlue_CCSGameRules__TerminateRound.overwrite_return())
 		{
 			return sm_result.unwrap();
 		}
-		#endif
+#endif
 	}
 
 	//=============================================================================

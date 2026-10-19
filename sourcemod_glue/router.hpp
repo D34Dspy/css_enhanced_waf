@@ -52,49 +52,6 @@ struct SourcemodInvocationRecord {
 
 constexpr size_t INVOCATION_DEPTH = 32;
 
-template <typename T>
-struct SourcemodInvokeStack {
-    typedef SourcemodInvocationRecord<T> Record;
-    Record context[INVOCATION_DEPTH];
-    size_t cursor;
-
-    SourcemodInvokeStack() {
-        cursor = 0;
-    }
-
-    bool empty() {
-        return cursor == 0;
-    }
-
-    Record& enter_context() {
-        context[cursor] = cursor ? context[cursor - 1] : Record();
-        return context[cursor++];
-    }
-
-    void leave_context() {
-        if (cursor == 0)
-            *(int*)0 = 0;
-        context[cursor - 1] = context[cursor];
-        cursor--;
-    }
-
-    Record& tail() { return context[cursor - 1]; }
-    const Record& tail() const { return context[cursor - 1]; }
-
-};
-
-template <typename T>
-struct SourcemodInvokeStackOwnership {
-    typedef SourcemodInvokeStack<T> Stack;
-    typedef typename Stack::Record Record;
-    Stack& stack;
-    Record& record;
-    SourcemodInvokeStackOwnership(Stack& s) : stack(s), record(s.enter_context()) {}
-    ~SourcemodInvokeStackOwnership() {
-        stack.leave_context();
-    }
-};
-
 // CDelegate has to be a fastdelegate type!
 template <typename CDelegate, typename CInterface>
 class SourcemodRouter {
@@ -104,7 +61,6 @@ public:
     typedef SourcemodRoutedValue<RetType> RetStore;
     typedef SourcemodInvocationRecord<RetStore> Invoke;
     typedef struct CDelegate::ParameterSet ParamSet;
-    typedef SourcemodInvokeStack<RetStore> Stack;
 private:
     
     struct Endpoint {
@@ -144,7 +100,6 @@ private:
     CUtlVector<Routes> routers; // lord forgive me
 
     CInterface* curr;
-    Stack stack;
     ParamSet param;
     bool paramAltered;
 
@@ -199,11 +154,6 @@ private:
             }
         }
 
-    }
-
-    Stack& before_ownership_update_param() {
-        paramAltered = !stack.empty();
-        return stack;
     }
 
 public:
@@ -341,9 +291,9 @@ public:
         currentRecord.returnValue = RetStore{val};
     }
 
-    bool overwrite_return() const { return stack.tail().overwriteReturn; }
-    bool skip_original() const { return stack.tail().skipOriginal; }
-    bool plugin_took_action() const { return stack.tail().pluginTookAction; }
+    bool overwrite_return() const { return currentRecord.overwriteReturn; }
+    bool skip_original() const { return currentRecord.skipOriginal; }
+    bool plugin_took_action() const { return currentRecord.pluginTookAction; }
 
     ParamSet& parameters() { return param; }
 
